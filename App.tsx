@@ -319,10 +319,7 @@ export default function App() {
         </View>
         <View style={s.infoCard}>
           <Text style={s.infoTitle}>ℹ️ {t.regeln}</Text>
-          <Text style={s.infoTxt}>• {t.r1}{"
-"}• {t.r2}{"
-"}• {t.r3}{"
-"}• {t.r4}</Text>
+          <Text style={s.infoTxt}>{`• ${t.r1}\n• ${t.r2}\n• ${t.r3}\n• ${t.r4}`}</Text>
         </View>
         {news.length > 0 && (
           <View style={s.newsSection}>
