@@ -1,51 +1,43 @@
-import React, {useState, useEffect, useRef} from 'react';
+import React, {useState, useEffect, useRef, useCallback} from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity, TextInput,
   StyleSheet, Alert, ActivityIndicator, Image, Dimensions,
-  SafeAreaView, StatusBar, Animated, Platform,
+  SafeAreaView, StatusBar, Animated, BackHandler,
+  Modal, FlatList, Platform,
 } from 'react-native';
 
 const {width, height} = Dimensions.get('window');
 
-// ─── SUPABASE CONFIG ───────────────────────────────────────
 const SB_URL = 'https://npfvlfdjngzczxhghmyu.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5wZnZsZmRqbmd6Y3p4aGdobXl1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkzMTI2NjgsImV4cCI6MjA5NDg4ODY2OH0.oqnB4FTnmj-wno7AEgTz-MAmunazqwpj5jEkvB5xN8s';
+const FREE_LIMIT = 20;
 
-async function sbReq(path: string, method = 'GET', body?: any) {
+async function sbReq(path, method = 'GET', body) {
   const prefer = method === 'PATCH' || method === 'DELETE' ? 'return=minimal' : 'return=representation';
-  const r = await fetch(`${SB_URL}/rest/v1/${path}`, {
-    method,
-    headers: {
-      apikey: SB_KEY,
-      Authorization: `Bearer ${SB_KEY}`,
-      'Content-Type': 'application/json',
-      Prefer: prefer,
-    },
-    body: body ? JSON.stringify(body) : undefined,
-  });
-  if (r.status === 204) return {ok: true, data: []};
-  const data = await r.json().catch(() => []);
-  return {ok: r.ok, data};
+  try {
+    const r = await fetch(`${SB_URL}/rest/v1/${path}`, {
+      method, headers: {apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}`, 'Content-Type': 'application/json', Prefer: prefer},
+      body: body ? JSON.stringify(body) : undefined,
+    });
+    if (r.status === 204) return {ok: true, data: []};
+    const data = await r.json().catch(() => []);
+    return {ok: r.ok, data};
+  } catch (e) { return {ok: false, data: []}; }
 }
 
-// ─── COLORS ────────────────────────────────────────────────
-const C = {
-  blue: '#1B4FD8',
-  dark: '#060616',
-  white: '#FFFFFF',
-  gray: '#6B7280',
-  light: '#F3F4F6',
-  green: '#16A34A',
-  red: '#DC2626',
-  yellow: '#D97706',
-  border: '#E5E7EB',
+const C = {blue:'#1B4FD8', dark:'#060616', white:'#FFFFFF', gray:'#6B7280', light:'#F3F4F6', green:'#16A34A', red:'#DC2626', border:'#E5E7EB', card:'#1a1a2e'};
+
+const TX = {
+  de: {anmelden:'Anmelden', abmelden:'Abmelden', registrieren:'Registrieren', pruefung:'Prüfung', vorbereitung:'Vorbereitung', nachrichten:'Nachrichten', home:'Start', fragen:'Fragen', minuten:'Minuten', punkte:'Punkte', sprachen:'Sprachen', starten:'▶ Prüfung starten', lernen:'📚 Lernen / Vorbereitung', kostenlos:'✓ Kostenlos registrieren', regeln:'Prüfungsregeln', r1:'50 Fragen, 45 Minuten', r2:'3 Punkte pro richtige Antwort', r3:'Bestehen: mindestens 135 Punkte', r4:'20 Fragen kostenlos', richtig:'✓ Richtig!', falsch:'✗ Falsch!', weiter:'Weiter →', fertig:'Ergebnis →', bestanden:'Bestanden! 🎉', nichtBestanden:'Nicht bestanden 😔', gesamt:'Gesamt', ergebnis:'Ergebnis', nochmal:'🔁 Nochmal', start:'← Startseite', neuigkeiten:'Aktuelle Neuigkeiten', werbung:'WERBUNG', premium:'⭐ Premium erforderlich', premiumMsg:'Für unbegrenzten Zugang bitte Premium kaufen.'},
+  fa: {anmelden:'ورود', abmelden:'خروج', registrieren:'ثبت‌نام', pruefung:'آزمون', vorbereitung:'آمادگی', nachrichten:'اخبار', home:'خانه', fragen:'سوال', minuten:'دقیقه', punkte:'امتیاز', sprachen:'زبان', starten:'▶ شروع آزمون', lernen:'📚 آمادگی و یادگیری', kostenlos:'✓ ثبت‌نام رایگان', regeln:'قوانین آزمون', r1:'۵۰ سوال، ۴۵ دقیقه', r2:'۳ امتیاز به ازای هر پاسخ صحیح', r3:'قبولی: حداقل ۱۳۵ امتیاز', r4:'۲۰ سوال رایگان', richtig:'✓ درست!', falsch:'✗ نادرست!', weiter:'بعدی ←', fertig:'نتیجه ←', bestanden:'قبول شدید! 🎉', nichtBestanden:'قبول نشدید 😔', gesamt:'کل', ergebnis:'نتیجه', nochmal:'🔁 دوباره', start:'← صفحه اصلی', neuigkeiten:'اخبار جدید', werbung:'تبلیغ', premium:'⭐ اشتراک ویژه لازم است', premiumMsg:'برای دسترسی نامحدود اشتراک ویژه بگیرید.'},
+  az: {anmelden:'Daxil ol', abmelden:'Çıxış', registrieren:'Qeydiyyat', pruefung:'İmtahan', vorbereitung:'Hazırlıq', nachrichten:'Xəbərlər', home:'Ana səhifə', fragen:'Sual', minuten:'Dəqiqə', punkte:'Xal', sprachen:'Dil', starten:'▶ İmtahanı başlat', lernen:'📚 Öyrən / Hazırlıq', kostenlos:'✓ Pulsuz qeydiyyat', regeln:'İmtahan qaydaları', r1:'50 sual, 45 dəqiqə', r2:'Hər düzgün cavab 3 xal', r3:'Keçmək üçün ən azı 135 xal', r4:'20 sual pulsuz', richtig:'✓ Düzgün!', falsch:'✗ Yanlış!', weiter:'Növbəti →', fertig:'Nəticə →', bestanden:'Keçdiniz! 🎉', nichtBestanden:'Keçmədiniz 😔', gesamt:'Cəmi', ergebnis:'Nəticə', nochmal:'🔁 Yenidən', start:'← Ana səhifə', neuigkeiten:'Son xəbərlər', werbung:'REKLAM', premium:'⭐ Premium tələb olunur', premiumMsg:'Limitsiz giriş üçün premium alın.'},
+  en: {anmelden:'Login', abmelden:'Logout', registrieren:'Register', pruefung:'Exam', vorbereitung:'Practice', nachrichten:'News', home:'Home', fragen:'Questions', minuten:'Minutes', punkte:'Points', sprachen:'Languages', starten:'▶ Start Exam', lernen:'📚 Learn / Practice', kostenlos:'✓ Register Free', regeln:'Exam Rules', r1:'50 questions, 45 minutes', r2:'3 points per correct answer', r3:'Pass: at least 135 points', r4:'20 questions free', richtig:'✓ Correct!', falsch:'✗ Wrong!', weiter:'Next →', fertig:'Result →', bestanden:'Passed! 🎉', nichtBestanden:'Failed 😔', gesamt:'Total', ergebnis:'Result', nochmal:'🔁 Again', start:'← Home', neuigkeiten:'Latest News', werbung:'AD', premium:'⭐ Premium required', premiumMsg:'Get premium for unlimited access.'},
 };
 
-// ─── QUESTIONS (sample - loads more from Supabase) ─────────
-const LOCAL_QUESTIONS = [
+const LOCAL_Q = [
   {id:1,text_de:'Was bedeutet dieses Zeichen?',img_url:'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f9/Zeichen_206.svg/200px-Zeichen_206.svg.png',opts:[{text_de:'Halt — Vorfahrt gewähren',ok:true},{text_de:'Einfahrt verboten',ok:false},{text_de:'Parkieren verboten',ok:false}]},
   {id:2,text_de:'Was bedeutet dieses Zeichen?',img_url:'https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/Zeichen_205.svg/200px-Zeichen_205.svg.png',opts:[{text_de:'Vorfahrt gewähren',ok:true},{text_de:'Vorfahrtsstrasse',ok:false},{text_de:'Halt',ok:false}]},
-  {id:3,text_de:'Was bedeutet dieses Zeichen?',img_url:'https://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/Zeichen_274-50.svg/200px-Zeichen_274-50.svg.png',opts:[{text_de:'Höchstgeschwindigkeit 50 km/h',ok:true},{text_de:'Mindestgeschwindigkeit 50 km/h',ok:false},{text_de:'Empfohlene Geschwindigkeit',ok:false}]},
+  {id:3,text_de:'Was bedeutet dieses Zeichen?',img_url:'https://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/Zeichen_274-50.svg/200px-Zeichen_274-50.svg.png',opts:[{text_de:'Höchstgeschwindigkeit 50 km/h',ok:true},{text_de:'Mindestgeschwindigkeit 50',ok:false},{text_de:'Empfohlene Geschwindigkeit',ok:false}]},
   {id:4,text_de:'Was bedeutet dieses Zeichen?',img_url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Zeichen_274-120.svg/200px-Zeichen_274-120.svg.png',opts:[{text_de:'Höchstgeschwindigkeit 120 km/h',ok:true},{text_de:'130 km/h',ok:false},{text_de:'100 km/h',ok:false}]},
   {id:5,text_de:'Was bedeutet dieses Zeichen?',img_url:'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Zeichen_276.svg/200px-Zeichen_276.svg.png',opts:[{text_de:'Überholen verboten',ok:true},{text_de:'Gegenverkehr',ok:false},{text_de:'Einbahnstrasse',ok:false}]},
   {id:6,text_de:'Welches ist die Höchstgeschwindigkeit auf Schweizer Autobahnen?',img_url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Zeichen_274-120.svg/200px-Zeichen_274-120.svg.png',opts:[{text_de:'120 km/h',ok:true},{text_de:'130 km/h',ok:false},{text_de:'100 km/h',ok:false}]},
@@ -68,9 +60,34 @@ const LOCAL_QUESTIONS = [
   {id:23,text_de:'Was bedeutet dieses Zeichen?',img_url:'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/Zeichen_280.svg/200px-Zeichen_280.svg.png',opts:[{text_de:'Parkieren verboten',ok:true},{text_de:'Halten verboten',ok:false},{text_de:'Einfahrt verboten',ok:false}]},
   {id:24,text_de:'Was ist die Vignette in der Schweiz?',img_url:'https://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/Zeichen_330.1.svg/200px-Zeichen_330.1.svg.png',opts:[{text_de:'Jahresgebühr für Autobahn — CHF 40',ok:true},{text_de:'Versicherungsnachweis',ok:false},{text_de:'Führerausweis',ok:false}]},
   {id:25,text_de:'Was bedeutet dieses Zeichen?',img_url:'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Zeichen_268.svg/200px-Zeichen_268.svg.png',opts:[{text_de:'Schneeketten obligatorisch',ok:true},{text_de:'Winterreifen obligatorisch',ok:false},{text_de:'Vorsicht Schnee',ok:false}]},
+  {id:26,text_de:'Welches ist die Höchstgeschwindigkeit innerhalb einer Ortschaft?',img_url:'https://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/Zeichen_274-50.svg/200px-Zeichen_274-50.svg.png',opts:[{text_de:'50 km/h',ok:true},{text_de:'60 km/h',ok:false},{text_de:'80 km/h',ok:false}]},
+  {id:27,text_de:'Was bedeutet dieses Zeichen?',img_url:'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Zeichen_314.svg/200px-Zeichen_314.svg.png',opts:[{text_de:'Parkplatz',ok:true},{text_de:'Halteverbot aufgehoben',ok:false},{text_de:'Pannenhilfe',ok:false}]},
+  {id:28,text_de:'Was bedeutet dieses Zeichen?',img_url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Zeichen_215.svg/200px-Zeichen_215.svg.png',opts:[{text_de:'Kreisverkehr',ok:true},{text_de:'Kreuzung',ok:false},{text_de:'Wendeverbot',ok:false}]},
+  {id:29,text_de:'Was bedeutet dieses Zeichen?',img_url:'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Zeichen_306.svg/200px-Zeichen_306.svg.png',opts:[{text_de:'Vorfahrtsstrasse',ok:true},{text_de:'Ende der Vorfahrtsstrasse',ok:false},{text_de:'Kreisverkehr',ok:false}]},
+  {id:30,text_de:'Was bedeutet dieses Zeichen?',img_url:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Zeichen_108.svg/200px-Zeichen_108.svg.png',opts:[{text_de:'Gefälle',ok:true},{text_de:'Steigung',ok:false},{text_de:'Schlechte Strasse',ok:false}]},
+  {id:31,text_de:'Was bedeutet dieses Zeichen?',img_url:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/34/Zeichen_107.svg/200px-Zeichen_107.svg.png',opts:[{text_de:'Steigung',ok:true},{text_de:'Gefälle',ok:false},{text_de:'Unebenheiten',ok:false}]},
+  {id:32,text_de:'Was bedeutet dieses Zeichen?',img_url:'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/Zeichen_307.svg/200px-Zeichen_307.svg.png',opts:[{text_de:'Ende der Vorfahrtsstrasse',ok:true},{text_de:'Vorfahrtsstrasse',ok:false},{text_de:'Halt',ok:false}]},
+  {id:33,text_de:'Was bedeutet dieses Zeichen?',img_url:'https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Zeichen_250.svg/200px-Zeichen_250.svg.png',opts:[{text_de:'Verbot für alle Fahrzeuge',ok:true},{text_de:'Einbahnstrasse',ok:false},{text_de:'Halt',ok:false}]},
+  {id:34,text_de:'Was bedeutet dieses Zeichen?',img_url:'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Zeichen_253.svg/200px-Zeichen_253.svg.png',opts:[{text_de:'LKW verboten',ok:true},{text_de:'Durchfahrt verboten',ok:false},{text_de:'Gefahrgut verboten',ok:false}]},
+  {id:35,text_de:'Was bedeutet dieses Zeichen?',img_url:'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/Zeichen_280.svg/200px-Zeichen_280.svg.png',opts:[{text_de:'Parkieren verboten',ok:true},{text_de:'Halten verboten',ok:false},{text_de:'Einfahrt verboten',ok:false}]},
+  {id:36,text_de:'Was bedeutet dieses Zeichen?',img_url:'https://upload.wikimedia.org/wikipedia/commons/thumb/1/16/Zeichen_265.svg/200px-Zeichen_265.svg.png',opts:[{text_de:'Höhenbeschränkung',ok:true},{text_de:'Breiteneinschränkung',ok:false},{text_de:'Gewichtsbeschränkung',ok:false}]},
+  {id:37,text_de:'Was bedeutet dieses Zeichen?',img_url:'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c0/Zeichen_239.svg/200px-Zeichen_239.svg.png',opts:[{text_de:'Fussgänger',ok:true},{text_de:'Fussgänger und Radfahrer',ok:false},{text_de:'Schulweg',ok:false}]},
+  {id:38,text_de:'Was bedeutet dieses Zeichen?',img_url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/40/Zeichen_222.svg/200px-Zeichen_222.svg.png',opts:[{text_de:'Rechts abbiegen',ok:true},{text_de:'Links abbiegen',ok:false},{text_de:'Geradeaus',ok:false}]},
+  {id:39,text_de:'Was bedeutet dieses Zeichen?',img_url:'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f5/Zeichen_325.1.svg/200px-Zeichen_325.1.svg.png',opts:[{text_de:'Beginn der Begegnungszone',ok:true},{text_de:'Fussgängerzone',ok:false},{text_de:'Spielstrasse',ok:false}]},
+  {id:40,text_de:'Was bedeutet dieses Zeichen?',img_url:'https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/Zeichen_138.svg/200px-Zeichen_138.svg.png',opts:[{text_de:'Fussgänger — Achtung!',ok:true},{text_de:'Schulkinder',ok:false},{text_de:'Spielstrasse',ok:false}]},
+  {id:41,text_de:'Was bedeutet dieses Zeichen?',img_url:'https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Zeichen_261.svg/200px-Zeichen_261.svg.png',opts:[{text_de:'Motorräder verboten',ok:true},{text_de:'Mopeds verboten',ok:false},{text_de:'Alle Fahrzeuge verboten',ok:false}]},
+  {id:42,text_de:'Was bedeutet dieses Zeichen?',img_url:'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Zeichen_241-30.svg/200px-Zeichen_241-30.svg.png',opts:[{text_de:'Getrennter Rad- und Gehweg',ok:true},{text_de:'Gemeinsamer Rad- und Gehweg',ok:false},{text_de:'Nur Radfahrer',ok:false}]},
+  {id:43,text_de:'Was bedeutet dieses Zeichen?',img_url:'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/Zeichen_209-30.svg/200px-Zeichen_209-30.svg.png',opts:[{text_de:'Vorgeschriebene Fahrtrichtung rechts',ok:true},{text_de:'Empfohlene Richtung rechts',ok:false},{text_de:'Einbahnstrasse rechts',ok:false}]},
+  {id:44,text_de:'Was bedeutet dieses Zeichen?',img_url:'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/Zeichen_274-100.svg/200px-Zeichen_274-100.svg.png',opts:[{text_de:'Höchstgeschwindigkeit 100 km/h',ok:true},{text_de:'Mindestgeschwindigkeit 100',ok:false},{text_de:'Empfehlung 100 km/h',ok:false}]},
+  {id:45,text_de:'Was bedeutet dieses Zeichen?',img_url:'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/Zeichen_274-60.svg/200px-Zeichen_274-60.svg.png',opts:[{text_de:'Höchstgeschwindigkeit 60 km/h',ok:true},{text_de:'Höchstgeschwindigkeit 80 km/h',ok:false},{text_de:'Ende der Geschwindigkeitsbegrenzung',ok:false}]},
+  {id:46,text_de:'Was bedeutet dieses Zeichen?',img_url:'https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Zeichen_354.svg/200px-Zeichen_354.svg.png',opts:[{text_de:'Wildwechsel',ok:true},{text_de:'Naturschutzgebiet',ok:false},{text_de:'Reiterweg',ok:false}]},
+  {id:47,text_de:'Was bedeutet dieses Zeichen?',img_url:'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Zeichen_123.svg/200px-Zeichen_123.svg.png',opts:[{text_de:'Arbeitsstelle / Baustelle',ok:true},{text_de:'Gefahrenstelle',ok:false},{text_de:'Schule',ok:false}]},
+  {id:48,text_de:'Was bedeutet dieses Zeichen?',img_url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/Zeichen_274-80.svg/200px-Zeichen_274-80.svg.png',opts:[{text_de:'Höchstgeschwindigkeit 80 km/h',ok:true},{text_de:'Höchstgeschwindigkeit 60 km/h',ok:false},{text_de:'Mindestgeschwindigkeit 80 km/h',ok:false}]},
+  {id:49,text_de:'Was bedeutet dieses Zeichen?',img_url:'https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/Zeichen_103-10.svg/200px-Zeichen_103-10.svg.png',opts:[{text_de:'Kurve nach rechts',ok:true},{text_de:'Kurve nach links',ok:false},{text_de:'Doppelkurve',ok:false}]},
+  {id:50,text_de:'Was bedeutet dieses Zeichen?',img_url:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Zeichen_237.svg/200px-Zeichen_237.svg.png',opts:[{text_de:'Radweg',ok:true},{text_de:'Fussgängerzone',ok:false},{text_de:'Schulweg',ok:false}]},
 ];
 
-function shuffle(arr: any[]) {
+function shuffle(arr) {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -79,479 +96,538 @@ function shuffle(arr: any[]) {
   return a;
 }
 
-// ─── MAIN APP ──────────────────────────────────────────────
 export default function App() {
-  const [screen, setScreen] = useState<'home'|'login'|'register'|'exam'|'result'|'practice'|'practiceResult'>('home');
-  const [user, setUser] = useState<any>(null);
+  const [screen, setScreen] = useState('home');
+  const [lang, setLang] = useState('de');
+  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [questions, setQuestions] = useState<any[]>([]);
-
-  // Auth state
+  const [questions, setQuestions] = useState(LOCAL_Q);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [news, setNews] = useState([]);
+  const [ads, setAds] = useState([]);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
-
-  // Exam state
-  const [examQ, setExamQ] = useState<any[]>([]);
+  const [examQ, setExamQ] = useState([]);
   const [qIdx, setQIdx] = useState(0);
   const [score, setScore] = useState(0);
   const [errors, setErrors] = useState(0);
   const [answered, setAnswered] = useState(false);
-  const [selectedOpt, setSelectedOpt] = useState<number|null>(null);
+  const [selectedOpt, setSelectedOpt] = useState(null);
   const [timeLeft, setTimeLeft] = useState(2700);
-  const [timer, setTimer] = useState<any>(null);
-  const [wrongQs, setWrongQs] = useState<any[]>([]);
-  const [examResults, setExamResults] = useState<any[]>([]);
+  const [timerRef, setTimerRef] = useState(null);
+  const [wrongQs, setWrongQs] = useState([]);
+  const [results, setResults] = useState([]);
+  const [isPractice, setIsPractice] = useState(false);
+  const fadeAnim = useRef(new Animated.Value(1)).current;
 
-  const fadeAnim = useRef(new Animated.Value(0)).current;
-
-  useEffect(() => {
-    loadQuestions();
-  }, []);
+  const t = TX[lang] || TX.de;
 
   useEffect(() => {
-    Animated.timing(fadeAnim, {toValue: 1, duration: 400, useNativeDriver: true}).start();
-  }, [screen]);
+    loadData();
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
+      if (menuOpen) { setMenuOpen(false); return true; }
+      if (screen !== 'home') { goHome(); return true; }
+      return false;
+    });
+    return () => backHandler.remove();
+  }, [screen, menuOpen]);
 
-  async function loadQuestions() {
+  async function loadData() {
     try {
-      const r = await sbReq('questions?is_active=eq.true&order=id.asc&limit=500');
-      if (r.ok && Array.isArray(r.data) && r.data.length > 0) {
-        const ra = await sbReq('answers?order=question_id.asc,id.asc&limit=2000');
-        if (ra.ok && Array.isArray(ra.data)) {
-          const qs = r.data.map((q: any) => ({
-            ...q,
-            opts: ra.data.filter((a: any) => a.question_id === q.id).map((a: any) => ({
-              text_de: a.text_de,
-              ok: a.is_correct,
-            })),
-          })).filter((q: any) => q.opts.length >= 2);
-          setQuestions(qs.length > 0 ? qs : LOCAL_QUESTIONS);
-          return;
+      const [qRes, nRes, aRes] = await Promise.all([
+        sbReq('questions?is_active=eq.true&order=id.asc&limit=500'),
+        sbReq('news?is_active=eq.true&order=created_at.desc&limit=10'),
+        sbReq('ads?is_active=eq.true&order=created_at.desc&limit=5'),
+      ]);
+      if (qRes.ok && Array.isArray(qRes.data) && qRes.data.length > 0) {
+        const aRes2 = await sbReq('answers?order=question_id.asc,id.asc&limit=2000');
+        if (aRes2.ok && Array.isArray(aRes2.data)) {
+          const qs = qRes.data.map(q => ({
+            ...q, opts: aRes2.data.filter(a => a.question_id === q.id).map(a => ({text_de: a.text_de, ok: a.is_correct}))
+          })).filter(q => q.opts.length >= 2);
+          if (qs.length > 0) setQuestions(qs);
         }
       }
+      if (nRes.ok && Array.isArray(nRes.data)) setNews(nRes.data);
+      if (aRes.ok && Array.isArray(aRes.data)) setAds(aRes.data);
     } catch (e) {}
-    setQuestions(LOCAL_QUESTIONS);
   }
 
-  async function doLogin() {
-    if (!email || !password) {Alert.alert('Hata', 'E-mail ve şifre gerekli'); return;}
-    setLoading(true);
-    try {
-      const r = await sbReq(`users?email=eq.${encodeURIComponent(email)}&password_hash=eq.${encodeURIComponent(password)}&select=*`);
-      if (r.ok && Array.isArray(r.data) && r.data.length > 0) {
-        setUser(r.data[0]);
-        await sbReq(`users?id=eq.${r.data[0].id}`, 'PATCH', {last_login: new Date().toISOString()});
-        setScreen('home');
-      } else {
-        Alert.alert('Hata', 'E-mail veya şifre yanlış');
-      }
-    } catch (e) {Alert.alert('Hata', 'Bağlantı sorunu');}
-    setLoading(false);
+  function goHome() {
+    if (timerRef) { clearInterval(timerRef); setTimerRef(null); }
+    setScreen('home');
+    setMenuOpen(false);
   }
 
-  async function doRegister() {
-    if (!email || !password || !fullName) {Alert.alert('Hata', 'Tüm alanları doldurun'); return;}
-    setLoading(true);
-    try {
-      const r = await sbReq('users', 'POST', {
-        email, password_hash: password, full_name: fullName,
-        language: 'de', is_premium: false, created_at: new Date().toISOString(),
-      });
-      if (r.ok && Array.isArray(r.data) && r.data.length > 0) {
-        setUser(r.data[0]);
-        setScreen('home');
-      } else {
-        Alert.alert('Hata', 'Kayıt başarısız. E-mail zaten kayıtlı olabilir.');
-      }
-    } catch (e) {Alert.alert('Hata', 'Bağlantı sorunu');}
-    setLoading(false);
-  }
-
-  function startExam() {
-    const pool = shuffle(questions.length > 0 ? questions : LOCAL_QUESTIONS);
-    const examSet = pool.slice(0, Math.min(50, pool.length));
-    setExamQ(examSet);
+  function startExam(practice = false) {
+    const pool = shuffle([...questions]);
+    const set = practice ? pool : pool.slice(0, Math.min(50, pool.length));
+    setExamQ(set);
     setQIdx(0); setScore(0); setErrors(0);
     setAnswered(false); setSelectedOpt(null);
-    setWrongQs([]); setExamResults([]);
-    setTimeLeft(2700);
-    const t = setInterval(() => {
-      setTimeLeft(prev => {
-        if (prev <= 1) {clearInterval(t); return 0;}
-        return prev - 1;
-      });
-    }, 1000);
-    setTimer(t);
+    setWrongQs([]); setResults([]);
+    setIsPractice(practice);
+    if (!practice) {
+      setTimeLeft(2700);
+      const t = setInterval(() => setTimeLeft(p => { if (p <= 1) { clearInterval(t); return 0; } return p - 1; }), 1000);
+      setTimerRef(t);
+    }
+    setMenuOpen(false);
     fadeAnim.setValue(0);
+    Animated.timing(fadeAnim, {toValue: 1, duration: 300, useNativeDriver: true}).start();
     setScreen('exam');
   }
 
-  function startPractice() {
-    const pool = shuffle(questions.length > 0 ? questions : LOCAL_QUESTIONS);
-    setExamQ(pool);
-    setQIdx(0); setScore(0); setErrors(0);
-    setAnswered(false); setSelectedOpt(null);
-    setWrongQs([]); setExamResults([]);
-    fadeAnim.setValue(0);
-    setScreen('practice');
-  }
-
-  function pickAnswer(optIdx: number, correct: boolean) {
+  function pickAnswer(optIdx, correct) {
     if (answered) return;
     setAnswered(true);
     setSelectedOpt(optIdx);
-    if (correct) {setScore(s => s + 1);}
-    else {
-      setErrors(e => e + 1);
-      setWrongQs(w => [...w, examQ[qIdx]]);
-    }
-    setExamResults(r => [...r, {q: examQ[qIdx], correct, optIdx}]);
+    if (correct) setScore(s => s + 1);
+    else { setErrors(e => e + 1); setWrongQs(w => [...w, examQ[qIdx]]); }
+    setResults(r => [...r, {q: examQ[qIdx], correct}]);
   }
 
-  function nextQuestion() {
-    const FREE_LIMIT = 20;
+  function nextQ() {
     if (!user?.is_premium && qIdx + 1 >= FREE_LIMIT) {
-      if (timer) clearInterval(timer);
-      Alert.alert(
-        '⭐ Premium erforderlich',
-        'Für unbegrenzten Zugang bitte Premium kaufen.',
-        [{text: 'OK', onPress: () => finishExam()}]
-      );
+      if (timerRef) clearInterval(timerRef);
+      Alert.alert(t.premium, t.premiumMsg, [{text: 'OK', onPress: finishExam}]);
       return;
     }
-    if (qIdx + 1 >= examQ.length) {finishExam(); return;}
+    if (qIdx + 1 >= examQ.length) { finishExam(); return; }
     setQIdx(i => i + 1);
-    setAnswered(false);
-    setSelectedOpt(null);
+    setAnswered(false); setSelectedOpt(null);
     fadeAnim.setValue(0);
-    Animated.timing(fadeAnim, {toValue: 1, duration: 300, useNativeDriver: true}).start();
+    Animated.timing(fadeAnim, {toValue: 1, duration: 250, useNativeDriver: true}).start();
   }
 
   function finishExam() {
-    if (timer) clearInterval(timer);
-    setScreen(screen === 'exam' ? 'result' : 'practiceResult');
+    if (timerRef) { clearInterval(timerRef); setTimerRef(null); }
+    setScreen('result');
   }
 
-  function formatTime(s: number) {
-    const m = Math.floor(s / 60);
-    const sec = s % 60;
-    return `${m}:${sec.toString().padStart(2, '0')}`;
+  function formatTime(s) {
+    return `${Math.floor(s/60)}:${(s%60).toString().padStart(2,'0')}`;
   }
 
-  const currentQ = examQ[qIdx];
-  const isPractice = screen === 'practice';
+  const curQ = examQ[qIdx];
+  const adTop = ads.find(a => a.position === 'top');
+  const adBottom = ads.find(a => a.position === 'bottom');
 
-  // ─── HOME SCREEN ─────────────────────────────────────────
-  if (screen === 'home') {
-    return (
-      <SafeAreaView style={s.safe}>
-        <StatusBar barStyle="light-content" backgroundColor={C.dark} />
-        <ScrollView style={s.homeScroll} showsVerticalScrollIndicator={false}>
-          {/* HEADER */}
-          <View style={s.homeHeader}>
-            <View style={s.logoRow}>
-              <Text style={s.logoIcon}>🚗</Text>
-              <Text style={s.logoText}>Fahr<Text style={{color:'#60A5FA'}}>Ready</Text></Text>
-            </View>
+  // HAMBURGER MENU
+  const Menu = () => (
+    <Modal visible={menuOpen} transparent animationType="fade" onRequestClose={() => setMenuOpen(false)}>
+      <TouchableOpacity style={ms.overlay} onPress={() => setMenuOpen(false)}>
+        <View style={ms.drawer}>
+          <View style={ms.drawerHeader}>
+            <Text style={ms.drawerLogo}>🚗 Fahr<Text style={{color:'#60A5FA'}}>Ready</Text></Text>
+            <TouchableOpacity onPress={() => setMenuOpen(false)}>
+              <Text style={ms.closeBtn}>✕</Text>
+            </TouchableOpacity>
+          </View>
+          {user && <View style={ms.userInfo}><Text style={ms.userName}>{user.full_name}</Text><Text style={ms.userEmail}>{user.email}</Text>{user.is_premium && <Text style={ms.premBadge}>⭐ Premium</Text>}</View>}
+          <View style={ms.langRow}>
+            {['DE','FA','AZ','EN'].map(l => (
+              <TouchableOpacity key={l} style={[ms.langBtn, lang===l.toLowerCase()&&ms.langBtnOn]} onPress={() => {setLang(l.toLowerCase()); setMenuOpen(false);}}>
+                <Text style={[ms.langTxt, lang===l.toLowerCase()&&ms.langTxtOn]}>{l}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+          {[
+            {icon:'🏠', label:t.home, action:goHome},
+            {icon:'📝', label:t.pruefung, action:() => {startExam(false);}},
+            {icon:'📚', label:t.vorbereitung, action:() => {startExam(true);}},
+            {icon:'📰', label:t.nachrichten, action:() => {setScreen('news'); setMenuOpen(false);}},
+          ].map((item, i) => (
+            <TouchableOpacity key={i} style={ms.menuItem} onPress={item.action}>
+              <Text style={ms.menuIcon}>{item.icon}</Text>
+              <Text style={ms.menuLabel}>{item.label}</Text>
+            </TouchableOpacity>
+          ))}
+          <View style={ms.menuBottom}>
             {user ? (
-              <TouchableOpacity onPress={() => {setUser(null); setEmail(''); setPassword('');}}>
-                <Text style={s.logoutBtn}>Abmelden</Text>
+              <TouchableOpacity style={ms.authBtn} onPress={() => {setUser(null); setMenuOpen(false);}}>
+                <Text style={ms.authBtnTxt}>{t.abmelden}</Text>
               </TouchableOpacity>
             ) : (
-              <TouchableOpacity onPress={() => setScreen('login')}>
-                <Text style={s.loginBtn}>Anmelden</Text>
+              <TouchableOpacity style={ms.authBtn} onPress={() => {setScreen('login'); setMenuOpen(false);}}>
+                <Text style={ms.authBtnTxt}>{t.anmelden}</Text>
               </TouchableOpacity>
             )}
           </View>
+        </View>
+      </TouchableOpacity>
+    </Modal>
+  );
 
-          {/* HERO */}
-          <View style={s.hero}>
-            <View style={s.heroBadge}><Text style={s.heroBadgeText}>🇨🇭 Offizielle Schweizer Theorieprüfung</Text></View>
-            <Text style={s.heroTitle}>Bestehe deine{'\n'}<Text style={{color:'#60A5FA'}}>Fahrprüfung</Text></Text>
-            <Text style={s.heroSub}>Auf Persisch · Deutsch · Englisch</Text>
-            {user && <Text style={s.welcomeText}>Willkommen, {user.full_name?.split(' ')[0]}! {user.is_premium ? '⭐' : ''}</Text>}
-          </View>
+  // NAVBAR
+  const NavBar = ({light = false}) => (
+    <View style={[s.navbar, light && s.navbarLight]}>
+      <TouchableOpacity onPress={() => setMenuOpen(true)} style={s.hamburger}>
+        <View style={[s.hLine, light && s.hLineDark]} />
+        <View style={[s.hLine, light && s.hLineDark]} />
+        <View style={[s.hLine, light && s.hLineDark]} />
+      </TouchableOpacity>
+      <TouchableOpacity onPress={goHome} style={s.navLogo}>
+        <Text style={s.navLogoIcon}>🚗</Text>
+        <Text style={[s.navLogoTxt, light && s.navLogoTxtDark]}>Fahr<Text style={{color:'#60A5FA'}}>Ready</Text></Text>
+      </TouchableOpacity>
+      <View style={{width:44}} />
+    </View>
+  );
 
-          {/* STATS */}
-          <View style={s.statsRow}>
-            {[['50','Fragen'],['45','Minuten'],['135','Punkte zum Bestehen'],['4','Sprachen']].map(([n,l]) => (
-              <View key={l} style={s.statCard}>
-                <Text style={s.statN}>{n}</Text>
-                <Text style={s.statL}>{l}</Text>
+  // AD BANNER
+  const AdBanner = ({ad}) => {
+    if (!ad) return null;
+    return (
+      <View style={s.adBanner}>
+        <Text style={s.adLabel}>{t.werbung}</Text>
+        <TouchableOpacity style={s.adContent}>
+          {ad.image_url ? <Image source={{uri:ad.image_url}} style={s.adImg} resizeMode="cover" /> : null}
+          <Text style={s.adText}>{ad.name}</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  };
+
+  // HOME
+  if (screen === 'home') return (
+    <SafeAreaView style={s.safe}>
+      <StatusBar barStyle="light-content" backgroundColor={C.dark} />
+      <Menu />
+      <NavBar />
+      {adTop && <AdBanner ad={adTop} />}
+      <ScrollView style={s.homeScroll} showsVerticalScrollIndicator={false}>
+        <View style={s.hero}>
+          <View style={s.heroBadge}><Text style={s.heroBadgeT}>🇨🇭 Offizielle Schweizer Theorieprüfung</Text></View>
+          <Text style={s.heroTitle}>Bestehe deine{"
+"}<Text style={{color:'#60A5FA'}}>Fahrprüfung</Text></Text>
+          <Text style={s.heroSub}>{t.sprachen === 'Sprachen' ? 'Persisch · Azerbaijanisch · Deutsch · Englisch' : t.sprachen}</Text>
+          {user && <Text style={s.welcome}>👋 {user.full_name?.split(' ')[0]} {user.is_premium ? '⭐' : ''}</Text>}
+        </View>
+        <View style={s.statsRow}>
+          {[['50',t.fragen],['45',t.minuten],['135',t.punkte],['4',t.sprachen]].map(([n,l]) => (
+            <View key={l} style={s.statCard}>
+              <Text style={s.statN}>{n}</Text>
+              <Text style={s.statL}>{l}</Text>
+            </View>
+          ))}
+        </View>
+        <View style={s.btns}>
+          <TouchableOpacity style={s.btnPrimary} onPress={() => startExam(false)}><Text style={s.btnPrimaryT}>{t.starten}</Text></TouchableOpacity>
+          <TouchableOpacity style={s.btnSecondary} onPress={() => startExam(true)}><Text style={s.btnSecondaryT}>{t.lernen}</Text></TouchableOpacity>
+          {!user && <TouchableOpacity style={s.btnOutline} onPress={() => setScreen('register')}><Text style={s.btnOutlineT}>{t.kostenlos}</Text></TouchableOpacity>}
+        </View>
+        <View style={s.infoCard}>
+          <Text style={s.infoTitle}>ℹ️ {t.regeln}</Text>
+          <Text style={s.infoTxt}>• {t.r1}{"
+"}• {t.r2}{"
+"}• {t.r3}{"
+"}• {t.r4}</Text>
+        </View>
+        {news.length > 0 && (
+          <View style={s.newsSection}>
+            <Text style={s.sectionTitle}>📰 {t.neuigkeiten}</Text>
+            {news.slice(0,3).map((n,i) => (
+              <View key={i} style={s.newsCard}>
+                {n.image_url ? <Image source={{uri:n.image_url}} style={s.newsImg} resizeMode="cover" /> : null}
+                <View style={s.newsBody}>
+                  <Text style={s.newsTag}>{n.tag || 'NEU'}</Text>
+                  <Text style={s.newsTitle}>{n['title_'+lang] || n.title_de}</Text>
+                </View>
               </View>
             ))}
           </View>
+        )}
+        {adBottom && <AdBanner ad={adBottom} />}
+        <View style={{height:40}} />
+      </ScrollView>
+    </SafeAreaView>
+  );
 
-          {/* BUTTONS */}
-          <View style={s.btnsSection}>
-            <TouchableOpacity style={s.btnPrimary} onPress={startExam}>
-              <Text style={s.btnPrimaryText}>▶ Prüfung starten</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={s.btnSecondary} onPress={startPractice}>
-              <Text style={s.btnSecondaryText}>📚 Lernen / Hazırlık</Text>
-            </TouchableOpacity>
-            {!user && (
-              <TouchableOpacity style={s.btnOutline} onPress={() => setScreen('register')}>
-                <Text style={s.btnOutlineText}>✓ Kostenlos registrieren</Text>
-              </TouchableOpacity>
-            )}
-          </View>
-
-          {/* INFO */}
-          <View style={s.infoCard}>
-            <Text style={s.infoTitle}>ℹ️ Prüfungsregeln</Text>
-            <Text style={s.infoText}>• 50 Fragen, 45 Minuten{'\n'}• 3 Punkte pro richtige Antwort{'\n'}• Bestehen: mindestens 135 Punkte{'\n'}• 20 Fragen kostenlos — dann Premium</Text>
-          </View>
-
-          <View style={{height: 40}} />
-        </ScrollView>
-      </SafeAreaView>
-    );
-  }
-
-  // ─── LOGIN SCREEN ─────────────────────────────────────────
+  // LOGIN / REGISTER
   if (screen === 'login' || screen === 'register') {
     const isReg = screen === 'register';
     return (
-      <SafeAreaView style={s.safe}>
-        <ScrollView contentContainerStyle={s.authContainer}>
-          <TouchableOpacity style={s.backBtn} onPress={() => setScreen('home')}>
-            <Text style={s.backBtnText}>← Zurück</Text>
+      <SafeAreaView style={[s.safe, {backgroundColor:C.white}]}>
+        <StatusBar barStyle="dark-content" backgroundColor={C.white} />
+        <Menu />
+        <NavBar light />
+        <ScrollView contentContainerStyle={s.authCont}>
+          <TouchableOpacity style={s.backBtn} onPress={goHome}><Text style={s.backBtnT}>← {t.home}</Text></TouchableOpacity>
+          <Text style={s.authTitle}>{isReg ? t.registrieren : t.anmelden}</Text>
+          {isReg && <TextInput style={s.input} placeholder="Vollständiger Name" value={fullName} onChangeText={setFullName} placeholderTextColor={C.gray} />}
+          <TextInput style={s.input} placeholder="E-Mail" value={email} onChangeText={setEmail} keyboardType="email-address" autoCapitalize="none" placeholderTextColor={C.gray} />
+          <TextInput style={s.input} placeholder="Passwort" value={password} onChangeText={setPassword} secureTextEntry placeholderTextColor={C.gray} />
+          <TouchableOpacity style={s.btnPrimary} onPress={async () => {
+            if (!email || !password) { Alert.alert('Fehler', 'Bitte E-Mail und Passwort eingeben'); return; }
+            setLoading(true);
+            if (isReg) {
+              const r = await sbReq('users', 'POST', {email, password_hash:password, full_name:fullName||email, language:lang, is_premium:false, created_at:new Date().toISOString()});
+              if (r.ok && Array.isArray(r.data) && r.data[0]) { setUser(r.data[0]); setScreen('home'); }
+              else Alert.alert('Fehler', 'Registrierung fehlgeschlagen');
+            } else {
+              const r = await sbReq(`users?email=eq.${encodeURIComponent(email)}&password_hash=eq.${encodeURIComponent(password)}&select=*`);
+              if (r.ok && Array.isArray(r.data) && r.data[0]) { setUser(r.data[0]); setScreen('home'); }
+              else Alert.alert('Fehler', 'Falsche E-Mail oder Passwort');
+            }
+            setLoading(false);
+          }} disabled={loading}>
+            {loading ? <ActivityIndicator color="#fff" /> : <Text style={s.btnPrimaryT}>{isReg ? t.registrieren : t.anmelden}</Text>}
           </TouchableOpacity>
-          <Text style={s.authTitle}>{isReg ? 'Registrieren' : 'Anmelden'}</Text>
-          <Text style={s.authSub}>{isReg ? 'Kostenloses Konto erstellen' : 'Mit deinem Konto anmelden'}</Text>
-
-          {isReg && (
-            <TextInput style={s.input} placeholder="Vollständiger Name" value={fullName}
-              onChangeText={setFullName} placeholderTextColor={C.gray} />
-          )}
-          <TextInput style={s.input} placeholder="E-Mail" value={email}
-            onChangeText={setEmail} keyboardType="email-address" autoCapitalize="none"
-            placeholderTextColor={C.gray} />
-          <TextInput style={s.input} placeholder="Passwort" value={password}
-            onChangeText={setPassword} secureTextEntry placeholderTextColor={C.gray} />
-
-          <TouchableOpacity style={s.btnPrimary} onPress={isReg ? doRegister : doLogin} disabled={loading}>
-            {loading ? <ActivityIndicator color="#fff" /> : <Text style={s.btnPrimaryText}>{isReg ? 'Registrieren' : 'Anmelden'}</Text>}
-          </TouchableOpacity>
-
           <TouchableOpacity onPress={() => setScreen(isReg ? 'login' : 'register')}>
-            <Text style={s.switchAuth}>{isReg ? 'Bereits registriert? Anmelden' : 'Noch kein Konto? Registrieren'}</Text>
+            <Text style={s.switchAuth}>{isReg ? `${t.anmelden} →` : `${t.registrieren} →`}</Text>
           </TouchableOpacity>
         </ScrollView>
       </SafeAreaView>
     );
   }
 
-  // ─── EXAM / PRACTICE SCREEN ──────────────────────────────
-  if ((screen === 'exam' || screen === 'practice') && currentQ) {
-    const opts = currentQ.opts || [];
-    const pct = Math.round((qIdx / examQ.length) * 100);
+  // NEWS
+  if (screen === 'news') return (
+    <SafeAreaView style={[s.safe, {backgroundColor:C.white}]}>
+      <StatusBar barStyle="dark-content" backgroundColor={C.white} />
+      <Menu />
+      <NavBar light />
+      <ScrollView style={{flex:1, padding:16}}>
+        <TouchableOpacity style={s.backBtn} onPress={goHome}><Text style={s.backBtnT}>← {t.home}</Text></TouchableOpacity>
+        <Text style={[s.authTitle, {color:C.dark}]}>📰 {t.neuigkeiten}</Text>
+        {news.map((n,i) => (
+          <View key={i} style={[s.newsCard, {marginBottom:12}]}>
+            {n.image_url ? <Image source={{uri:n.image_url}} style={s.newsImg} resizeMode="cover" /> : null}
+            <View style={s.newsBody}>
+              <Text style={s.newsTag}>{n.tag || 'NEU'}</Text>
+              <Text style={[s.newsTitle, {color:C.dark}]}>{n['title_'+lang] || n.title_de}</Text>
+            </View>
+          </View>
+        ))}
+        {news.length === 0 && <Text style={{color:C.gray, textAlign:'center', marginTop:40}}>Keine Neuigkeiten</Text>}
+        <View style={{height:40}} />
+      </ScrollView>
+    </SafeAreaView>
+  );
 
+  // EXAM
+  if (screen === 'exam' && curQ) {
+    const opts = curQ.opts || [];
+    const pct = Math.round((qIdx / Math.max(examQ.length,1)) * 100);
     return (
-      <SafeAreaView style={[s.safe, {backgroundColor: '#F8FAFF'}]}>
+      <SafeAreaView style={[s.safe, {backgroundColor:'#F8FAFF'}]}>
         <StatusBar barStyle="dark-content" backgroundColor="#F8FAFF" />
-
-        {/* HEADER */}
+        <Menu />
         <View style={s.examHeader}>
-          <TouchableOpacity onPress={() => {if(timer)clearInterval(timer); setScreen('home');}}>
-            <Text style={s.examBack}>✕</Text>
+          <TouchableOpacity onPress={() => { if(timerRef)clearInterval(timerRef); setScreen('home'); }} style={s.examBack}>
+            <Text style={s.examBackT}>✕</Text>
           </TouchableOpacity>
-          <Text style={s.examCounter}>{qIdx + 1} / {Math.min(examQ.length, isPractice ? examQ.length : 50)}</Text>
-          {!isPractice && <Text style={s.examTimer}>{formatTime(timeLeft)}</Text>}
-          {isPractice && <Text style={s.examTimer}>📚 Lernen</Text>}
+          <View style={{alignItems:'center'}}>
+            <Text style={s.examCounter}>{qIdx+1} / {Math.min(examQ.length, isPractice ? examQ.length : 50)}</Text>
+            <Text style={s.examMode}>{isPractice ? '📚 '+t.vorbereitung : '📝 '+t.pruefung}</Text>
+          </View>
+          <View style={{alignItems:'flex-end'}}>
+            {!isPractice && <Text style={s.examTimer}>{formatTime(timeLeft)}</Text>}
+            <TouchableOpacity onPress={() => setMenuOpen(true)} style={{padding:4}}>
+              <View style={s.hLine} /><View style={s.hLine} /><View style={s.hLine} />
+            </TouchableOpacity>
+          </View>
         </View>
-
-        {/* PROGRESS */}
-        <View style={s.progressTrack}>
-          <View style={[s.progressFill, {width: `${pct}%` as any}]} />
-        </View>
-
-        {/* SCORE */}
+        <View style={s.progressTrack}><View style={[s.progressFill,{width:`${pct}%`}]} /></View>
         <View style={s.scoreRow}>
-          <Text style={[s.scoreItem, {color: C.green}]}>✓ {score}</Text>
-          <Text style={[s.scoreItem, {color: C.red}]}>✗ {errors}</Text>
-          {!isPractice && <Text style={s.scoreItem}>Pkt: {score * 3}</Text>}
+          <Text style={[s.scoreItem,{color:C.green}]}>✓ {score}</Text>
+          <Text style={[s.scoreItem,{color:C.red}]}>✗ {errors}</Text>
+          {!isPractice && <Text style={s.scoreItem}>Pkt: {score*3}/150</Text>}
         </View>
-
         <ScrollView style={s.examScroll} showsVerticalScrollIndicator={false}>
-          <Animated.View style={{opacity: fadeAnim}}>
-            {/* IMAGE */}
-            {currentQ.img_url ? (
-              <Image source={{uri: currentQ.img_url}} style={s.qImg} resizeMode="contain" />
-            ) : null}
-
-            {/* QUESTION */}
-            <Text style={s.qText}>{currentQ.text_de}</Text>
-
-            {/* OPTIONS */}
-            {opts.map((opt: any, i: number) => {
-              let optStyle = s.optBtn;
-              let optTextStyle = s.optText;
+          <Animated.View style={{opacity:fadeAnim}}>
+            {curQ.img_url ? <Image source={{uri:curQ.img_url}} style={s.qImg} resizeMode="contain" /> : null}
+            <Text style={s.qText}>{curQ.text_de}</Text>
+            {opts.map((opt,i) => {
+              let os = s.optBtn, ots = s.optText;
               if (answered) {
-                if (opt.ok) {optStyle = {...s.optBtn, ...s.optCorrect} as any; optTextStyle = {...s.optText, color: C.green} as any;}
-                else if (selectedOpt === i && !opt.ok) {optStyle = {...s.optBtn, ...s.optWrong} as any; optTextStyle = {...s.optText, color: C.red} as any;}
+                if (opt.ok) { os = {...s.optBtn,...s.optCorrect}; ots = {...s.optText,color:C.green}; }
+                else if (selectedOpt===i) { os = {...s.optBtn,...s.optWrong}; ots = {...s.optText,color:C.red}; }
               }
               return (
-                <TouchableOpacity key={i} style={optStyle} onPress={() => pickAnswer(i, opt.ok)} disabled={answered}>
-                  <View style={s.optLetter}><Text style={s.optLetterText}>{['A','B','C','D'][i]}</Text></View>
-                  <Text style={optTextStyle}>{opt.text_de}</Text>
+                <TouchableOpacity key={i} style={os} onPress={() => pickAnswer(i, opt.ok)} disabled={answered}>
+                  <View style={s.optLetter}><Text style={s.optLetterT}>{['A','B','C','D'][i]}</Text></View>
+                  <Text style={ots}>{opt.text_de}</Text>
                 </TouchableOpacity>
               );
             })}
-
             {answered && (
-              <View style={[s.feedbackBox, {backgroundColor: opts[selectedOpt!]?.ok ? '#DCFCE7' : '#FEF2F2'}]}>
-                <Text style={[s.feedbackText, {color: opts[selectedOpt!]?.ok ? C.green : C.red}]}>
-                  {opts[selectedOpt!]?.ok ? '✓ Richtig!' : '✗ Falsch!'}
+              <View style={[s.feedback,{backgroundColor:opts[selectedOpt]?.ok?'#DCFCE7':'#FEF2F2'}]}>
+                <Text style={[s.feedbackT,{color:opts[selectedOpt]?.ok?C.green:C.red}]}>
+                  {opts[selectedOpt]?.ok ? t.richtig : t.falsch}
                 </Text>
-                {!opts[selectedOpt!]?.ok && (
-                  <Text style={s.correctAnswerText}>
-                    Richtig: {opts.find((o:any) => o.ok)?.text_de}
-                  </Text>
-                )}
+                {!opts[selectedOpt]?.ok && <Text style={s.correctA}>✓ {opts.find(o=>o.ok)?.text_de}</Text>}
               </View>
             )}
-
             {answered && (
-              <TouchableOpacity style={s.nextBtn} onPress={nextQuestion}>
-                <Text style={s.nextBtnText}>
-                  {qIdx + 1 >= examQ.length ? 'Fertig →' : 'Weiter →'}
-                </Text>
+              <TouchableOpacity style={s.nextBtn} onPress={nextQ}>
+                <Text style={s.nextBtnT}>{qIdx+1>=examQ.length ? t.fertig : t.weiter}</Text>
               </TouchableOpacity>
             )}
-
-            <View style={{height: 40}} />
+            <View style={{height:40}} />
           </Animated.View>
         </ScrollView>
       </SafeAreaView>
     );
   }
 
-  // ─── RESULT SCREEN ────────────────────────────────────────
-  if (screen === 'result' || screen === 'practiceResult') {
-    const total = examResults.length;
-    const correct = examResults.filter(r => r.correct).length;
-    const wrong = examResults.filter(r => !r.correct).length;
+  // RESULT
+  if (screen === 'result') {
+    const total = results.length;
+    const correct = results.filter(r=>r.correct).length;
+    const wrong = total - correct;
     const pts = correct * 3;
-    const passed = pts >= 135;
-    const rate = total > 0 ? Math.round(correct / total * 100) : 0;
-
+    const passed = !isPractice && pts >= 135;
+    const rate = total > 0 ? Math.round(correct/total*100) : 0;
     return (
-      <SafeAreaView style={s.safe}>
-        <ScrollView contentContainerStyle={s.resultContainer}>
-          <Text style={s.resultIcon}>{passed || screen === 'practiceResult' ? '🎓' : '😔'}</Text>
-          <Text style={s.resultTitle}>
-            {screen === 'practiceResult' ? 'Übung abgeschlossen!' : passed ? 'Bestanden! 🎉' : 'Nicht bestanden'}
-          </Text>
-
+      <SafeAreaView style={[s.safe,{backgroundColor:C.white}]}>
+        <StatusBar barStyle="dark-content" backgroundColor={C.white} />
+        <Menu />
+        <NavBar light />
+        <ScrollView contentContainerStyle={s.resultCont}>
+          <Text style={s.resultIcon}>{isPractice ? '🎓' : passed ? '🏆' : '😔'}</Text>
+          <Text style={s.resultTitle}>{isPractice ? 'Übung abgeschlossen!' : passed ? t.bestanden : t.nichtBestanden}</Text>
+          {!isPractice && <Text style={[s.resultSubtitle, {color: passed ? C.green : C.red}]}>{pts} / 150 Punkte</Text>}
           <View style={s.resultStats}>
-            <View style={s.resultStat}><Text style={[s.resultStatN, {color: C.blue}]}>{total}</Text><Text style={s.resultStatL}>Gesamt</Text></View>
-            <View style={s.resultStat}><Text style={[s.resultStatN, {color: C.green}]}>{correct}</Text><Text style={s.resultStatL}>Richtig</Text></View>
-            <View style={s.resultStat}><Text style={[s.resultStatN, {color: C.red}]}>{wrong}</Text><Text style={s.resultStatL}>Falsch</Text></View>
-            {screen === 'result' && <View style={s.resultStat}><Text style={[s.resultStatN, {color: passed ? C.green : C.red}]}>{pts}</Text><Text style={s.resultStatL}>Punkte</Text></View>}
-            {screen === 'practiceResult' && <View style={s.resultStat}><Text style={[s.resultStatN, {color: C.blue}]}>{rate}%</Text><Text style={s.resultStatL}>Erfolg</Text></View>}
+            <View style={s.rStat}><Text style={[s.rStatN,{color:C.blue}]}>{total}</Text><Text style={s.rStatL}>{t.gesamt}</Text></View>
+            <View style={s.rStat}><Text style={[s.rStatN,{color:C.green}]}>{correct}</Text><Text style={s.rStatL}>✓</Text></View>
+            <View style={s.rStat}><Text style={[s.rStatN,{color:C.red}]}>{wrong}</Text><Text style={s.rStatL}>✗</Text></View>
+            <View style={s.rStat}><Text style={[s.rStatN,{color:C.blue}]}>{rate}%</Text><Text style={s.rStatL}>{t.ergebnis}</Text></View>
           </View>
-
           {wrongQs.length > 0 && (
-            <View style={s.wrongSection}>
+            <View style={s.wrongSec}>
               <Text style={s.wrongTitle}>✗ Falsche Antworten ({wrongQs.length})</Text>
-              {wrongQs.map((q, i) => (
+              {wrongQs.map((q,i) => (
                 <View key={i} style={s.wrongItem}>
-                  {q.img_url ? <Image source={{uri: q.img_url}} style={s.wrongImg} resizeMode="contain" /> : null}
+                  {q.img_url ? <Image source={{uri:q.img_url}} style={s.wrongImg} resizeMode="contain" /> : null}
                   <Text style={s.wrongQ}>{q.text_de}</Text>
-                  <Text style={s.wrongCorrect}>✓ {q.opts?.find((o:any) => o.ok)?.text_de}</Text>
+                  <Text style={s.wrongCorrect}>✓ {q.opts?.find(o=>o.ok)?.text_de}</Text>
                 </View>
               ))}
             </View>
           )}
-
-          <TouchableOpacity style={s.btnPrimary} onPress={() => screen === 'result' ? startExam() : startPractice()}>
-            <Text style={s.btnPrimaryText}>🔁 Nochmal</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={[s.btnSecondary, {marginTop: 10}]} onPress={() => setScreen('home')}>
-            <Text style={s.btnSecondaryText}>← Startseite</Text>
-          </TouchableOpacity>
-          <View style={{height: 40}} />
+          <TouchableOpacity style={s.btnPrimary} onPress={() => startExam(isPractice)}><Text style={s.btnPrimaryT}>{t.nochmal}</Text></TouchableOpacity>
+          <TouchableOpacity style={[s.btnSecondary,{marginTop:10}]} onPress={goHome}><Text style={s.btnSecondaryT}>{t.start}</Text></TouchableOpacity>
+          <View style={{height:40}} />
         </ScrollView>
       </SafeAreaView>
     );
   }
 
-  return <View style={s.safe}><ActivityIndicator size="large" color={C.blue} style={{flex:1}} /></View>;
+  return <View style={{flex:1,alignItems:'center',justifyContent:'center'}}><ActivityIndicator size="large" color={C.blue} /></View>;
 }
 
-// ─── STYLES ────────────────────────────────────────────────
+const ms = StyleSheet.create({
+  overlay:{flex:1,backgroundColor:'rgba(0,0,0,0.5)',flexDirection:'row'},
+  drawer:{width:width*0.78,backgroundColor:C.dark,height:'100%',paddingTop:50},
+  drawerHeader:{flexDirection:'row',justifyContent:'space-between',alignItems:'center',padding:20,borderBottomWidth:1,borderBottomColor:'rgba(255,255,255,0.1)'},
+  drawerLogo:{fontSize:20,fontWeight:'900',color:C.white},
+  closeBtn:{color:C.white,fontSize:22,fontWeight:'700'},
+  userInfo:{padding:16,borderBottomWidth:1,borderBottomColor:'rgba(255,255,255,0.1)'},
+  userName:{color:C.white,fontSize:15,fontWeight:'700'},
+  userEmail:{color:C.gray,fontSize:12,marginTop:2},
+  premBadge:{color:'#FFD700',fontSize:12,fontWeight:'700',marginTop:4},
+  langRow:{flexDirection:'row',gap:8,padding:16,borderBottomWidth:1,borderBottomColor:'rgba(255,255,255,0.1)'},
+  langBtn:{paddingHorizontal:12,paddingVertical:6,borderRadius:20,borderWidth:1,borderColor:'rgba(255,255,255,0.2)'},
+  langBtnOn:{backgroundColor:C.blue,borderColor:C.blue},
+  langTxt:{color:C.gray,fontSize:12,fontWeight:'700'},
+  langTxtOn:{color:C.white},
+  menuItem:{flexDirection:'row',alignItems:'center',gap:12,padding:16,borderBottomWidth:1,borderBottomColor:'rgba(255,255,255,0.05)'},
+  menuIcon:{fontSize:20},
+  menuLabel:{color:C.white,fontSize:15,fontWeight:'500'},
+  menuBottom:{padding:16,marginTop:'auto',borderTopWidth:1,borderTopColor:'rgba(255,255,255,0.1)'},
+  authBtn:{backgroundColor:C.blue,borderRadius:10,padding:12,alignItems:'center'},
+  authBtnTxt:{color:C.white,fontWeight:'700',fontSize:14},
+});
+
 const s = StyleSheet.create({
-  safe: {flex: 1, backgroundColor: C.dark},
-  homeScroll: {flex: 1},
-  homeHeader: {flexDirection:'row',alignItems:'center',justifyContent:'space-between',padding:20,paddingTop:10},
-  logoRow: {flexDirection:'row',alignItems:'center',gap:8},
-  logoIcon: {fontSize:24},
-  logoText: {fontSize:20,fontWeight:'900',color:C.white},
-  loginBtn: {color:'#60A5FA',fontWeight:'700',fontSize:14},
-  logoutBtn: {color:C.gray,fontWeight:'600',fontSize:13},
-  hero: {padding:24,paddingTop:10},
-  heroBadge: {backgroundColor:'rgba(255,255,255,0.1)',borderRadius:20,paddingHorizontal:12,paddingVertical:5,alignSelf:'flex-start',marginBottom:14},
-  heroBadgeText: {color:'rgba(255,255,255,0.7)',fontSize:11,fontWeight:'600'},
-  heroTitle: {fontSize:32,fontWeight:'900',color:C.white,lineHeight:40,marginBottom:10},
-  heroSub: {fontSize:14,color:'rgba(255,255,255,0.5)',marginBottom:8},
-  welcomeText: {fontSize:14,color:'#60A5FA',fontWeight:'600',marginTop:8},
-  statsRow: {flexDirection:'row',flexWrap:'wrap',gap:10,paddingHorizontal:20,marginBottom:24},
-  statCard: {flex:1,minWidth:'22%',backgroundColor:'rgba(255,255,255,0.06)',borderRadius:12,padding:12,alignItems:'center'},
-  statN: {fontSize:22,fontWeight:'900',color:C.white},
-  statL: {fontSize:9,color:'rgba(255,255,255,0.4)',textAlign:'center',marginTop:2},
-  btnsSection: {paddingHorizontal:20,gap:12,marginBottom:24},
-  btnPrimary: {backgroundColor:C.blue,borderRadius:14,padding:16,alignItems:'center'},
-  btnPrimaryText: {color:C.white,fontSize:16,fontWeight:'800'},
-  btnSecondary: {backgroundColor:'rgba(255,255,255,0.1)',borderRadius:14,padding:16,alignItems:'center',borderWidth:1,borderColor:'rgba(255,255,255,0.15)'},
-  btnSecondaryText: {color:C.white,fontSize:15,fontWeight:'700'},
-  btnOutline: {borderRadius:14,padding:14,alignItems:'center',borderWidth:1.5,borderColor:'rgba(255,255,255,0.25)'},
-  btnOutlineText: {color:'rgba(255,255,255,0.7)',fontSize:14,fontWeight:'600'},
-  infoCard: {marginHorizontal:20,backgroundColor:'rgba(255,255,255,0.05)',borderRadius:14,padding:18,marginBottom:20},
-  infoTitle: {color:C.white,fontWeight:'700',fontSize:14,marginBottom:10},
-  infoText: {color:'rgba(255,255,255,0.6)',fontSize:13,lineHeight:22},
-  authContainer: {padding:24,flexGrow:1,backgroundColor:C.white},
-  backBtn: {marginBottom:24},
-  backBtnText: {color:C.blue,fontSize:14,fontWeight:'600'},
-  authTitle: {fontSize:26,fontWeight:'900',color:C.dark,marginBottom:6},
-  authSub: {fontSize:14,color:C.gray,marginBottom:28},
-  input: {borderWidth:1.5,borderColor:C.border,borderRadius:10,padding:14,fontSize:14,marginBottom:14,color:C.dark,backgroundColor:'#F9FAFB'},
-  switchAuth: {color:C.blue,textAlign:'center',marginTop:20,fontWeight:'600'},
-  examHeader: {flexDirection:'row',alignItems:'center',justifyContent:'space-between',paddingHorizontal:16,paddingVertical:12,backgroundColor:C.white,borderBottomWidth:1,borderBottomColor:C.border},
-  examBack: {fontSize:18,color:C.gray,fontWeight:'700',padding:4},
-  examCounter: {fontSize:13,fontWeight:'700',color:C.dark},
-  examTimer: {fontSize:13,fontWeight:'700',color:C.blue},
-  progressTrack: {height:4,backgroundColor:C.light},
-  progressFill: {height:4,backgroundColor:C.blue},
-  scoreRow: {flexDirection:'row',justifyContent:'center',gap:20,paddingVertical:10,backgroundColor:C.white,borderBottomWidth:1,borderBottomColor:C.border},
-  scoreItem: {fontSize:13,fontWeight:'700',color:C.dark},
-  examScroll: {flex:1,padding:16},
-  qImg: {width:'100%',height:180,borderRadius:12,marginBottom:16,backgroundColor:C.light},
-  qText: {fontSize:17,fontWeight:'800',color:C.dark,marginBottom:16,lineHeight:24},
-  optBtn: {flexDirection:'row',alignItems:'center',gap:12,padding:14,backgroundColor:C.white,borderRadius:12,marginBottom:10,borderWidth:1.5,borderColor:C.border},
-  optCorrect: {backgroundColor:'#DCFCE7',borderColor:C.green},
-  optWrong: {backgroundColor:'#FEF2F2',borderColor:C.red},
-  optLetter: {width:28,height:28,borderRadius:14,backgroundColor:C.light,alignItems:'center',justifyContent:'center'},
-  optLetterText: {fontSize:12,fontWeight:'700',color:C.dark},
-  optText: {flex:1,fontSize:13,color:C.dark,fontWeight:'500'},
-  feedbackBox: {borderRadius:10,padding:12,marginBottom:12},
-  feedbackText: {fontSize:15,fontWeight:'800',textAlign:'center'},
-  correctAnswerText: {fontSize:12,color:C.green,textAlign:'center',marginTop:6},
-  nextBtn: {backgroundColor:C.blue,borderRadius:12,padding:14,alignItems:'center',marginTop:4},
-  nextBtnText: {color:C.white,fontSize:15,fontWeight:'800'},
-  resultContainer: {padding:24,alignItems:'center',backgroundColor:C.white,flexGrow:1},
-  resultIcon: {fontSize:60,marginTop:20,marginBottom:10},
-  resultTitle: {fontSize:24,fontWeight:'900',color:C.dark,marginBottom:24,textAlign:'center'},
-  resultStats: {flexDirection:'row',gap:12,marginBottom:28,flexWrap:'wrap',justifyContent:'center'},
-  resultStat: {backgroundColor:C.light,borderRadius:12,padding:14,alignItems:'center',minWidth:70},
-  resultStatN: {fontSize:24,fontWeight:'900'},
-  resultStatL: {fontSize:10,color:C.gray,marginTop:2},
-  wrongSection: {width:'100%',marginBottom:24},
-  wrongTitle: {fontSize:14,fontWeight:'700',color:C.red,marginBottom:12},
-  wrongItem: {backgroundColor:'#FEF2F2',borderRadius:10,padding:12,marginBottom:8},
-  wrongImg: {width:'100%',height:80,borderRadius:6,marginBottom:6},
-  wrongQ: {fontSize:12,fontWeight:'600',color:C.dark,marginBottom:4},
-  wrongCorrect: {fontSize:12,color:C.green,fontWeight:'600'},
+  safe:{flex:1,backgroundColor:C.dark},
+  navbar:{flexDirection:'row',alignItems:'center',justifyContent:'space-between',paddingHorizontal:16,paddingVertical:12,backgroundColor:'transparent'},
+  navbarLight:{backgroundColor:C.white,borderBottomWidth:1,borderBottomColor:C.border},
+  hamburger:{width:44,height:44,justifyContent:'center',gap:5},
+  hLine:{height:2,backgroundColor:C.white,borderRadius:1,width:22},
+  hLineDark:{backgroundColor:C.dark},
+  navLogo:{flexDirection:'row',alignItems:'center',gap:6},
+  navLogoIcon:{fontSize:20},
+  navLogoTxt:{fontSize:18,fontWeight:'900',color:C.white},
+  navLogoTxtDark:{color:C.dark},
+  homeScroll:{flex:1},
+  hero:{padding:24,paddingTop:8},
+  heroBadge:{backgroundColor:'rgba(255,255,255,0.1)',borderRadius:20,paddingHorizontal:12,paddingVertical:5,alignSelf:'flex-start',marginBottom:14},
+  heroBadgeT:{color:'rgba(255,255,255,0.7)',fontSize:11,fontWeight:'600'},
+  heroTitle:{fontSize:30,fontWeight:'900',color:C.white,lineHeight:38,marginBottom:10},
+  heroSub:{fontSize:13,color:'rgba(255,255,255,0.5)',marginBottom:8},
+  welcome:{fontSize:14,color:'#60A5FA',fontWeight:'600',marginTop:8},
+  statsRow:{flexDirection:'row',flexWrap:'wrap',gap:10,paddingHorizontal:20,marginBottom:20},
+  statCard:{flex:1,minWidth:'22%',backgroundColor:'rgba(255,255,255,0.06)',borderRadius:12,padding:12,alignItems:'center'},
+  statN:{fontSize:22,fontWeight:'900',color:C.white},
+  statL:{fontSize:9,color:'rgba(255,255,255,0.4)',textAlign:'center',marginTop:2},
+  btns:{paddingHorizontal:20,gap:10,marginBottom:20},
+  btnPrimary:{backgroundColor:C.blue,borderRadius:14,padding:15,alignItems:'center'},
+  btnPrimaryT:{color:C.white,fontSize:15,fontWeight:'800'},
+  btnSecondary:{backgroundColor:'rgba(255,255,255,0.08)',borderRadius:14,padding:15,alignItems:'center',borderWidth:1,borderColor:'rgba(255,255,255,0.15)'},
+  btnSecondaryT:{color:C.white,fontSize:14,fontWeight:'700'},
+  btnOutline:{borderRadius:14,padding:13,alignItems:'center',borderWidth:1.5,borderColor:'rgba(255,255,255,0.25)'},
+  btnOutlineT:{color:'rgba(255,255,255,0.7)',fontSize:13,fontWeight:'600'},
+  infoCard:{marginHorizontal:20,backgroundColor:'rgba(255,255,255,0.05)',borderRadius:14,padding:16,marginBottom:20},
+  infoTitle:{color:C.white,fontWeight:'700',fontSize:13,marginBottom:8},
+  infoTxt:{color:'rgba(255,255,255,0.55)',fontSize:12,lineHeight:20},
+  newsSection:{marginHorizontal:20,marginBottom:20},
+  sectionTitle:{color:C.white,fontSize:15,fontWeight:'700',marginBottom:12},
+  newsCard:{backgroundColor:'rgba(255,255,255,0.06)',borderRadius:12,overflow:'hidden',marginBottom:10},
+  newsImg:{width:'100%',height:120},
+  newsBody:{padding:12},
+  newsTag:{fontSize:10,color:'#60A5FA',fontWeight:'700',marginBottom:4},
+  newsTitle:{color:C.white,fontSize:13,fontWeight:'600'},
+  adBanner:{backgroundColor:'rgba(255,255,255,0.04)',borderWidth:1,borderColor:'rgba(255,255,255,0.1)',borderRadius:10,margin:16,padding:10},
+  adLabel:{fontSize:9,color:C.gray,marginBottom:4},
+  adContent:{alignItems:'center'},
+  adImg:{width:'100%',height:80,borderRadius:6},
+  adText:{color:C.white,fontSize:12,textAlign:'center',marginTop:4},
+  authCont:{padding:24,flexGrow:1,backgroundColor:C.white},
+  backBtn:{marginBottom:20},
+  backBtnT:{color:C.blue,fontSize:14,fontWeight:'600'},
+  authTitle:{fontSize:24,fontWeight:'900',color:C.dark,marginBottom:24},
+  input:{borderWidth:1.5,borderColor:C.border,borderRadius:10,padding:13,fontSize:13,marginBottom:12,color:C.dark,backgroundColor:'#F9FAFB'},
+  switchAuth:{color:C.blue,textAlign:'center',marginTop:16,fontWeight:'600'},
+  examHeader:{flexDirection:'row',alignItems:'center',justifyContent:'space-between',paddingHorizontal:16,paddingVertical:10,backgroundColor:C.white,borderBottomWidth:1,borderBottomColor:C.border},
+  examBack:{padding:6},
+  examBackT:{fontSize:18,color:C.gray,fontWeight:'700'},
+  examCounter:{fontSize:14,fontWeight:'700',color:C.dark,textAlign:'center'},
+  examMode:{fontSize:10,color:C.gray,textAlign:'center'},
+  examTimer:{fontSize:14,fontWeight:'700',color:C.blue},
+  progressTrack:{height:4,backgroundColor:C.light},
+  progressFill:{height:4,backgroundColor:C.blue},
+  scoreRow:{flexDirection:'row',justifyContent:'center',gap:24,paddingVertical:8,backgroundColor:C.white,borderBottomWidth:1,borderBottomColor:C.border},
+  scoreItem:{fontSize:13,fontWeight:'700',color:C.dark},
+  examScroll:{flex:1,padding:16},
+  qImg:{width:'100%',height:180,borderRadius:12,marginBottom:14,backgroundColor:C.light},
+  qText:{fontSize:16,fontWeight:'800',color:C.dark,marginBottom:14,lineHeight:24},
+  optBtn:{flexDirection:'row',alignItems:'center',gap:10,padding:13,backgroundColor:C.white,borderRadius:12,marginBottom:8,borderWidth:1.5,borderColor:C.border},
+  optCorrect:{backgroundColor:'#DCFCE7',borderColor:C.green},
+  optWrong:{backgroundColor:'#FEF2F2',borderColor:C.red},
+  optLetter:{width:26,height:26,borderRadius:13,backgroundColor:C.light,alignItems:'center',justifyContent:'center'},
+  optLetterT:{fontSize:11,fontWeight:'700',color:C.dark},
+  optText:{flex:1,fontSize:13,color:C.dark,fontWeight:'500'},
+  feedback:{borderRadius:10,padding:12,marginBottom:10},
+  feedbackT:{fontSize:14,fontWeight:'800',textAlign:'center'},
+  correctA:{fontSize:12,color:C.green,textAlign:'center',marginTop:4},
+  nextBtn:{backgroundColor:C.blue,borderRadius:12,padding:14,alignItems:'center'},
+  nextBtnT:{color:C.white,fontSize:15,fontWeight:'800'},
+  resultCont:{padding:24,alignItems:'center',backgroundColor:C.white,flexGrow:1},
+  resultIcon:{fontSize:56,marginTop:16,marginBottom:8},
+  resultTitle:{fontSize:22,fontWeight:'900',color:C.dark,marginBottom:6,textAlign:'center'},
+  resultSubtitle:{fontSize:18,fontWeight:'700',marginBottom:20,textAlign:'center'},
+  resultStats:{flexDirection:'row',gap:10,marginBottom:24,flexWrap:'wrap',justifyContent:'center'},
+  rStat:{backgroundColor:C.light,borderRadius:12,padding:14,alignItems:'center',minWidth:70},
+  rStatN:{fontSize:22,fontWeight:'900'},
+  rStatL:{fontSize:10,color:C.gray,marginTop:2},
+  wrongSec:{width:'100%',marginBottom:20},
+  wrongTitle:{fontSize:13,fontWeight:'700',color:C.red,marginBottom:10},
+  wrongItem:{backgroundColor:'#FEF2F2',borderRadius:10,padding:10,marginBottom:8},
+  wrongImg:{width:'100%',height:70,borderRadius:6,marginBottom:6},
+  wrongQ:{fontSize:12,fontWeight:'600',color:C.dark,marginBottom:4},
+  wrongCorrect:{fontSize:11,color:C.green,fontWeight:'600'},
 });
