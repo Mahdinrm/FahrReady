@@ -8,8 +8,12 @@ buildscript {
         kotlinVersion = "1.9.22"
     }
     repositories {
-        google()
-        mavenCentral()
+    google()
+    mavenCentral()
+    maven { url 'https://jcenter.bintray.com' }
+    maven { 
+        url 'https://repo.maven.apache.org/maven2'
+        allowInsecureProtocol = true 
     }
     dependencies {
         classpath("com.android.tools.build:gradle")
