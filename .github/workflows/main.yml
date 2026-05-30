@@ -30,25 +30,37 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Build AAB (Google Play)
+      - name: Create bundle directory
+        run: mkdir -p android/app/src/main/assets
+
+      - name: Bundle JavaScript
+        run: |
+          npx react-native bundle \
+            --platform android \
+            --dev false \
+            --entry-file index.js \
+            --bundle-output android/app/src/main/assets/index.android.bundle \
+            --assets-dest android/app/src/main/res
+
+      - name: Build APK
         run: |
           cd android
           chmod +x gradlew
-          ./gradlew bundleRelease --no-daemon
+          ./gradlew assembleRelease --no-daemon
 
-      - name: Build APK (Test)
+      - name: Build AAB
         run: |
           cd android
-          ./gradlew assembleDebug --no-daemon
+          ./gradlew bundleRelease --no-daemon
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: FahrReady-release-apk
+          path: android/app/build/outputs/apk/release/app-release-unsigned.apk
 
       - name: Upload AAB
         uses: actions/upload-artifact@v4
         with:
           name: FahrReady-release-aab
           path: android/app/build/outputs/bundle/release/app-release.aab
-
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: FahrReady-debug-apk
-          path: android/app/build/outputs/apk/debug/app-debug.apk
