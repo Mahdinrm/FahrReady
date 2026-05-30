@@ -300,8 +300,7 @@ export default function App() {
       <ScrollView style={s.homeScroll} showsVerticalScrollIndicator={false}>
         <View style={s.hero}>
           <View style={s.heroBadge}><Text style={s.heroBadgeT}>🇨🇭 Offizielle Schweizer Theorieprüfung</Text></View>
-          <Text style={s.heroTitle}>Bestehe deine{"
-"}<Text style={{color:'#60A5FA'}}>Fahrprüfung</Text></Text>
+          <Text style={s.heroTitle}>{"Bestehe deine\n"}<Text style={{color:'#60A5FA'}}>{"Fahrprüfung"}</Text></Text>
           <Text style={s.heroSub}>{t.sprachen === 'Sprachen' ? 'Persisch · Azerbaijanisch · Deutsch · Englisch' : t.sprachen}</Text>
           {user && <Text style={s.welcome}>👋 {user.full_name?.split(' ')[0]} {user.is_premium ? '⭐' : ''}</Text>}
         </View>
