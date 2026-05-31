@@ -113,15 +113,26 @@ export default function App() {
       if (qRes.ok && Array.isArray(qRes.data) && qRes.data.length > 0) {
         const aRes2 = await sbReq('answers?order=question_id.asc,id.asc&limit=2000');
         if (aRes2.ok && Array.isArray(aRes2.data)) {
-          const qs = qRes.data.map(q => ({
-            ...q, opts: aRes2.data.filter(a => a.question_id === q.id).slice(0,4).map(a => ({
-              text_de: a.text_de || '',
-              text_fa: a.text_fa || '',
-              text_az: a.text_az || '',
-              text_en: a.text_en || '',
-              ok: a.is_correct
-            }))
-          })).filter(q => q.opts.length >= 2);
+          const qs = qRes.data.map(q => {
+            const localQ = LOCAL_Q.find(lq => lq.img_url === q.img_url);
+            const opts = aRes2.data.filter(a => a.question_id === q.id).slice(0,4).map((a, ai) => {
+              const localOpt = localQ?.opts?.[ai];
+              return {
+                text_de: a.text_de || '',
+                text_fa: a.text_fa || localOpt?.text_fa || '',
+                text_az: a.text_az || localOpt?.text_az || '',
+                text_en: a.text_en || localOpt?.text_en || '',
+                ok: a.is_correct
+              };
+            });
+            return {
+              ...q,
+              text_fa: q.text_fa || localQ?.text_fa || '',
+              text_az: q.text_az || localQ?.text_az || '',
+              text_en: q.text_en || localQ?.text_en || '',
+              opts
+            };
+          }).filter(q => q.opts.length >= 2);
           if (qs.length > 0) setQuestions(qs);
         }
       }
