@@ -198,7 +198,14 @@ export default function App() {
     const freeLimit = isPractice ? PRACTICE_FREE : EXAM_FREE;
     if (!user?.is_premium && qIdx + 1 >= freeLimit) {
       if (timerRef) clearInterval(timerRef);
-      Alert.alert(t.premium, t.premiumMsg, [{text: 'OK', onPress: finishExam}]);
+      Alert.alert(
+        '⭐ Premium erforderlich / اشتراک ویژه',
+        'CHF 9/Monat oder CHF 29/Jahr\n\n' +
+        '🏦 IBAN: CH56 0483 5012 3456 7800 9\n' +
+        '👤 FahrReady\n\n' +
+        'Nach Überweisung innerhalb 24h freigeschaltet.',
+        [{text: 'OK', onPress: finishExam}]
+      );
       return;
     }
     if (qIdx + 1 >= examQ.length) { finishExam(); return; }
@@ -443,6 +450,11 @@ export default function App() {
           <Animated.View style={{opacity:fadeAnim}}>
             {curQ.img_url ? <Image source={{uri:curQ.img_url}} style={s.qImg} resizeMode="contain" /> : null}
             <Text style={s.qText}>{curQ.text_de}</Text>
+            {lang !== 'de' && curQ['text_'+lang] ? (
+              <Text style={[s.qText, {fontSize:14, color:C.gray, fontWeight:'500', marginTop:4}]}>
+                {curQ['text_'+lang]}
+              </Text>
+            ) : null}
             {opts.map((opt,i) => {
               let os = s.optBtn, ots = s.optText;
               if (answered) {
@@ -452,7 +464,12 @@ export default function App() {
               return (
                 <TouchableOpacity key={i} style={os} onPress={() => pickAnswer(i, opt.ok)} disabled={answered}>
                   <View style={s.optLetter}><Text style={s.optLetterT}>{['A','B','C','D'][i]}</Text></View>
+                  <View style={{flex:1}}>
                   <Text style={ots}>{opt.text_de}</Text>
+                  {lang !== 'de' && opt['text_'+lang] ? (
+                    <Text style={{fontSize:11, color:C.gray, marginTop:2}}>{opt['text_'+lang]}</Text>
+                  ) : null}
+                </View>
                 </TouchableOpacity>
               );
             })}
