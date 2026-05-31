@@ -198,14 +198,8 @@ export default function App() {
     const freeLimit = isPractice ? PRACTICE_FREE : EXAM_FREE;
     if (!user?.is_premium && qIdx + 1 >= freeLimit) {
       if (timerRef) clearInterval(timerRef);
-      Alert.alert(
-        '⭐ Premium erforderlich / اشتراک ویژه',
-        'CHF 9/Monat oder CHF 29/Jahr\n\n' +
-        '🏦 IBAN: CH56 0483 5012 3456 7800 9\n' +
-        '👤 FahrReady\n\n' +
-        'Nach Überweisung innerhalb 24h freigeschaltet.',
-        [{text: 'OK', onPress: finishExam}]
-      );
+      if (timerRef) clearInterval(timerRef);
+      setScreen('premium');
       return;
     }
     if (qIdx + 1 >= examQ.length) { finishExam(); return; }
@@ -283,7 +277,7 @@ export default function App() {
         <View style={[s.hLine, light && s.hLineDark]} />
       </TouchableOpacity>
       <TouchableOpacity onPress={goHome} style={s.navLogo}>
-        <Text style={s.navLogoIcon}>🚗</Text>
+        <Image source={{uri:"data:image/png;base64,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"}} style={{width:28,height:28,borderRadius:6}} />
         <Text style={[s.navLogoTxt, light && s.navLogoTxtDark]}>Fahr<Text style={{color:'#60A5FA'}}>Ready</Text></Text>
       </TouchableOpacity>
       <View style={{width:44}} />
@@ -494,7 +488,50 @@ export default function App() {
   }
 
   // RESULT
-  if (screen === 'result') {
+  if (screen === 'premium') {
+    return (
+      <SafeAreaView style={[s.safe,{backgroundColor:C.white}]}>
+        <StatusBar barStyle="dark-content" backgroundColor={C.white} />
+        <Menu />
+        <NavBar light />
+        <ScrollView contentContainerStyle={s.authCont}>
+          <Text style={{fontSize:52,textAlign:'center',marginTop:20,marginBottom:10}}>⭐</Text>
+          <Text style={[s.authTitle,{textAlign:'center'}]}>Premium</Text>
+          <Text style={{fontSize:13,color:C.gray,textAlign:'center',marginBottom:24,lineHeight:20}}>
+            Für unbegrenzten Zugang zu allen Fragen
+          </Text>
+          <View style={{backgroundColor:'#F8FAFF',borderRadius:14,padding:20,marginBottom:20,borderWidth:1,borderColor:C.border}}>
+            <Text style={{fontSize:15,fontWeight:'800',color:C.dark,marginBottom:16}}>💳 Preise</Text>
+            <View style={{flexDirection:'row',justifyContent:'space-between',marginBottom:10}}>
+              <Text style={{fontSize:14,color:C.dark}}>Monatlich</Text>
+              <Text style={{fontSize:14,fontWeight:'700',color:C.blue}}>CHF 9</Text>
+            </View>
+            <View style={{flexDirection:'row',justifyContent:'space-between'}}>
+              <Text style={{fontSize:14,color:C.dark}}>Jährlich</Text>
+              <Text style={{fontSize:14,fontWeight:'700',color:C.green}}>CHF 29</Text>
+            </View>
+          </View>
+          <View style={{backgroundColor:'#F8FAFF',borderRadius:14,padding:20,marginBottom:24,borderWidth:1,borderColor:C.border}}>
+            <Text style={{fontSize:15,fontWeight:'800',color:C.dark,marginBottom:12}}>🏦 Zahlung per IBAN</Text>
+            <Text style={{fontSize:13,color:C.gray,marginBottom:6}}>IBAN:</Text>
+            <Text style={{fontSize:14,fontWeight:'700',color:C.dark,marginBottom:10}}>CH56 0483 5012 3456 7800 9</Text>
+            <Text style={{fontSize:13,color:C.gray,marginBottom:6}}>Empfänger:</Text>
+            <Text style={{fontSize:14,fontWeight:'700',color:C.dark,marginBottom:10}}>FahrReady</Text>
+            <Text style={{fontSize:11,color:C.gray,lineHeight:16}}>
+              Nach Überweisung wird Ihr Konto innerhalb 24h freigeschaltet.{'
+'}
+              Bitte Ihre E-Mail als Verwendungszweck angeben.
+            </Text>
+          </View>
+          <TouchableOpacity style={s.btnPrimary} onPress={() => setScreen('home')}>
+            <Text style={s.btnPrimaryT}>← Zurück zur Startseite</Text>
+          </TouchableOpacity>
+        </ScrollView>
+      </SafeAreaView>
+    );
+  }
+
+    if (screen === 'result') {
     const total = results.length;
     const correct = results.filter(r=>r.correct).length;
     const wrong = total - correct;
