@@ -10,7 +10,8 @@ const {width, height} = Dimensions.get('window');
 
 const SB_URL = 'https://npfvlfdjngzczxhghmyu.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5wZnZsZmRqbmd6Y3p4aGdobXl1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkzMTI2NjgsImV4cCI6MjA5NDg4ODY2OH0.oqnB4FTnmj-wno7AEgTz-MAmunazqwpj5jEkvB5xN8s';
-const FREE_LIMIT = 20;
+const EXAM_FREE = 5;
+const PRACTICE_FREE = 10;
 
 async function sbReq(path, method = 'GET', body) {
   const prefer = method === 'PATCH' || method === 'DELETE' ? 'return=minimal' : 'return=representation';
@@ -161,7 +162,12 @@ export default function App() {
   }
 
   function startExam(practice = false) {
-    const pool = shuffle([...questions]);
+    // Shuffle opts within each question
+  const questionsWithShuffledOpts = questions.map(q => ({
+    ...q,
+    opts: shuffle([...q.opts])
+  }));
+  const pool = shuffle([...questionsWithShuffledOpts]);
     const set = practice ? pool : pool.slice(0, Math.min(50, pool.length));
     setExamQ(set);
     setQIdx(0); setScore(0); setErrors(0);
@@ -189,7 +195,8 @@ export default function App() {
   }
 
   function nextQ() {
-    if (!user?.is_premium && qIdx + 1 >= FREE_LIMIT) {
+    const freeLimit = isPractice ? PRACTICE_FREE : EXAM_FREE;
+    if (!user?.is_premium && qIdx + 1 >= freeLimit) {
       if (timerRef) clearInterval(timerRef);
       Alert.alert(t.premium, t.premiumMsg, [{text: 'OK', onPress: finishExam}]);
       return;
