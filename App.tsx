@@ -518,9 +518,10 @@ export default function App() {
             <Text style={{fontSize:13,color:C.gray,marginBottom:6}}>Empfänger:</Text>
             <Text style={{fontSize:14,fontWeight:'700',color:C.dark,marginBottom:10}}>FahrReady</Text>
             <Text style={{fontSize:11,color:C.gray,lineHeight:16}}>
-              Nach Überweisung wird Ihr Konto innerhalb 24h freigeschaltet.{'
-'}
-              Bitte Ihre E-Mail als Verwendungszweck angeben.
+              {"Nach Überweisung wird Ihr Konto innerhalb 24h freigeschaltet."}
+            </Text>
+            <Text style={{fontSize:11,color:C.gray,lineHeight:16}}>
+              {"Bitte Ihre E-Mail als Verwendungszweck angeben."}
             </Text>
           </View>
           <TouchableOpacity style={s.btnPrimary} onPress={() => setScreen('home')}>
