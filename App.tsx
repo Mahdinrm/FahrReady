@@ -145,7 +145,13 @@ export default function App() {
         const aRes2 = await sbReq('answers?order=question_id.asc,id.asc&limit=2000');
         if (aRes2.ok && Array.isArray(aRes2.data)) {
           const qs = qRes.data.map(q => ({
-            ...q, opts: aRes2.data.filter(a => a.question_id === q.id).map(a => ({text_de: a.text_de, ok: a.is_correct}))
+            ...q, opts: aRes2.data.filter(a => a.question_id === q.id).slice(0,4).map(a => ({
+              text_de: a.text_de || '',
+              text_fa: a.text_fa || '',
+              text_az: a.text_az || '',
+              text_en: a.text_en || '',
+              ok: a.is_correct
+            }))
           })).filter(q => q.opts.length >= 2);
           if (qs.length > 0) setQuestions(qs);
         }
@@ -219,7 +225,7 @@ export default function App() {
   }
 
   const curQ = examQ[qIdx];
-  const adTop = ads.find(a => a.position === 'top');
+  const adTop = ads.find(a => a.position === 'top' || a.position === 'header');
   const adBottom = ads.find(a => a.position === 'bottom');
 
   // HAMBURGER MENU
