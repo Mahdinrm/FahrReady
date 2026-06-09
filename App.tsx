@@ -81,6 +81,7 @@ export default function App() {
   const [calTitle, setCalTitle] = useState('Führerausweis Prüfung');
   const [calDate, setCalDate] = useState('');
   const [calTime, setCalTime] = useState('06:00');
+  const [calRingtone, setCalRingtone] = useState('🔔 Standard');
   const [aiText, setAiText] = useState('');
   const [aiLoading, setAiLoading] = useState(false);
   const fadeAnim = useRef(new Animated.Value(1)).current;
@@ -198,10 +199,14 @@ Richtig: ${results.filter(r=>r.correct).length}/${results.length}
 Falsch: ${wrong.slice(0,8).map(r=>r.q.text_de).join(', ')}
 Gib konkrete Tipps. Max 150 Wörter pro Sprache.`;
     try{
-      const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})});
+      const r=await fetch('https://npfvlfdjngzczxhghmyu.supabase.co/functions/v1/ai-analysis',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':`Bearer ${SB_KEY}`,'apikey':SB_KEY},
+        body:JSON.stringify({prompt})
+      });
       const d=await r.json();
-      setAiText(d.content?.[0]?.text||'Analyse nicht verfügbar');
-    }catch(e){setAiText('Fehler bei der Analyse');}
+      setAiText(d.text||d.error||'Analyse nicht verfügbar');
+    }catch(e){setAiText('Verbindungsfehler. Bitte Internet prüfen.');}
     setAiLoading(false);
   }
 
@@ -407,11 +412,11 @@ Gib konkrete Tipps. Max 150 Wörter pro Sprache.`;
               setLoading(true);
               if(isReg){
                 const r=await sbReq('users','POST',{email,password_hash:password,full_name:fullName||email,language:lang,is_premium:false,created_at:new Date().toISOString()});
-                if(r.ok&&Array.isArray(r.data)&&r.data[0]){setUser(r.data[0]);setScreen('home');}
+                if(r.ok&&Array.isArray(r.data)&&r.data[0]){setUser(r.data[0]);setScreen('home');Alert.alert('🎉 Willkommen!','Hallo '+r.data[0].full_name+'! Schön, dass Sie dabei sind.');}
                 else Alert.alert('Fehler','Registrierung fehlgeschlagen. E-Mail bereits vorhanden?');
               }else{
                 const r=await sbReq(`users?email=eq.${encodeURIComponent(email)}&password_hash=eq.${encodeURIComponent(password)}`);
-                if(r.ok&&Array.isArray(r.data)&&r.data[0]){setUser(r.data[0]);setScreen('home');}
+                if(r.ok&&Array.isArray(r.data)&&r.data[0]){setUser(r.data[0]);setScreen('home');Alert.alert('👋 Willkommen zurück!','Hallo '+r.data[0].full_name+'!');}
                 else Alert.alert('Fehler','Falsche E-Mail oder Passwort');
               }
               setLoading(false);
@@ -490,31 +495,70 @@ Gib konkrete Tipps. Max 150 Wörter pro Sprache.`;
         <ScrollView contentContainerStyle={{padding:20}}>
           <TouchableOpacity style={{marginBottom:20}} onPress={goHome}><Text style={{color:T.accent,fontSize:14}}>{t.back}</Text></TouchableOpacity>
           <Text style={{fontSize:22,fontWeight:'900',color:T.text,marginBottom:20}}>📅 {t.calendar}</Text>
-          <View style={{backgroundColor:T.card,borderRadius:14,padding:16,marginBottom:20,borderWidth:1,borderColor:T.border}}>
-            <Text style={{color:T.text,fontSize:14,fontWeight:'700',marginBottom:12}}>+ Neuer Termin</Text>
-            <TextInput style={{borderWidth:1,borderColor:T.border,borderRadius:8,padding:10,color:T.text,backgroundColor:T.bg,marginBottom:8,fontSize:13}} placeholder="Titel" placeholderTextColor={T.sub} value={calTitle} onChangeText={setCalTitle}/>
-            <TextInput style={{borderWidth:1,borderColor:T.border,borderRadius:8,padding:10,color:T.text,backgroundColor:T.bg,marginBottom:8,fontSize:13}} placeholder="Datum (DD.MM.YYYY)" placeholderTextColor={T.sub} value={calDate} onChangeText={setCalDate} keyboardType="numbers-and-punctuation"/>
-            <TextInput style={{borderWidth:1,borderColor:T.border,borderRadius:8,padding:10,color:T.text,backgroundColor:T.bg,marginBottom:12,fontSize:13}} placeholder="Uhrzeit (HH:MM)" placeholderTextColor={T.sub} value={calTime} onChangeText={setCalTime} keyboardType="numbers-and-punctuation"/>
-            <TouchableOpacity style={{backgroundColor:T.blue,borderRadius:10,padding:12,alignItems:'center'}} onPress={()=>{
+          <View style={{backgroundColor:T.card,borderRadius:16,padding:20,marginBottom:20,borderWidth:1,borderColor:T.border}}>
+            <Text style={{color:T.text,fontSize:16,fontWeight:'800',marginBottom:16}}>📅 Neuer Termin</Text>
+            <Text style={{color:T.sub,fontSize:11,marginBottom:4}}>Titel</Text>
+            <TextInput style={{borderWidth:1,borderColor:T.border,borderRadius:10,padding:12,color:T.text,backgroundColor:T.bg,marginBottom:12,fontSize:13}} placeholder="z.B. Führerausweis Prüfung" placeholderTextColor={T.sub} value={calTitle} onChangeText={setCalTitle}/>
+            <View style={{flexDirection:'row',gap:10,marginBottom:12}}>
+              <View style={{flex:1}}>
+                <Text style={{color:T.sub,fontSize:11,marginBottom:4}}>Datum</Text>
+                <TextInput style={{borderWidth:1,borderColor:T.border,borderRadius:10,padding:12,color:T.text,backgroundColor:T.bg,fontSize:13}} placeholder="DD.MM.YYYY" placeholderTextColor={T.sub} value={calDate} onChangeText={setCalDate} keyboardType="numbers-and-punctuation"/>
+              </View>
+              <View style={{flex:1}}>
+                <Text style={{color:T.sub,fontSize:11,marginBottom:4}}>Uhrzeit</Text>
+                <TextInput style={{borderWidth:1,borderColor:T.border,borderRadius:10,padding:12,color:T.text,backgroundColor:T.bg,fontSize:13}} placeholder="HH:MM" placeholderTextColor={T.sub} value={calTime} onChangeText={setCalTime} keyboardType="numbers-and-punctuation"/>
+              </View>
+            </View>
+            <Text style={{color:T.sub,fontSize:11,marginBottom:8}}>🔔 Klingelton</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{marginBottom:14}}>
+              {['🔔 Standard','🎵 Melodie','📯 Trompete','🔊 Laut','🎶 Sanft'].map((r,i)=>(
+                <TouchableOpacity key={i} onPress={()=>setCalRingtone(r)}
+                  style={{paddingHorizontal:14,paddingVertical:8,borderRadius:20,marginRight:8,borderWidth:1.5,borderColor:calRingtone===r?T.blue:T.border,backgroundColor:calRingtone===r?T.blue+'22':'transparent'}}>
+                  <Text style={{color:calRingtone===r?T.blue:T.sub,fontSize:12,fontWeight:'600'}}>{r}</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+            <TouchableOpacity style={{backgroundColor:T.blue,borderRadius:12,padding:14,alignItems:'center'}} onPress={()=>{
               if(!calDate){Alert.alert('Fehler','Datum eingeben');return;}
-              const ev={id:Date.now().toString(),title:calTitle||'Prüfung',date:calDate,time:calTime||'06:00'};
+              const ev={id:Date.now().toString(),title:calTitle||'Prüfung',date:calDate,time:calTime||'06:00',ringtone:calRingtone,enabled:true};
               setCalendar(p=>[...p,ev]);
-              setCalDate('');setCalTime('06:00');setCalTitle('Führerausweis Prüfung');
-              Alert.alert('✓','Termin gespeichert!');
+              setCalDate('');setCalTime('06:00');setCalTitle('Führerausweis Prüfung');setCalRingtone('🔔 Standard');
+              Alert.alert('✓','Termin gespeichert! Sie werden um '+calTime+' Uhr erinnert.');
             }}>
-              <Text style={{color:'#fff',fontWeight:'700'}}>💾 Speichern</Text>
+              <Text style={{color:'#fff',fontWeight:'800'}}>💾 Termin speichern</Text>
             </TouchableOpacity>
           </View>
-          {calendar.length===0?<Text style={{color:T.sub,textAlign:'center',marginTop:20}}>Keine Termine</Text>:
-          calendar.map(ev=>(
-            <View key={ev.id} style={{backgroundColor:T.card,borderRadius:12,padding:16,marginBottom:10,borderWidth:1,borderColor:T.border,flexDirection:'row',justifyContent:'space-between',alignItems:'center'}}>
-              <View>
-                <Text style={{color:T.text,fontSize:14,fontWeight:'700'}}>{ev.title}</Text>
-                <Text style={{color:T.accent,fontSize:12,marginTop:4}}>📅 {ev.date} ⏰ {ev.time}</Text>
+          {calendar.length===0?(
+            <View style={{alignItems:'center',paddingVertical:40}}>
+              <Text style={{fontSize:40,marginBottom:10}}>📅</Text>
+              <Text style={{color:T.sub,textAlign:'center'}}>Keine Termine vorhanden</Text>
+            </View>
+          ):calendar.map(ev=>(
+            <View key={ev.id} style={{backgroundColor:T.card,borderRadius:16,padding:16,marginBottom:12,borderWidth:1,borderColor:ev.enabled!==false?T.blue+'44':T.border}}>
+              <View style={{flexDirection:'row',justifyContent:'space-between',alignItems:'flex-start'}}>
+                <View style={{flex:1}}>
+                  <Text style={{color:T.text,fontSize:15,fontWeight:'700'}}>{ev.title}</Text>
+                  <View style={{flexDirection:'row',gap:12,marginTop:8}}>
+                    <Text style={{color:T.accent,fontSize:12}}>📅 {ev.date}</Text>
+                    <Text style={{color:T.accent,fontSize:12}}>⏰ {ev.time}</Text>
+                    <Text style={{color:T.sub,fontSize:12}}>{ev.ringtone||'🔔 Standard'}</Text>
+                  </View>
+                </View>
+                <View style={{flexDirection:'row',gap:8}}>
+                  <TouchableOpacity onPress={()=>setCalendar(p=>p.map(e=>e.id===ev.id?{...e,enabled:!e.enabled}:e))}
+                    style={{backgroundColor:ev.enabled!==false?T.blue:'#9CA3AF',borderRadius:8,paddingHorizontal:10,paddingVertical:6}}>
+                    <Text style={{color:'#fff',fontSize:11,fontWeight:'700'}}>{ev.enabled!==false?'AN':'AUS'}</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={()=>{
+                    Alert.alert('Löschen?',ev.title+' löschen?',[
+                      {text:'Nein',style:'cancel'},
+                      {text:'Löschen',style:'destructive',onPress:()=>setCalendar(p=>p.filter(e=>e.id!==ev.id))}
+                    ]);
+                  }} style={{backgroundColor:'#DC2626',borderRadius:8,paddingHorizontal:10,paddingVertical:6}}>
+                    <Text style={{color:'#fff',fontSize:11,fontWeight:'700'}}>✕</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
-              <TouchableOpacity onPress={()=>setCalendar(p=>p.filter(e=>e.id!==ev.id))} style={{backgroundColor:'#DC2626',borderRadius:8,padding:8}}>
-                <Text style={{color:'#fff',fontSize:12}}>✕</Text>
-              </TouchableOpacity>
             </View>
           ))}
           <View style={{height:40}}/>
