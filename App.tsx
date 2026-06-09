@@ -1,13 +1,14 @@
 import React, {useState, useEffect, useRef} from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity, TextInput,
-  StyleSheet, Alert, ActivityIndicator, Image, Dimensions,
+  Alert, ActivityIndicator, Image, Dimensions,
   SafeAreaView, StatusBar, Animated, BackHandler, Linking,
 } from 'react-native';
 
 const {width} = Dimensions.get('window');
 
 // FahrReady v2.1
+const LOGO_URI = 'data:image/png;base64,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';
 const SB_URL = 'https://npfvlfdjngzczxhghmyu.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5wZnZsZmRqbmd6Y3p4aGdobXl1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkzMTI2NjgsImV4cCI6MjA5NDg4ODY2OH0.oqnB4FTnmj-wno7AEgTz-MAmunazqwpj5jEkvB5xN8s';
 const STRIPE_URL = 'https://npfvlfdjngzczxhghmyu.supabase.co/functions/v1/create-checkout';
@@ -328,17 +329,7 @@ Gib konkrete Tipps. Max 150 Wörter pro Sprache.`;
           </ScrollView>
           <View style={{padding:16,borderTopWidth:1,borderTopColor:T.border}}>
             {user?(
-              <TouchableOpacity style={{backgroundColor:'#DC2626',borderRadius:10,padding:12,alignItems:'center'}} onPress={()=>{
-                Alert.alert('🚪 '+t.logout, 'Wirklich abmelden?',[
-                  {text:'Nein / نه',style:'cancel'},
-                  {text:'Ja / بله',onPress:()=>{
-                    Alert.alert('✋ Sicher?', 'Abmeldung endgültig bestätigen?',[
-                      {text:'Abbrechen / لغو',style:'cancel'},
-                      {text:'✓ Abmelden',style:'destructive',onPress:()=>{setUser(null);goHome();}}
-                    ]);
-                  }}
-                ]);
-              }}>
+              <TouchableOpacity style={{backgroundColor:'#DC2626',borderRadius:10,padding:12,alignItems:'center'} onPress={()=>setLogoutStep(1)}>
                 <Text style={{color:'#fff',fontWeight:'700'}}>🚪 {t.logout}</Text>
               </TouchableOpacity>
             ):(
@@ -375,7 +366,7 @@ Gib konkrete Tipps. Max 150 Wörter pro Sprache.`;
         <View style={{height:2,width:22,backgroundColor:T.text}}/>
       </TouchableOpacity>
       <TouchableOpacity onPress={goHome} style={{flexDirection:'row',alignItems:'center',gap:8}}>
-        <Text style={{fontSize:18}}>🚗</Text>
+        <Image source={{uri:LOGO_URI}} style={{width:28,height:28,borderRadius:6}} />
         <Text style={{fontSize:17,fontWeight:'900',color:T.text}}>Fahr<Text style={{color:T.accent}}>Ready</Text></Text>
       </TouchableOpacity>
       <TouchableOpacity onPress={()=>setShowTheme(true)} style={{width:34,height:34,borderRadius:17,backgroundColor:T.blue,alignItems:'center',justifyContent:'center'}}>
@@ -539,13 +530,7 @@ Gib konkrete Tipps. Max 150 Wörter pro Sprache.`;
 
               {/* Hesaptan Çık */}
               <TouchableOpacity style={{backgroundColor:T.card,borderRadius:14,padding:14,alignItems:'center',marginBottom:10,borderWidth:1.5,borderColor:'#F59E0B'}} onPress={()=>{
-                Alert.alert('🚪 Abmelden / خروج', 'Wirklich abmelden?',[
-                  {text:'❌ Nein / نه',style:'cancel'},
-                  {text:'✓ Ja / بله',onPress:()=>{
-                    Alert.alert('✋ Sicher? / مطمئنی؟','Abmeldung endgültig bestätigen?',[
-                      {text:'❌ Abbrechen',style:'cancel'},
-                      {text:'🚪 Abmelden',style:'destructive',onPress:()=>{setUser(null);goHome();}}
-                    ]);
+                setLogoutStep(1);
                   }}
                 ]);
               }}>
