@@ -3,7 +3,7 @@ import {
   View, Text, ScrollView, TouchableOpacity, TextInput,
   StyleSheet, Alert, ActivityIndicator, Image, Dimensions,
   SafeAreaView, StatusBar, Animated, BackHandler,
-  Modal, Platform, Linking, Vibration,
+  Platform, Linking, Vibration,
 } from 'react-native';
 
 const {width, height} = Dimensions.get('window');
@@ -96,17 +96,10 @@ export default function App() {
       if (showTheme) { setShowTheme(false); return true; }
       if (menuOpen) { closeMenu(); return true; }
       if (screen !== 'home') { 
-        Alert.alert('Zurück / بازگشت', 'Zur Startseite?', [
-          {text: t.nein, style:'cancel'},
-          {text: t.ja, onPress: goHome}
-        ]);
+        goHome();
         return true; 
       }
-      Alert.alert(t.abmeldeBest, 'App beenden?', [
-        {text: t.nein, style:'cancel'},
-        {text: t.ja, onPress: () => BackHandler.exitApp()}
-      ]);
-      return true;
+      return false;
     });
     return () => backHandler.remove();
   }, [screen, menuOpen, showTheme, theme, lang]);
@@ -252,9 +245,10 @@ export default function App() {
   const adBottom = ads.find(a => a.position==='bottom');
 
   // ── THEME SELECTOR ──
-  const ThemeModal = () => (
-    <Modal visible={showTheme} transparent animationType="fade" onRequestClose={() => setShowTheme(false)}>
-      <TouchableOpacity style={{flex:1,backgroundColor:'rgba(0,0,0,0.5)',justifyContent:'center',alignItems:'center'}} onPress={() => setShowTheme(false)}>
+  const ThemeModal = () => {
+    if (!showTheme) return null;
+    return (
+      <View style={{position:'absolute',top:0,left:0,right:0,bottom:0,zIndex:1000,backgroundColor:'rgba(0,0,0,0.5)',justifyContent:'center',alignItems:'center'}}>
         <View style={{backgroundColor:T.card,borderRadius:20,padding:24,width:width*0.8}}>
           <Text style={{color:T.text,fontSize:18,fontWeight:'800',marginBottom:16,textAlign:'center'}}>{t.thema}</Text>
           {Object.entries(THEMES).map(([key, th]) => (
@@ -264,10 +258,14 @@ export default function App() {
               {theme===key && <Text style={{color:T.blue}}>✓</Text>}
             </TouchableOpacity>
           ))}
+          <TouchableOpacity onPress={()=>setShowTheme(false)} style={{marginTop:8,padding:12,alignItems:'center'}}>
+            <Text style={{color:T.sub,fontWeight:'600'}}>✕ Schließen</Text>
+          </TouchableOpacity>
         </View>
-      </TouchableOpacity>
-    </Modal>
-  );
+        <TouchableOpacity style={{position:'absolute',top:0,left:0,right:0,bottom:0,zIndex:-1}} onPress={()=>setShowTheme(false)} activeOpacity={1}/>
+      </View>
+    );
+  };
 
   // ── MENU ──
   const Menu = () => {
@@ -343,7 +341,7 @@ export default function App() {
         <View style={{height:2,backgroundColor:T.text,width:22}} />
       </TouchableOpacity>
       <TouchableOpacity onPress={goHome} style={{flexDirection:'row',alignItems:'center',gap:6}}>
-        <Text style={{fontSize:18}}>🚗</Text>
+        <Image source={{uri:"data:image/png;base64,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"}} style={{width:28,height:28,borderRadius:6}} />
         <Text style={{fontSize:18,fontWeight:'900',color:T.text}}>Fahr<Text style={{color:T.accent}}>Ready</Text></Text>
       </TouchableOpacity>
       <TouchableOpacity onPress={()=>setShowTheme(s=>!s)} style={{width:36,height:36,borderRadius:18,backgroundColor:T.blue,alignItems:'center',justifyContent:'center'}}>
