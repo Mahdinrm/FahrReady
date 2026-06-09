@@ -92,17 +92,29 @@ export default function App() {
 
   useEffect(() => {
     loadData();
+  }, []);
+
+  // Use refs to avoid stale closures in BackHandler
+  const screenRef = useRef(screen);
+  const menuOpenRef = useRef(menuOpen);
+  const showThemeRef = useRef(showTheme);
+  
+  useEffect(() => { screenRef.current = screen; }, [screen]);
+  useEffect(() => { menuOpenRef.current = menuOpen; }, [menuOpen]);
+  useEffect(() => { showThemeRef.current = showTheme; }, [showTheme]);
+
+  useEffect(() => {
     const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
-      if (showTheme) { setShowTheme(false); return true; }
-      if (menuOpen) { closeMenu(); return true; }
-      if (screen !== 'home') { 
-        goHome();
+      if (showThemeRef.current) { setShowTheme(false); return true; }
+      if (menuOpenRef.current) { setMenuOpen(false); return true; }
+      if (screenRef.current !== 'home') { 
+        setScreen('home');
         return true; 
       }
       return false;
     });
     return () => backHandler.remove();
-  }, [screen, menuOpen, showTheme, theme, lang]);
+  }, []);
 
   async function loadData() {
     try {
