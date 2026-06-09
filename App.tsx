@@ -179,25 +179,22 @@ export default function App() {
 
   function pickAnswer(optIdx) {
     if (answered) return;
-    const q = examQ[qIdx];
-    const correctCount = q.opts.filter(o=>o.ok).length;
-    if (correctCount > 1) {
-      // Multi-answer: toggle selection
-      setSelectedOpts(prev => {
-        if (prev.includes(optIdx)) return prev.filter(i=>i!==optIdx);
-        return [...prev, optIdx];
-      });
-    } else {
-      // Single answer: submit immediately
-      const correct = q.opts[optIdx]?.ok || false;
-      setAnswered(true);
-      setSelectedOpts([optIdx]);
-      if (correct) setScore(s=>s+1); else setErrors(e=>e+1);
-      setResults(r=>[...r,{q,correct}]);
-    }
+    // Toggle selection - same for both single and multi
+    setSelectedOpts(prev => {
+      const q = examQ[qIdx];
+      const correctCount = q.opts.filter(o=>o.ok).length;
+      if (correctCount === 1) {
+        // Single answer: replace selection
+        return [optIdx];
+      }
+      // Multi answer: toggle
+      if (prev.includes(optIdx)) return prev.filter(i=>i!==optIdx);
+      return [...prev, optIdx];
+    });
   }
 
-  function submitMulti() {
+  function submitAnswer() {
+    if (selectedOpts.length === 0) return;
     const q = examQ[qIdx];
     const correctIdxs = q.opts.map((o,i)=>o.ok?i:-1).filter(i=>i>=0);
     const allCorrect = correctIdxs.every(i=>selectedOpts.includes(i)) && selectedOpts.every(i=>q.opts[i]?.ok);
@@ -273,9 +270,10 @@ export default function App() {
   );
 
   // ── MENU ──
-  const Menu = () => (
-    <Modal visible={menuOpen} transparent onRequestClose={closeMenu}>
-      <TouchableOpacity style={{flex:1,backgroundColor:'rgba(0,0,0,0.5)'}} onPress={closeMenu} activeOpacity={1}>
+  const Menu = () => {
+    if (!menuOpen) return null;
+    return (
+      <View style={{position:'absolute',top:0,left:0,right:0,bottom:0,zIndex:999,flexDirection:'row'}}>
         <View style={{width:width*0.78,height:'100%',backgroundColor:T.card}}>
           <SafeAreaView style={{flex:1}}>
             <View style={{padding:20,borderBottomWidth:1,borderBottomColor:T.border,flexDirection:'row',justifyContent:'space-between',alignItems:'center'}}>
@@ -332,9 +330,10 @@ export default function App() {
             </View>
           </SafeAreaView>
         </View>
-      </TouchableOpacity>
-    </Modal>
-  );
+        <TouchableOpacity style={{flex:1,backgroundColor:'rgba(0,0,0,0.5)'}} onPress={closeMenu} activeOpacity={1}/>
+      </View>
+    );
+  };
 
   const NavBar = ({light=false}) => (
     <View style={{flexDirection:'row',alignItems:'center',justifyContent:'space-between',paddingHorizontal:16,paddingVertical:12,backgroundColor:T.navBg}}>
@@ -500,6 +499,27 @@ export default function App() {
     </SafeAreaView>
   );
 
+  // ── CALENDAR ADD ──
+  const [calDate, setCalDate] = useState('');
+  const [calTime, setCalTime] = useState('06:00');
+  const [calTitle, setCalTitle] = useState('Führerausweis Prüfung');
+
+  const CalendarAdd = () => (
+    <View style={{backgroundColor:T.card,borderRadius:14,padding:16,marginBottom:16,borderWidth:1,borderColor:T.border}}>
+      <Text style={{color:T.text,fontSize:14,fontWeight:'700',marginBottom:10}}>+ Neuer Termin</Text>
+      <TextInput style={{borderWidth:1,borderColor:T.border,borderRadius:8,padding:10,color:T.text,backgroundColor:T.bg,marginBottom:8,fontSize:13}} placeholder="Titel (z.B. Prüfung)" placeholderTextColor={T.sub} value={calTitle} onChangeText={setCalTitle}/>
+      <TextInput style={{borderWidth:1,borderColor:T.border,borderRadius:8,padding:10,color:T.text,backgroundColor:T.bg,marginBottom:8,fontSize:13}} placeholder="Datum (DD.MM.YYYY)" placeholderTextColor={T.sub} value={calDate} onChangeText={setCalDate} keyboardType="numeric"/>
+      <TextInput style={{borderWidth:1,borderColor:T.border,borderRadius:8,padding:10,color:T.text,backgroundColor:T.bg,marginBottom:12,fontSize:13}} placeholder="Uhrzeit (HH:MM)" placeholderTextColor={T.sub} value={calTime} onChangeText={setCalTime} keyboardType="numeric"/>
+      <TouchableOpacity style={{backgroundColor:T.blue,borderRadius:10,padding:12,alignItems:'center'}} onPress={()=>{
+        if(!calDate){Alert.alert('Fehler','Datum eingeben');return;}
+        addCalendarEvent(calTitle||'Prüfung', calDate, calTime||'06:00');
+        setCalDate(''); setCalTime('06:00'); setCalTitle('Führerausweis Prüfung');
+      }}>
+        <Text style={{color:'#fff',fontWeight:'700'}}>💾 Termin speichern</Text>
+      </TouchableOpacity>
+    </View>
+  );
+
   // ── CALENDAR ──
   if (screen==='calendar') return (
     <SafeAreaView style={{flex:1,backgroundColor:T.bg}}>
@@ -508,16 +528,7 @@ export default function App() {
       <ScrollView contentContainerStyle={{padding:24}}>
         <TouchableOpacity style={{marginBottom:20}} onPress={goHome}><Text style={{color:T.accent,fontSize:14,fontWeight:'600'}}>← {t.home}</Text></TouchableOpacity>
         <Text style={{fontSize:24,fontWeight:'900',color:T.text,marginBottom:24}}>📅 {t.kalender}</Text>
-        <TouchableOpacity style={{backgroundColor:T.blue,borderRadius:14,padding:15,alignItems:'center',marginBottom:20}} onPress={()=>{
-          Alert.prompt('Prüfungstermin', 'Datum (DD.MM.YYYY HH:MM):', (input)=>{
-            if(input){
-              const parts=input.split(' ');
-              addCalendarEvent('Führerausweis Prüfung', parts[0]||input, parts[1]||'06:00');
-            }
-          }, 'plain-text', '', 'default');
-        }}>
-          <Text style={{color:'#fff',fontSize:15,fontWeight:'800'}}>{t.pruefungHinzu}</Text>
-        </TouchableOpacity>
+        <CalendarAdd />
         {calendar.length===0 ? (
           <Text style={{color:T.sub,textAlign:'center',marginTop:40}}>Keine Termine</Text>
         ) : calendar.map(ev=>(
@@ -588,11 +599,7 @@ export default function App() {
         <TouchableOpacity style={{backgroundColor:T.blue,borderRadius:14,padding:15,alignItems:'center',width:'100%',marginBottom:20}} onPress={()=>stripeCheckout('price_1TgMzy0VonCoGUqlOfHZ5xR5')}>
           <Text style={{color:'#fff',fontSize:15,fontWeight:'800'}}>⭐ Jährlich CHF 29</Text>
         </TouchableOpacity>
-        <View style={{backgroundColor:T.card,borderRadius:14,padding:16,width:'100%',marginBottom:16,borderWidth:1,borderColor:T.border}}>
-          <Text style={{color:T.text,fontSize:14,fontWeight:'700',marginBottom:8}}>🏦 IBAN Überweisung</Text>
-          <Text style={{color:T.text,fontSize:13,marginBottom:4}}>CH56 0483 5012 3456 7800 9</Text>
-          <Text style={{color:T.sub,fontSize:11}}>Nach Überweisung innerhalb 24h aktiviert</Text>
-        </View>
+
         <TouchableOpacity style={{padding:12}} onPress={goHome}>
           <Text style={{color:T.sub,fontSize:13}}>← Zurück</Text>
         </TouchableOpacity>
@@ -661,8 +668,8 @@ export default function App() {
                 </TouchableOpacity>
               );
             })}
-            {!answered&&curQ.opts.filter(o=>o.ok).length>1&&selectedOpts.length>0&&(
-              <TouchableOpacity style={{backgroundColor:T.blue,borderRadius:12,padding:12,alignItems:'center',marginBottom:8}} onPress={submitMulti}>
+            {!answered&&selectedOpts.length>0&&(
+              <TouchableOpacity style={{backgroundColor:T.blue,borderRadius:12,padding:12,alignItems:'center',marginBottom:8}} onPress={submitAnswer}>
                 <Text style={{color:'#fff',fontWeight:'700'}}>✓ Bestätigen / تأیید</Text>
               </TouchableOpacity>
             )}
@@ -707,6 +714,9 @@ export default function App() {
           <TouchableOpacity style={{backgroundColor:T.blue,borderRadius:12,padding:13,alignItems:'center',width:'100%',marginBottom:10}} onPress={()=>startExam(isPractice)}>
             <Text style={{color:'#fff',fontWeight:'700'}}>{t.nochmal}</Text>
           </TouchableOpacity>
+          <TouchableOpacity style={{backgroundColor:'#7C3AED',borderRadius:12,padding:13,alignItems:'center',width:'100%',marginBottom:10}} onPress={()=>setScreen('analysis')}>
+            <Text style={{color:'#fff',fontWeight:'700'}}>🤖 KI-Analyse / تحلیل هوش مصنوعی</Text>
+          </TouchableOpacity>
           <TouchableOpacity style={{backgroundColor:T.btnSecBg,borderRadius:12,padding:13,alignItems:'center',width:'100%',borderWidth:1,borderColor:T.border}} onPress={goHome}>
             <Text style={{color:T.text,fontWeight:'700'}}>← {t.home}</Text>
           </TouchableOpacity>
@@ -716,5 +726,98 @@ export default function App() {
     );
   }
 
-  return <View style={{flex:1,alignItems:'center',justifyContent:'center',backgroundColor:T.bg}}><ActivityIndicator size="large" color="#1B4FD8"/></View>;
+  // ── AI ANALYSIS ──
+  const [aiAnalysis, setAiAnalysis] = useState('');
+  const [aiLoading, setAiLoading] = useState(false);
+
+  async function runAiAnalysis() {
+    setAiLoading(true);
+    setAiAnalysis('');
+    try {
+      const wrongQ = results.filter(r=>!r.correct);
+      const prompt = `Du bist ein Schweizer Fahrlehrer. Analysiere diese Prüfungsergebnisse:
+
+Gesamt: ${results.length} Fragen
+Richtig: ${results.filter(r=>r.correct).length}
+Falsch: ${wrongQ.length}
+
+Falsch beantwortete Fragen:
+${wrongQ.slice(0,10).map((r,i)=>`${i+1}. ${r.q.text_de}`).join('\n')}
+
+Gib eine kurze, hilfreiche Analyse auf Deutsch und Persisch (فارسی). 
+Erkläre welche Themenbereiche verbessert werden müssen und gib konkrete Tipps. Max 200 Wörter.`;
+
+      const response = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 1000,
+          messages: [{role:'user', content: prompt}]
+        })
+      });
+      const data = await response.json();
+      const text = data.content?.[0]?.text || 'Analyse nicht verfügbar';
+      setAiAnalysis(text);
+    } catch(e) {
+      setAiAnalysis('Analyse fehlgeschlagen. Bitte Internet prüfen.');
+    }
+    setAiLoading(false);
+  }
+
+  if (screen==='analysis') return (
+    <SafeAreaView style={{flex:1,backgroundColor:T.bg}}>
+      <StatusBar barStyle={theme==='light'?'dark-content':'light-content'} backgroundColor={T.bg} />
+      <ThemeModal />
+      {menuOpen && <Menu />}
+      <NavBar />
+      <ScrollView contentContainerStyle={{padding:24}}>
+        <TouchableOpacity style={{marginBottom:20}} onPress={()=>setScreen('result')}>
+          <Text style={{color:T.accent,fontSize:14,fontWeight:'600'}}>← Zurück</Text>
+        </TouchableOpacity>
+        <Text style={{fontSize:22,fontWeight:'900',color:T.text,marginBottom:6}}>🤖 KI-Analyse</Text>
+        <Text style={{fontSize:13,color:T.sub,marginBottom:20}}>تحلیل هوش مصنوعی</Text>
+        <View style={{flexDirection:'row',gap:10,marginBottom:20}}>
+          {[[results.length,'Gesamt',T.blue],[results.filter(r=>r.correct).length,'Richtig','#16A34A'],[results.filter(r=>!r.correct).length,'Falsch','#DC2626']].map(([n,l,col])=>(
+            <View key={l} style={{flex:1,backgroundColor:T.card,borderRadius:12,padding:12,alignItems:'center',borderWidth:1,borderColor:T.border}}>
+              <Text style={{fontSize:20,fontWeight:'900',color:col}}>{n}</Text>
+              <Text style={{fontSize:10,color:T.sub}}>{l}</Text>
+            </View>
+          ))}
+        </View>
+        {!aiAnalysis && !aiLoading && (
+          <TouchableOpacity style={{backgroundColor:'#7C3AED',borderRadius:14,padding:15,alignItems:'center',marginBottom:20}} onPress={runAiAnalysis}>
+            <Text style={{color:'#fff',fontSize:15,fontWeight:'800'}}>🤖 Analyse starten</Text>
+          </TouchableOpacity>
+        )}
+        {aiLoading && (
+          <View style={{alignItems:'center',padding:30}}>
+            <ActivityIndicator size="large" color="#7C3AED"/>
+            <Text style={{color:T.sub,marginTop:12}}>KI analysiert... / در حال تحلیل...</Text>
+          </View>
+        )}
+        {aiAnalysis && (
+          <View style={{backgroundColor:T.card,borderRadius:16,padding:20,borderWidth:1,borderColor:'#7C3AED33'}}>
+            <Text style={{color:'#7C3AED',fontSize:12,fontWeight:'700',marginBottom:10}}>🤖 KI-Analyse</Text>
+            <Text style={{color:T.text,fontSize:13,lineHeight:22}}>{aiAnalysis}</Text>
+          </View>
+        )}
+        {results.filter(r=>!r.correct).length > 0 && (
+          <View style={{marginTop:20}}>
+            <Text style={{color:T.text,fontSize:15,fontWeight:'700',marginBottom:12}}>❌ Falsche Antworten</Text>
+            {results.filter(r=>!r.correct).map((r,i)=>(
+              <View key={i} style={{backgroundColor:T.card,borderRadius:12,padding:12,marginBottom:8,borderWidth:1,borderColor:'#DC262633'}}>
+                <Text style={{color:T.text,fontSize:13,fontWeight:'600',marginBottom:4}}>{r.q.text_de}</Text>
+                {lang!=='de'&&r.q['text_'+lang]&&<Text style={{color:T.sub,fontSize:11,marginBottom:6}}>{r.q['text_'+lang]}</Text>}
+                <Text style={{color:'#16A34A',fontSize:12}}>✓ {r.q.opts?.find(o=>o.ok)?.text_de}</Text>
+              </View>
+            ))}
+          </View>
+        )}
+        <View style={{height:40}}/>
+      </ScrollView>
+    </SafeAreaView>
+  );
+
+    return <View style={{flex:1,alignItems:'center',justifyContent:'center',backgroundColor:T.bg}}><ActivityIndicator size="large" color="#1B4FD8"/></View>;
 }
