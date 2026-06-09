@@ -77,6 +77,8 @@ export default function App() {
   const [results, setResults] = useState([]);
   const [isPractice, setIsPractice] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showPass, setShowPass] = useState(false);
+  const [logoutStep, setLogoutStep] = useState(0);
   const [calendar, setCalendar] = useState([]);
   const [calTitle, setCalTitle] = useState('Führerausweis Prüfung');
   const [calDate, setCalDate] = useState('');
@@ -239,6 +241,45 @@ Gib konkrete Tipps. Max 150 Wörter pro Sprache.`;
         <TouchableOpacity onPress={()=>setShowTheme(false)} style={{marginTop:4,padding:12,alignItems:'center'}}>
           <Text style={{color:T.sub}}>✕ Schließen</Text>
         </TouchableOpacity>
+      </View>
+    </View>
+  ) : null;
+
+  // ── LOGOUT CONFIRM OVERLAY ──
+  const LogoutOverlay = logoutStep > 0 ? (
+    <View style={{position:'absolute',top:0,left:0,right:0,bottom:0,zIndex:2000,backgroundColor:'rgba(0,0,0,0.7)',justifyContent:'center',alignItems:'center',padding:30}}>
+      <View style={{backgroundColor:T.card,borderRadius:20,padding:24,width:'100%'}}>
+        {logoutStep === 1 ? (
+          <>
+            <Text style={{fontSize:24,textAlign:'center',marginBottom:8}}>🚪</Text>
+            <Text style={{color:T.text,fontSize:18,fontWeight:'900',textAlign:'center',marginBottom:6}}>Abmelden?</Text>
+            <Text style={{color:T.sub,fontSize:13,textAlign:'center',marginBottom:6}}>خروج از حساب؟</Text>
+            <Text style={{color:T.sub,fontSize:12,textAlign:'center',marginBottom:24}}>Möchten Sie sich wirklich abmelden?</Text>
+            <View style={{flexDirection:'row',gap:12}}>
+              <TouchableOpacity style={{flex:1,backgroundColor:T.bg,borderRadius:12,padding:14,alignItems:'center',borderWidth:1,borderColor:T.border}} onPress={()=>setLogoutStep(0)}>
+                <Text style={{color:T.text,fontWeight:'700'}}>❌ Nein / نه</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={{flex:1,backgroundColor:'#F59E0B',borderRadius:12,padding:14,alignItems:'center'}} onPress={()=>setLogoutStep(2)}>
+                <Text style={{color:'#fff',fontWeight:'700'}}>⚠️ Ja / بله</Text>
+              </TouchableOpacity>
+            </View>
+          </>
+        ) : (
+          <>
+            <Text style={{fontSize:24,textAlign:'center',marginBottom:8}}>✋</Text>
+            <Text style={{color:'#DC2626',fontSize:18,fontWeight:'900',textAlign:'center',marginBottom:6}}>Wirklich sicher?</Text>
+            <Text style={{color:T.sub,fontSize:13,textAlign:'center',marginBottom:6}}>مطمئنی؟</Text>
+            <Text style={{color:T.sub,fontSize:12,textAlign:'center',marginBottom:24}}>Diese Aktion kann nicht rückgängig gemacht werden.</Text>
+            <View style={{flexDirection:'row',gap:12}}>
+              <TouchableOpacity style={{flex:1,backgroundColor:T.bg,borderRadius:12,padding:14,alignItems:'center',borderWidth:1,borderColor:T.border}} onPress={()=>setLogoutStep(0)}>
+                <Text style={{color:T.text,fontWeight:'700'}}>❌ Abbrechen</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={{flex:1,backgroundColor:'#DC2626',borderRadius:12,padding:14,alignItems:'center'}} onPress={()=>{setLogoutStep(0);setUser(null);goHome();}}>
+                <Text style={{color:'#fff',fontWeight:'700'}}>🚪 Abmelden</Text>
+              </TouchableOpacity>
+            </View>
+          </>
+        )}
       </View>
     </View>
   ) : null;
@@ -416,7 +457,12 @@ Gib konkrete Tipps. Max 150 Wörter pro Sprache.`;
             <Text style={{fontSize:24,fontWeight:'900',color:T.text,marginBottom:24}}>{isReg?t.register:t.login}</Text>
             {isReg&&<TextInput style={{borderWidth:1.5,borderColor:T.border,borderRadius:10,padding:13,fontSize:13,marginBottom:12,color:T.text,backgroundColor:T.card}} placeholder="Vollständiger Name" placeholderTextColor={T.sub} value={fullName} onChangeText={setFullName}/>}
             <TextInput style={{borderWidth:1.5,borderColor:T.border,borderRadius:10,padding:13,fontSize:13,marginBottom:12,color:T.text,backgroundColor:T.card}} placeholder="E-Mail" placeholderTextColor={T.sub} value={email} onChangeText={setEmail} keyboardType="email-address" autoCapitalize="none"/>
-            <TextInput style={{borderWidth:1.5,borderColor:T.border,borderRadius:10,padding:13,fontSize:13,marginBottom:20,color:T.text,backgroundColor:T.card}} placeholder="Passwort" placeholderTextColor={T.sub} value={password} onChangeText={setPassword} secureTextEntry/>
+            <View style={{flexDirection:'row',alignItems:'center',borderWidth:1.5,borderColor:T.border,borderRadius:10,marginBottom:20,backgroundColor:T.card}}>
+              <TextInput style={{flex:1,padding:13,fontSize:13,color:T.text}} placeholder="Passwort" placeholderTextColor={T.sub} value={password} onChangeText={setPassword} secureTextEntry={!showPass}/>
+              <TouchableOpacity onPress={()=>setShowPass(p=>!p)} style={{padding:13}}>
+                <Text style={{fontSize:16}}>{showPass?'👁️':'🙈'}</Text>
+              </TouchableOpacity>
+            </View>
             <TouchableOpacity style={{backgroundColor:T.blue,borderRadius:12,padding:15,alignItems:'center'}} disabled={loading} onPress={async()=>{
               if(!email||!password){Alert.alert('Fehler','E-Mail und Passwort eingeben');return;}
               setLoading(true);
@@ -531,7 +577,7 @@ Gib konkrete Tipps. Max 150 Wörter pro Sprache.`;
           <View style={{height:40}}/>
         </ScrollView>
       </SafeAreaView>
-      {MenuOverlay}{ThemeOverlay}
+      {MenuOverlay}{ThemeOverlay}{LogoutOverlay}
     </View>
   );
 
@@ -560,10 +606,16 @@ Gib konkrete Tipps. Max 150 Wörter pro Sprache.`;
             </View>
             <Text style={{color:T.sub,fontSize:11,marginBottom:8}}>🔔 Klingelton</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{marginBottom:14}}>
-              {['🔔 Standard','🎵 Melodie','📯 Trompete','🔊 Laut','🎶 Sanft'].map((r,i)=>(
-                <TouchableOpacity key={i} onPress={()=>setCalRingtone(r)}
-                  style={{paddingHorizontal:14,paddingVertical:8,borderRadius:20,marginRight:8,borderWidth:1.5,borderColor:calRingtone===r?T.blue:T.border,backgroundColor:calRingtone===r?T.blue+'22':'transparent'}}>
-                  <Text style={{color:calRingtone===r?T.blue:T.sub,fontSize:12,fontWeight:'600'}}>{r}</Text>
+              {[
+                {name:'🔔 Standard', desc:'Standard Klingelton'},
+                {name:'🎵 Melodie', desc:'Melodie'},
+                {name:'📯 Trompete', desc:'Laut & klar'},
+                {name:'🔊 Laut', desc:'Sehr laut'},
+                {name:'🎶 Sanft', desc:'Sanfte Musik'},
+              ].map((r,i)=>(
+                <TouchableOpacity key={i} onPress={()=>{setCalRingtone(r.name);}}
+                  style={{paddingHorizontal:14,paddingVertical:8,borderRadius:20,marginRight:8,borderWidth:1.5,borderColor:calRingtone===r.name?T.blue:T.border,backgroundColor:calRingtone===r.name?T.blue+'22':'transparent'}}>
+                  <Text style={{color:calRingtone===r.name?T.blue:T.sub,fontSize:12,fontWeight:'600'}}>{r.name}</Text>
                 </TouchableOpacity>
               ))}
             </ScrollView>
@@ -613,7 +665,7 @@ Gib konkrete Tipps. Max 150 Wörter pro Sprache.`;
           <View style={{height:40}}/>
         </ScrollView>
       </SafeAreaView>
-      {MenuOverlay}{ThemeOverlay}
+      {MenuOverlay}{ThemeOverlay}{LogoutOverlay}
     </View>
   );
 
@@ -640,7 +692,7 @@ Gib konkrete Tipps. Max 150 Wörter pro Sprache.`;
           <View style={{height:40}}/>
         </ScrollView>
       </SafeAreaView>
-      {MenuOverlay}{ThemeOverlay}
+      {MenuOverlay}{ThemeOverlay}{LogoutOverlay}
     </View>
   );
 
@@ -678,7 +730,7 @@ Gib konkrete Tipps. Max 150 Wörter pro Sprache.`;
           </TouchableOpacity>
         </ScrollView>
       </SafeAreaView>
-      {MenuOverlay}{ThemeOverlay}
+      {MenuOverlay}{ThemeOverlay}{LogoutOverlay}
     </View>
   );
 
