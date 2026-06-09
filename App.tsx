@@ -79,6 +79,7 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [showPass, setShowPass] = useState(false);
   const [logoutStep, setLogoutStep] = useState(0);
+  const [premiumLocked, setPremiumLocked] = useState(false);
   const [calendar, setCalendar] = useState([]);
   const [calTitle, setCalTitle] = useState('Führerausweis Prüfung');
   const [calDate, setCalDate] = useState('');
@@ -138,6 +139,7 @@ export default function App() {
     setExamQ(set);setQIdx(0);setScore(0);setErrors(0);
     setAnswered(false);setSelectedOpts([]);setResults([]);setIsPractice(practice);
     setAiText('');
+    setPremiumLocked(false);
     if(!practice){
       setTimeLeft(2700);
       const ti=setInterval(()=>setTimeLeft(p=>{if(p<=1){clearInterval(ti);return 0;}return p-1;}),1000);
@@ -167,7 +169,7 @@ export default function App() {
 
   function nextQ() {
     const freeLimit=isPractice?PRACTICE_FREE:EXAM_FREE;
-    if(!user?.is_premium&&qIdx+1>=freeLimit){if(timerRef)clearInterval(timerRef);setScreen('premium');return;}
+    if(!user?.is_premium&&(premiumLocked||qIdx+1>=freeLimit)){if(timerRef)clearInterval(timerRef);setPremiumLocked(true);setScreen('premium');return;}
     if(qIdx+1>=examQ.length){finishExam();return;}
     setQIdx(i=>i+1);setAnswered(false);setSelectedOpts([]);
     fadeAnim.setValue(0);
@@ -482,6 +484,9 @@ Gib konkrete Tipps. Max 150 Wörter pro Sprache.`;
             <TouchableOpacity onPress={()=>setScreen(isReg?'login':'register')} style={{marginTop:16,padding:12}}>
               <Text style={{color:T.accent,textAlign:'center',fontWeight:'600'}}>{isReg?t.login+' →':'Registrieren →'}</Text>
             </TouchableOpacity>
+            <TouchableOpacity onPress={()=>{setUser({id:'anon',email:'anon',full_name:'Gast / مهمان',is_premium:false,isAnon:true});setScreen('home');}} style={{marginTop:8,padding:12}}>
+              <Text style={{color:T.sub,textAlign:'center',fontSize:13}}>👤 Als Gast fortfahren / ادامه به عنوان مهمان</Text>
+            </TouchableOpacity>
           </ScrollView>
         </SafeAreaView>
         {MenuOverlay}{ThemeOverlay}
@@ -613,7 +618,12 @@ Gib konkrete Tipps. Max 150 Wörter pro Sprache.`;
                 {name:'🔊 Laut', desc:'Sehr laut'},
                 {name:'🎶 Sanft', desc:'Sanfte Musik'},
               ].map((r,i)=>(
-                <TouchableOpacity key={i} onPress={()=>{setCalRingtone(r.name);}}
+                <TouchableOpacity key={i} onPress={()=>{
+                    setCalRingtone(r.name);
+                    Alert.alert('🔔 '+r.name, r.desc+'
+
+Klingelton ausgewählt!');
+                  }}
                   style={{paddingHorizontal:14,paddingVertical:8,borderRadius:20,marginRight:8,borderWidth:1.5,borderColor:calRingtone===r.name?T.blue:T.border,backgroundColor:calRingtone===r.name?T.blue+'22':'transparent'}}>
                   <Text style={{color:calRingtone===r.name?T.blue:T.sub,fontSize:12,fontWeight:'600'}}>{r.name}</Text>
                 </TouchableOpacity>
@@ -898,6 +908,49 @@ Gib konkrete Tipps. Max 150 Wörter pro Sprache.`;
           </ScrollView>
         </SafeAreaView>
         {MenuOverlay}{ThemeOverlay}
+      </View>
+    );
+  }
+
+  // Global overlays that work on ANY screen
+  if (logoutStep > 0) {
+    return (
+      <View style={{flex:1,backgroundColor:T.bg}}>
+        <View style={{position:'absolute',top:0,left:0,right:0,bottom:0,zIndex:9999,backgroundColor:'rgba(0,0,0,0.8)',justifyContent:'center',alignItems:'center',padding:30}}>
+          <View style={{backgroundColor:T.card,borderRadius:20,padding:28,width:'100%',borderWidth:1,borderColor:T.border}}>
+            {logoutStep===1 ? (
+              <>
+                <Text style={{fontSize:32,textAlign:'center',marginBottom:10}}>🚪</Text>
+                <Text style={{color:T.text,fontSize:20,fontWeight:'900',textAlign:'center',marginBottom:4}}>Abmelden?</Text>
+                <Text style={{color:T.sub,fontSize:14,textAlign:'center',marginBottom:4}}>خروج از حساب؟</Text>
+                <Text style={{color:T.sub,fontSize:12,textAlign:'center',marginBottom:24}}>Möchten Sie sich wirklich abmelden?</Text>
+                <View style={{flexDirection:'row',gap:12}}>
+                  <TouchableOpacity style={{flex:1,backgroundColor:T.bg,borderRadius:12,padding:14,alignItems:'center',borderWidth:1,borderColor:T.border}} onPress={()=>setLogoutStep(0)}>
+                    <Text style={{color:T.text,fontWeight:'700'}}>❌ Nein</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={{flex:1,backgroundColor:'#F59E0B',borderRadius:12,padding:14,alignItems:'center'}} onPress={()=>setLogoutStep(2)}>
+                    <Text style={{color:'#fff',fontWeight:'700'}}>⚠️ Ja</Text>
+                  </TouchableOpacity>
+                </View>
+              </>
+            ) : (
+              <>
+                <Text style={{fontSize:32,textAlign:'center',marginBottom:10}}>✋</Text>
+                <Text style={{color:'#DC2626',fontSize:20,fontWeight:'900',textAlign:'center',marginBottom:4}}>Wirklich sicher?</Text>
+                <Text style={{color:T.sub,fontSize:14,textAlign:'center',marginBottom:4}}>مطمئنی؟</Text>
+                <Text style={{color:T.sub,fontSize:12,textAlign:'center',marginBottom:24}}>Diese Aktion kann nicht rückgängig gemacht werden.</Text>
+                <View style={{flexDirection:'row',gap:12}}>
+                  <TouchableOpacity style={{flex:1,backgroundColor:T.bg,borderRadius:12,padding:14,alignItems:'center',borderWidth:1,borderColor:T.border}} onPress={()=>setLogoutStep(0)}>
+                    <Text style={{color:T.text,fontWeight:'700'}}>❌ Abbrechen</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={{flex:1,backgroundColor:'#DC2626',borderRadius:12,padding:14,alignItems:'center'}} onPress={()=>{setLogoutStep(0);setUser(null);goHome();}}>
+                    <Text style={{color:'#fff',fontWeight:'700'}}>🚪 Abmelden</Text>
+                  </TouchableOpacity>
+                </View>
+              </>
+            )}
+          </View>
+        </View>
       </View>
     );
   }
