@@ -76,7 +76,7 @@ export default function App() {
   const [score, setScore] = useState(0);
   const [errors, setErrors] = useState(0);
   const [answered, setAnswered] = useState(false);
-  const [selectedOpt, setSelectedOpt] = useState(null);
+  const [selectedOpts, setSelectedOpts] = useState([]);
   const [timeLeft, setTimeLeft] = useState(2700);
   const [timerRef, setTimerRef] = useState(null);
   const [results, setResults] = useState([]);
@@ -85,7 +85,7 @@ export default function App() {
   const [calendar, setCalendar] = useState([]);
   const [showTheme, setShowTheme] = useState(false);
   const fadeAnim = useRef(new Animated.Value(1)).current;
-  const menuAnim = useRef(new Animated.Value(-width)).current;
+  const menuAnim = useRef(new Animated.Value(0)).current;
 
   const T = THEMES[theme] || THEMES.dark;
   const t = TX[lang] || TX.de;
@@ -149,11 +149,10 @@ export default function App() {
 
   function openMenu() {
     setMenuOpen(true);
-    Animated.spring(menuAnim, {toValue: 0, useNativeDriver: true, tension: 100, friction: 12}).start();
   }
 
   function closeMenu() {
-    Animated.timing(menuAnim, {toValue: -width, duration: 250, useNativeDriver: true}).start(() => setMenuOpen(false));
+    setMenuOpen(false);
   }
 
   function goHome() {
@@ -165,7 +164,7 @@ export default function App() {
     const pool = shuffle(questions.map(q => ({...q, opts: shuffle([...q.opts])}))); 
     const set = practice ? pool : pool.slice(0, Math.min(50, pool.length));
     setExamQ(set); setQIdx(0); setScore(0); setErrors(0);
-    setAnswered(false); setSelectedOpt(null); setResults([]);
+    setAnswered(false); setSelectedOpts([]); setResults([]);
     setIsPractice(practice);
     if (!practice) {
       setTimeLeft(2700);
@@ -178,11 +177,33 @@ export default function App() {
     setScreen('exam');
   }
 
-  function pickAnswer(optIdx, correct) {
+  function pickAnswer(optIdx) {
     if (answered) return;
-    setAnswered(true); setSelectedOpt(optIdx);
-    if (correct) setScore(s=>s+1); else setErrors(e=>e+1);
-    setResults(r=>[...r,{q:examQ[qIdx],correct}]);
+    const q = examQ[qIdx];
+    const correctCount = q.opts.filter(o=>o.ok).length;
+    if (correctCount > 1) {
+      // Multi-answer: toggle selection
+      setSelectedOpts(prev => {
+        if (prev.includes(optIdx)) return prev.filter(i=>i!==optIdx);
+        return [...prev, optIdx];
+      });
+    } else {
+      // Single answer: submit immediately
+      const correct = q.opts[optIdx]?.ok || false;
+      setAnswered(true);
+      setSelectedOpts([optIdx]);
+      if (correct) setScore(s=>s+1); else setErrors(e=>e+1);
+      setResults(r=>[...r,{q,correct}]);
+    }
+  }
+
+  function submitMulti() {
+    const q = examQ[qIdx];
+    const correctIdxs = q.opts.map((o,i)=>o.ok?i:-1).filter(i=>i>=0);
+    const allCorrect = correctIdxs.every(i=>selectedOpts.includes(i)) && selectedOpts.every(i=>q.opts[i]?.ok);
+    setAnswered(true);
+    if (allCorrect) setScore(s=>s+1); else setErrors(e=>e+1);
+    setResults(r=>[...r,{q,correct:allCorrect}]);
   }
 
   function nextQ() {
@@ -192,7 +213,7 @@ export default function App() {
       setScreen('premium'); return;
     }
     if (qIdx+1 >= examQ.length) { finishExam(); return; }
-    setQIdx(i=>i+1); setAnswered(false); setSelectedOpt(null);
+    setQIdx(i=>i+1); setAnswered(false); setSelectedOpts([]);
     fadeAnim.setValue(0);
     Animated.timing(fadeAnim, {toValue:1, duration:250, useNativeDriver:true}).start();
   }
@@ -255,7 +276,7 @@ export default function App() {
   const Menu = () => (
     <Modal visible={menuOpen} transparent onRequestClose={closeMenu}>
       <TouchableOpacity style={{flex:1,backgroundColor:'rgba(0,0,0,0.5)'}} onPress={closeMenu} activeOpacity={1}>
-        <Animated.View style={{width:width*0.78,height:'100%',backgroundColor:T.card,transform:[{translateX:menuAnim}]}}>
+        <View style={{width:width*0.78,height:'100%',backgroundColor:T.card}}>
           <SafeAreaView style={{flex:1}}>
             <View style={{padding:20,borderBottomWidth:1,borderBottomColor:T.border,flexDirection:'row',justifyContent:'space-between',alignItems:'center'}}>
               <Text style={{fontSize:20,fontWeight:'900',color:T.text}}>🚗 Fahr<Text style={{color:T.accent}}>Ready</Text></Text>
@@ -310,7 +331,7 @@ export default function App() {
               )}
             </View>
           </SafeAreaView>
-        </Animated.View>
+        </View>
       </TouchableOpacity>
     </Modal>
   );
@@ -326,7 +347,7 @@ export default function App() {
         <Text style={{fontSize:18}}>🚗</Text>
         <Text style={{fontSize:18,fontWeight:'900',color:T.text}}>Fahr<Text style={{color:T.accent}}>Ready</Text></Text>
       </TouchableOpacity>
-      <TouchableOpacity onPress={()=>setShowTheme(true)} style={{width:36,height:36,borderRadius:18,backgroundColor:T.blue,alignItems:'center',justifyContent:'center'}}>
+      <TouchableOpacity onPress={()=>setShowTheme(s=>!s)} style={{width:36,height:36,borderRadius:18,backgroundColor:T.blue,alignItems:'center',justifyContent:'center'}}>
         <Text style={{fontSize:16}}>🎨</Text>
       </TouchableOpacity>
     </View>
@@ -612,15 +633,23 @@ export default function App() {
             {(curQ.img_url||(curQ as any).img) ? <Image source={{uri:curQ.img_url||(curQ as any).img}} style={{width:'100%',height:180,borderRadius:12,marginBottom:14,backgroundColor:T.card}} resizeMode="contain"/> : null}
             <Text style={{fontSize:16,fontWeight:'800',color:T.text,marginBottom:qText?4:14,lineHeight:24}}>{curQ.text_de}</Text>
             {qText&&<Text style={{fontSize:13,color:T.sub,marginBottom:14,lineHeight:20,direction:lang==='fa'||lang==='az'?'rtl':'ltr'}}>{qText}</Text>}
+            {curQ.opts.filter(o=>o.ok).length>1&&!answered&&(
+              <View style={{backgroundColor:'#FEF9E7',borderRadius:8,padding:8,marginBottom:10,borderWidth:1,borderColor:'#F59E0B'}}>
+                <Text style={{color:'#92700A',fontSize:12,fontWeight:'600',textAlign:'center'}}>⚠️ Mehrere Antworten möglich / چند جواب درست</Text>
+              </View>
+            )}
             {opts.map((opt,i)=>{
               let bg=T.card, bc=T.border, tc=T.text;
+              const isSelected = selectedOpts.includes(i);
               if(answered){
                 if(opt.ok){bg='#DCFCE7';bc='#16A34A';tc='#16A34A';}
-                else if(selectedOpt===i){bg='#FEF2F2';bc='#DC2626';tc='#DC2626';}
+                else if(isSelected&&!opt.ok){bg='#FEF2F2';bc='#DC2626';tc='#DC2626';}
+              } else if(isSelected) {
+                bc=T.blue; bg=T.blue+'22';
               }
               const optSub = lang!=='de'&&opt['text_'+lang]?opt['text_'+lang]:null;
               return (
-                <TouchableOpacity key={i} onPress={()=>pickAnswer(i,opt.ok)} disabled={answered}
+                <TouchableOpacity key={i} onPress={()=>pickAnswer(i)} disabled={answered}
                   style={{flexDirection:'row',alignItems:'center',gap:10,padding:13,backgroundColor:bg,borderRadius:12,marginBottom:8,borderWidth:1.5,borderColor:bc}}>
                   <View style={{width:26,height:26,borderRadius:13,backgroundColor:T.bg,alignItems:'center',justifyContent:'center'}}>
                     <Text style={{fontSize:11,fontWeight:'700',color:T.text}}>{['A','B','C','D'][i]}</Text>
@@ -632,12 +661,17 @@ export default function App() {
                 </TouchableOpacity>
               );
             })}
+            {!answered&&curQ.opts.filter(o=>o.ok).length>1&&selectedOpts.length>0&&(
+              <TouchableOpacity style={{backgroundColor:T.blue,borderRadius:12,padding:12,alignItems:'center',marginBottom:8}} onPress={submitMulti}>
+                <Text style={{color:'#fff',fontWeight:'700'}}>✓ Bestätigen / تأیید</Text>
+              </TouchableOpacity>
+            )}
             {answered&&(
-              <View style={{borderRadius:10,padding:12,marginBottom:10,backgroundColor:opts[selectedOpt]?.ok?'#DCFCE7':'#FEF2F2'}}>
-                <Text style={{fontSize:14,fontWeight:'800',textAlign:'center',color:opts[selectedOpt]?.ok?'#16A34A':'#DC2626'}}>
-                  {opts[selectedOpt]?.ok?t.richtig:t.falsch}
+              <View style={{borderRadius:10,padding:12,marginBottom:10,backgroundColor:results[results.length-1]?.correct?'#DCFCE7':'#FEF2F2'}}>
+                <Text style={{fontSize:14,fontWeight:'800',textAlign:'center',color:results[results.length-1]?.correct?'#16A34A':'#DC2626'}}>
+                  {results[results.length-1]?.correct?t.richtig:t.falsch}
                 </Text>
-                {!opts[selectedOpt]?.ok&&<Text style={{fontSize:12,color:'#16A34A',textAlign:'center',marginTop:4}}>✓ {opts.find(o=>o.ok)?.text_de}</Text>}
+                {!results[results.length-1]?.correct&&<Text style={{fontSize:12,color:'#16A34A',textAlign:'center',marginTop:4}}>✓ {opts.filter(o=>o.ok).map(o=>o.text_de).join(' + ')}</Text>}
               </View>
             )}
             {answered&&<TouchableOpacity style={{backgroundColor:T.blue,borderRadius:12,padding:14,alignItems:'center'}} onPress={nextQ}>
