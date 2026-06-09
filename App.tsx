@@ -7,6 +7,7 @@ import {
 
 const {width} = Dimensions.get('window');
 
+// FahrReady v2.1
 const SB_URL = 'https://npfvlfdjngzczxhghmyu.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5wZnZsZmRqbmd6Y3p4aGdobXl1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkzMTI2NjgsImV4cCI6MjA5NDg4ODY2OH0.oqnB4FTnmj-wno7AEgTz-MAmunazqwpj5jEkvB5xN8s';
 const STRIPE_URL = 'https://npfvlfdjngzczxhghmyu.supabase.co/functions/v1/create-checkout';
@@ -620,9 +621,7 @@ Gib konkrete Tipps. Max 150 Wörter pro Sprache.`;
               ].map((r,i)=>(
                 <TouchableOpacity key={i} onPress={()=>{
                     setCalRingtone(r.name);
-                    Alert.alert('🔔 '+r.name, r.desc+'
-
-Klingelton ausgewählt!');
+                    Alert.alert('🔔 '+r.name, r.desc+' - Klingelton ausgewählt!');
                   }}
                   style={{paddingHorizontal:14,paddingVertical:8,borderRadius:20,marginRight:8,borderWidth:1.5,borderColor:calRingtone===r.name?T.blue:T.border,backgroundColor:calRingtone===r.name?T.blue+'22':'transparent'}}>
                   <Text style={{color:calRingtone===r.name?T.blue:T.sub,fontSize:12,fontWeight:'600'}}>{r.name}</Text>
