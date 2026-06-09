@@ -113,7 +113,7 @@ export default function App() {
         const ar=await sbReq('answers?order=question_id.asc,id.asc&limit=2000');
         if(ar.ok&&Array.isArray(ar.data)){
           const qs=qRes.data.map(q=>{
-            const lq=LOCAL_Q.find(l=>l.img_url===q.img_url);
+            const lq=LOCAL_Q.find(l=>l.text_de===q.text_de&&l.img_url===q.img_url)||LOCAL_Q.find(l=>l.text_de===q.text_de);
             const opts=ar.data.filter(a=>a.question_id===q.id).slice(0,4).map((a,ai)=>{
               const lo=lq?.opts?.[ai];
               return {text_de:a.text_de||'',text_fa:a.text_fa||lo?.text_fa||'',text_az:a.text_az||lo?.text_az||'',text_en:a.text_en||lo?.text_en||'',ok:a.is_correct};
@@ -149,13 +149,8 @@ export default function App() {
 
   function pickAnswer(i) {
     if(answered) return;
-    const q=examQ[qIdx];
-    const multi=q.is_multi||q.opts.filter(o=>o.ok).length>1;
-    if(multi){
-      setSelectedOpts(p=>p.includes(i)?p.filter(x=>x!==i):[...p,i]);
-    } else {
-      setSelectedOpts([i]);
-    }
+    // Always allow toggling - user can select multiple
+    setSelectedOpts(p=>p.includes(i)?p.filter(x=>x!==i):[...p,i]);
   }
 
   function submitAnswer() {
@@ -290,12 +285,12 @@ Gib konkrete Tipps. Max 150 Wörter pro Sprache.`;
           <View style={{padding:16,borderTopWidth:1,borderTopColor:T.border}}>
             {user?(
               <TouchableOpacity style={{backgroundColor:'#DC2626',borderRadius:10,padding:12,alignItems:'center'}} onPress={()=>{
-                Alert.alert(t.logout+'?','Wirklich abmelden?',[
-                  {text:'Nein',style:'cancel'},
-                  {text:'Ja',onPress:()=>{
-                    Alert.alert('Sicher?','Abmeldung bestätigen',[
-                      {text:'Abbrechen',style:'cancel'},
-                      {text:'Abmelden',onPress:()=>{setUser(null);goHome();}}
+                Alert.alert('🚪 '+t.logout, 'Wirklich abmelden?',[
+                  {text:'Nein / نه',style:'cancel'},
+                  {text:'Ja / بله',onPress:()=>{
+                    Alert.alert('✋ Sicher?', 'Abmeldung endgültig bestätigen?',[
+                      {text:'Abbrechen / لغو',style:'cancel'},
+                      {text:'✓ Abmelden',style:'destructive',onPress:()=>{setUser(null);goHome();}}
                     ]);
                   }}
                 ]);
@@ -313,6 +308,20 @@ Gib konkrete Tipps. Max 150 Wörter pro Sprache.`;
       <TouchableOpacity style={{flex:1,backgroundColor:'rgba(0,0,0,0.5)'}} onPress={()=>setShowMenu(false)} activeOpacity={1}/>
     </View>
   ) : null;
+
+  const BottomAd = () => {
+    if(!adBottom) return null;
+    return (
+      <TouchableOpacity onPress={()=>adBottom.link_url&&Linking.openURL(adBottom.link_url)}
+        style={{backgroundColor:T.card,borderTopWidth:1,borderTopColor:T.border,padding:6,alignItems:'center',flexDirection:'row',justifyContent:'center',gap:8}}>
+        <Text style={{fontSize:9,color:T.sub}}>AD</Text>
+        {adBottom.image_url?
+          <Image source={{uri:adBottom.image_url}} style={{height:40,width:width-60,borderRadius:6}} resizeMode="cover"/>:
+          <Text style={{color:T.text,fontSize:12,fontWeight:'600'}}>{adBottom.name}</Text>
+        }
+      </TouchableOpacity>
+    );
+  };
 
   const NavBar = () => (
     <View style={{flexDirection:'row',alignItems:'center',justifyContent:'space-between',paddingHorizontal:16,paddingVertical:12,backgroundColor:T.navBg,borderBottomWidth:1,borderBottomColor:T.border}}>
@@ -388,6 +397,7 @@ Gib konkrete Tipps. Max 150 Wörter pro Sprache.`;
           <View style={{height:40}}/>
         </ScrollView>
       </SafeAreaView>
+      <BottomAd/>
       {MenuOverlay}
       {ThemeOverlay}
     </View>
@@ -467,9 +477,9 @@ Gib konkrete Tipps. Max 150 Wörter pro Sprache.`;
                 <Text style={{color:'#fff',fontWeight:'700'}}>🗑️ {t.deleteAccount}</Text>
               </TouchableOpacity>
               <TouchableOpacity style={{backgroundColor:T.card,borderRadius:12,padding:14,alignItems:'center',borderWidth:1,borderColor:T.border}} onPress={()=>{
-                Alert.alert(t.logout+'?','Wirklich abmelden?',[
-                  {text:'Nein',style:'cancel'},
-                  {text:'Ja',onPress:()=>{Alert.alert('Sicher?','Abmeldung bestätigen?',[{text:'Nein',style:'cancel'},{text:'Abmelden',onPress:()=>{setUser(null);goHome();}}]);}}
+                Alert.alert('🚪 '+t.logout, 'Wirklich abmelden?',[
+                  {text:'Nein / نه',style:'cancel'},
+                  {text:'Ja / بله',onPress:()=>{Alert.alert('✋ Sicher?','Abmeldung endgültig bestätigen?',[{text:'Abbrechen',style:'cancel'},{text:'✓ Abmelden',style:'destructive',onPress:()=>{setUser(null);goHome();}}]);}}
                 ]);
               }}>
                 <Text style={{color:'#DC2626',fontWeight:'700'}}>🚪 {t.logout}</Text>
@@ -512,7 +522,7 @@ Gib konkrete Tipps. Max 150 Wörter pro Sprache.`;
             <Text style={{color:T.sub,fontSize:11,marginBottom:8}}>🔔 Klingelton</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{marginBottom:14}}>
               {['🔔 Standard','🎵 Melodie','📯 Trompete','🔊 Laut','🎶 Sanft'].map((r,i)=>(
-                <TouchableOpacity key={i} onPress={()=>setCalRingtone(r)}
+                <TouchableOpacity key={i} onPress={()=>{setCalRingtone(r);Vibration.vibrate([0,200,100,200]);}}
                   style={{paddingHorizontal:14,paddingVertical:8,borderRadius:20,marginRight:8,borderWidth:1.5,borderColor:calRingtone===r?T.blue:T.border,backgroundColor:calRingtone===r?T.blue+'22':'transparent'}}>
                   <Text style={{color:calRingtone===r?T.blue:T.sub,fontSize:12,fontWeight:'600'}}>{r}</Text>
                 </TouchableOpacity>
