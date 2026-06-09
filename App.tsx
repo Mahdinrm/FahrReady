@@ -449,47 +449,86 @@ Gib konkrete Tipps. Max 150 Wörter pro Sprache.`;
       <SafeAreaView style={{flex:1}}>
         <StatusBar barStyle={theme==='light'?'dark-content':'light-content'} backgroundColor={T.bg}/>
         <NavBar/>
-        <ScrollView contentContainerStyle={{padding:24}}>
-          <TouchableOpacity style={{marginBottom:20}} onPress={goHome}><Text style={{color:T.accent,fontSize:14}}>{t.back}</Text></TouchableOpacity>
-          <Text style={{fontSize:24,fontWeight:'900',color:T.text,marginBottom:24}}>👤 {t.profile}</Text>
+        <ScrollView contentContainerStyle={{padding:20}}>
+          <TouchableOpacity style={{marginBottom:16}} onPress={goHome}><Text style={{color:T.accent,fontSize:14}}>{t.back}</Text></TouchableOpacity>
+          <Text style={{fontSize:22,fontWeight:'900',color:T.text,marginBottom:20}}>👤 {t.profile}</Text>
           {user?(
             <View>
-              <View style={{backgroundColor:T.card,borderRadius:14,padding:18,marginBottom:12,borderWidth:1,borderColor:T.border}}>
-                <Text style={{color:T.sub,fontSize:11,marginBottom:6}}>Name</Text>
-                <TextInput style={{color:T.text,fontSize:16,fontWeight:'700',borderBottomWidth:1,borderBottomColor:T.border,paddingBottom:8,marginBottom:12}} value={editName||user.full_name} onChangeText={setEditName} placeholderTextColor={T.sub}/>
-                <TouchableOpacity style={{backgroundColor:T.blue,borderRadius:10,padding:10,alignItems:'center'}} onPress={async()=>{
-                  if(!editName)return;
-                  const r=await sbReq(`users?id=eq.${user.id}`,'PATCH',{full_name:editName});
-                  if(r.ok){setUser({...user,full_name:editName});Alert.alert('✓','Gespeichert');}
+              {/* Avatar & Name */}
+              <View style={{alignItems:'center',marginBottom:24}}>
+                <View style={{width:72,height:72,borderRadius:36,backgroundColor:T.blue,alignItems:'center',justifyContent:'center',marginBottom:10}}>
+                  <Text style={{fontSize:30,color:'#fff',fontWeight:'900'}}>{user.full_name?.[0]?.toUpperCase()||'U'}</Text>
+                </View>
+                <Text style={{color:T.text,fontSize:18,fontWeight:'800'}}>{user.full_name}</Text>
+                <Text style={{color:T.sub,fontSize:12,marginTop:2}}>{user.email}</Text>
+                {user.is_premium&&<View style={{backgroundColor:'#F59E0B22',borderRadius:20,paddingHorizontal:12,paddingVertical:4,marginTop:6}}><Text style={{color:'#F59E0B',fontSize:12,fontWeight:'700'}}>⭐ Premium</Text></View>}
+              </View>
+
+              {/* İsim Değiştir */}
+              <View style={{backgroundColor:T.card,borderRadius:14,padding:16,marginBottom:12,borderWidth:1,borderColor:T.border}}>
+                <Text style={{color:T.sub,fontSize:11,fontWeight:'600',marginBottom:8}}>✏️ İsim Değiştir / Name ändern</Text>
+                <TextInput style={{borderWidth:1,borderColor:T.border,borderRadius:10,padding:12,color:T.text,backgroundColor:T.bg,fontSize:14,marginBottom:10}} value={editName} onChangeText={setEditName} placeholder={user.full_name} placeholderTextColor={T.sub}/>
+                <TouchableOpacity style={{backgroundColor:T.blue,borderRadius:10,padding:11,alignItems:'center'}} onPress={async()=>{
+                  if(!editName.trim()){Alert.alert('Fehler','Name eingeben');return;}
+                  const r=await sbReq(`users?id=eq.${user.id}`,'PATCH',{full_name:editName.trim()});
+                  if(r.ok){setUser({...user,full_name:editName.trim()});Alert.alert('✓','Name gespeichert!');}
+                  else Alert.alert('Fehler','Speichern fehlgeschlagen');
                 }}>
                   <Text style={{color:'#fff',fontWeight:'700'}}>💾 Speichern</Text>
                 </TouchableOpacity>
               </View>
-              <View style={{backgroundColor:T.card,borderRadius:14,padding:18,marginBottom:12,borderWidth:1,borderColor:T.border}}>
-                <Text style={{color:T.sub,fontSize:11}}>E-Mail</Text>
-                <Text style={{color:T.text,fontSize:15,fontWeight:'600',marginTop:4}}>{user.email}</Text>
-              </View>
-              <View style={{backgroundColor:T.card,borderRadius:14,padding:18,marginBottom:20,borderWidth:1,borderColor:T.border}}>
-                <Text style={{color:T.sub,fontSize:11}}>Status</Text>
-                <Text style={{color:user.is_premium?'#16A34A':T.sub,fontSize:15,fontWeight:'700',marginTop:4}}>{user.is_premium?'⭐ Premium':'Free'}</Text>
-              </View>
-              <TouchableOpacity style={{backgroundColor:'#DC2626',borderRadius:12,padding:14,alignItems:'center',marginBottom:10}} onPress={deleteAccount}>
-                <Text style={{color:'#fff',fontWeight:'700'}}>🗑️ {t.deleteAccount}</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={{backgroundColor:T.card,borderRadius:12,padding:14,alignItems:'center',borderWidth:1,borderColor:T.border}} onPress={()=>{
-                Alert.alert('🚪 '+t.logout, 'Wirklich abmelden?',[
-                  {text:'Nein / نه',style:'cancel'},
-                  {text:'Ja / بله',onPress:()=>{Alert.alert('✋ Sicher?','Abmeldung endgültig bestätigen?',[{text:'Abbrechen',style:'cancel'},{text:'✓ Abmelden',style:'destructive',onPress:()=>{setUser(null);goHome();}}]);}}
+
+              {/* Premium */}
+              {!user.is_premium&&(
+                <TouchableOpacity style={{backgroundColor:T.blue,borderRadius:14,padding:14,alignItems:'center',marginBottom:12}} onPress={()=>setScreen('premium')}>
+                  <Text style={{color:'#fff',fontWeight:'800'}}>⭐ Premium kaufen</Text>
+                </TouchableOpacity>
+              )}
+
+              {/* Hesaptan Çık */}
+              <TouchableOpacity style={{backgroundColor:T.card,borderRadius:14,padding:14,alignItems:'center',marginBottom:10,borderWidth:1.5,borderColor:'#F59E0B'}} onPress={()=>{
+                Alert.alert('🚪 Abmelden / خروج', 'Wirklich abmelden?',[
+                  {text:'❌ Nein / نه',style:'cancel'},
+                  {text:'✓ Ja / بله',onPress:()=>{
+                    Alert.alert('✋ Sicher? / مطمئنی؟','Abmeldung endgültig bestätigen?',[
+                      {text:'❌ Abbrechen',style:'cancel'},
+                      {text:'🚪 Abmelden',style:'destructive',onPress:()=>{setUser(null);goHome();}}
+                    ]);
+                  }}
                 ]);
               }}>
-                <Text style={{color:'#DC2626',fontWeight:'700'}}>🚪 {t.logout}</Text>
+                <Text style={{color:'#F59E0B',fontWeight:'800',fontSize:15}}>🚪 Hesaptan Çık / Abmelden</Text>
+              </TouchableOpacity>
+
+              {/* Hesabı Sil */}
+              <TouchableOpacity style={{backgroundColor:'#FEF2F2',borderRadius:14,padding:14,alignItems:'center',borderWidth:1.5,borderColor:'#DC2626'}} onPress={()=>{
+                Alert.alert('⚠️ Konto löschen / حساب را حذف کنید','Alle Daten werden unwiderruflich gelöscht!',[
+                  {text:'❌ Abbrechen / لغو',style:'cancel'},
+                  {text:'🗑️ Weiter',style:'destructive',onPress:()=>{
+                    Alert.alert('🚨 LETZTE WARNUNG!','Wirklich alle Daten löschen? Dies kann NICHT rückgängig gemacht werden!',[
+                      {text:'❌ Abbrechen',style:'cancel'},
+                      {text:'💀 Endgültig löschen',style:'destructive',onPress:async()=>{
+                        if(user?.id) await sbReq(`users?id=eq.${user.id}`,'DELETE');
+                        setUser(null);goHome();Alert.alert('Konto gelöscht');
+                      }}
+                    ]);
+                  }}
+                ]);
+              }}>
+                <Text style={{color:'#DC2626',fontWeight:'800',fontSize:15}}>🗑️ Hesabı Sil / Konto löschen</Text>
               </TouchableOpacity>
             </View>
           ):(
-            <TouchableOpacity style={{backgroundColor:T.blue,borderRadius:12,padding:15,alignItems:'center'}} onPress={()=>setScreen('login')}>
-              <Text style={{color:'#fff',fontWeight:'800'}}>{t.login}</Text>
-            </TouchableOpacity>
+            <View style={{gap:12}}>
+              <TouchableOpacity style={{backgroundColor:T.blue,borderRadius:12,padding:15,alignItems:'center'}} onPress={()=>setScreen('login')}>
+                <Text style={{color:'#fff',fontWeight:'800'}}>{t.login}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={{backgroundColor:T.card,borderRadius:12,padding:15,alignItems:'center',borderWidth:1,borderColor:T.border}} onPress={()=>setScreen('register')}>
+                <Text style={{color:T.text,fontWeight:'700'}}>{t.register}</Text>
+              </TouchableOpacity>
+            </View>
           )}
+          <View style={{height:40}}/>
         </ScrollView>
       </SafeAreaView>
       {MenuOverlay}{ThemeOverlay}
@@ -522,7 +561,7 @@ Gib konkrete Tipps. Max 150 Wörter pro Sprache.`;
             <Text style={{color:T.sub,fontSize:11,marginBottom:8}}>🔔 Klingelton</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{marginBottom:14}}>
               {['🔔 Standard','🎵 Melodie','📯 Trompete','🔊 Laut','🎶 Sanft'].map((r,i)=>(
-                <TouchableOpacity key={i} onPress={()=>{setCalRingtone(r);Vibration.vibrate([0,200,100,200]);}}
+                <TouchableOpacity key={i} onPress={()=>setCalRingtone(r)}
                   style={{paddingHorizontal:14,paddingVertical:8,borderRadius:20,marginRight:8,borderWidth:1.5,borderColor:calRingtone===r?T.blue:T.border,backgroundColor:calRingtone===r?T.blue+'22':'transparent'}}>
                   <Text style={{color:calRingtone===r?T.blue:T.sub,fontSize:12,fontWeight:'600'}}>{r}</Text>
                 </TouchableOpacity>
