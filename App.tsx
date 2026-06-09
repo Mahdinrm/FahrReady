@@ -357,8 +357,7 @@ export default function App() {
           </View>
           {user && <Text style={{color:T.accent,fontSize:14,fontWeight:'600',marginBottom:8}}>{t.hallo}, {user.full_name?.split(' ')[0]}! {user.is_premium?'⭐':''}</Text>}
           <Text style={{fontSize:30,fontWeight:'900',color:T.text,lineHeight:38,marginBottom:10}}>
-            {"Bestehe deine
-"}<Text style={{color:T.accent}}>{"Fahrprüfung"}</Text>
+            {"Bestehe deine "}<Text style={{color:T.accent}}>{"Fahrprüfung"}</Text>
           </Text>
           <Text style={{fontSize:13,color:T.sub,marginBottom:20}}>Persisch · Azerbaijanisch · Deutsch · Englisch</Text>
         </View>
