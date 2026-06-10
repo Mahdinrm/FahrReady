@@ -97,6 +97,7 @@ export default function App() {
   // BackHandler - always intercept
   const logoutStepRef = useRef(0);
   const screenRef = useRef('home');
+  const backPressTime = useRef(0);
   useEffect(() => { logoutStepRef.current = logoutStep; }, [logoutStep]);
   useEffect(() => { screenRef.current = screen; }, [screen]);
 
@@ -104,6 +105,14 @@ export default function App() {
     const sub = BackHandler.addEventListener('hardwareBackPress', () => {
       if (logoutStepRef.current > 0) { setLogoutStep(0); return true; }
       if (screenRef.current !== 'home') { setScreen('home'); return true; }
+      // On home screen - double press to exit
+      const now = Date.now();
+      if (now - backPressTime.current < 2000) {
+        BackHandler.exitApp();
+        return true;
+      }
+      backPressTime.current = now;
+      Alert.alert('', 'Zum Beenden nochmal tippen / برای خروج دوباره بزنید');
       return true;
     });
     return () => sub.remove();
