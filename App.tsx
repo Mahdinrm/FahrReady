@@ -82,6 +82,11 @@ export default function App() {
   const [isPractice, setIsPractice] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showPass, setShowPass] = useState(false);
+  const [loginMode, setLoginMode] = useState('email'); // 'email' or 'phone'
+  const [phone, setPhone] = useState('');
+  const [otp, setOtp] = useState('');
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpLoading, setOtpLoading] = useState(false);
   const [logoutStep, setLogoutStep] = useState(0);
   const [premiumLocked, setPremiumLocked] = useState(false);
   const [calendar, setCalendar] = useState([]);
@@ -193,6 +198,73 @@ export default function App() {
       currentSound.current.release();
       currentSound.current = null;
     }
+  }
+
+  async function sendOtp() {
+    if (!phone || phone.length < 10) {
+      Alert.alert('Fehler', 'Bitte gültige Telefonnummer eingeben (z.B. +41791234567)');
+      return;
+    }
+    setOtpLoading(true);
+    try {
+      const r = await fetch(`${SB_URL}/auth/v1/otp`, {
+        method: 'POST',
+        headers: {'Content-Type':'application/json', 'apikey': SB_KEY},
+        body: JSON.stringify({phone, channel: 'sms'})
+      });
+      if (r.ok) {
+        setOtpSent(true);
+        Alert.alert('✓ SMS gesendet', 'Code wurde an ' + phone + ' gesendet.');
+      } else {
+        const err = await r.json();
+        Alert.alert('Fehler', err.msg || err.message || 'SMS konnte nicht gesendet werden');
+      }
+    } catch(e) {
+      Alert.alert('Fehler', 'Verbindungsfehler');
+    }
+    setOtpLoading(false);
+  }
+
+  async function verifyOtp() {
+    if (!otp || otp.length < 4) {
+      Alert.alert('Fehler', 'Bitte Code eingeben');
+      return;
+    }
+    setLoading(true);
+    try {
+      const r = await fetch(`${SB_URL}/auth/v1/verify`, {
+        method: 'POST',
+        headers: {'Content-Type':'application/json', 'apikey': SB_KEY},
+        body: JSON.stringify({phone, token: otp, type: 'sms'})
+      });
+      const data = await r.json();
+      if (r.ok && data.user) {
+        // Check if user exists in users table
+        const ur = await sbReq(`users?email=eq.${encodeURIComponent(data.user.phone||phone)}`);
+        let userData = ur.ok && Array.isArray(ur.data) && ur.data[0];
+        if (!userData) {
+          // Create user
+          const cr = await sbReq('users', 'POST', {
+            email: data.user.phone || phone,
+            full_name: 'Benutzer ' + phone.slice(-4),
+            language: lang,
+            is_premium: false,
+            created_at: new Date().toISOString()
+          });
+          userData = cr.ok && Array.isArray(cr.data) && cr.data[0];
+        }
+        if (userData) {
+          setUser(userData);
+          setScreen('home');
+          Alert.alert('Willkommen!', 'Hallo ' + userData.full_name + '!');
+        }
+      } else {
+        Alert.alert('Fehler', data.msg || 'Falscher Code');
+      }
+    } catch(e) {
+      Alert.alert('Fehler', 'Verbindungsfehler');
+    }
+    setLoading(false);
   }
 
   function goHome() { if(timerRef){clearInterval(timerRef);setTimerRef(null);} setScreen('home'); setShowMenu(false); setShowTheme(false); }
@@ -548,36 +620,78 @@ export default function App() {
           <NavBar/>
           <ScrollView contentContainerStyle={{padding:24,flexGrow:1}}>
             <TouchableOpacity style={{marginBottom:20}} onPress={goHome}><Text style={{color:T.accent,fontSize:14}}>{t.back}</Text></TouchableOpacity>
-            <Text style={{fontSize:24,fontWeight:'900',color:T.text,marginBottom:24}}>{isReg?t.register:t.login}</Text>
-            {isReg&&<TextInput style={{borderWidth:1.5,borderColor:T.border,borderRadius:10,padding:13,fontSize:13,marginBottom:12,color:T.text,backgroundColor:T.card}} placeholder="Vollständiger Name" placeholderTextColor={T.sub} value={fullName} onChangeText={setFullName}/>}
-            <TextInput style={{borderWidth:1.5,borderColor:T.border,borderRadius:10,padding:13,fontSize:13,marginBottom:12,color:T.text,backgroundColor:T.card}} placeholder="E-Mail" placeholderTextColor={T.sub} value={email} onChangeText={setEmail} keyboardType="email-address" autoCapitalize="none"/>
-            <View style={{flexDirection:'row',alignItems:'center',borderWidth:1.5,borderColor:T.border,borderRadius:10,marginBottom:20,backgroundColor:T.card}}>
-              <TextInput style={{flex:1,padding:13,fontSize:13,color:T.text}} placeholder="Passwort" placeholderTextColor={T.sub} value={password} onChangeText={setPassword} secureTextEntry={!showPass}/>
-              <TouchableOpacity onPress={()=>setShowPass(p=>!p)} style={{padding:13}}>
-                <Text style={{fontSize:16}}>{showPass?'👁️':'🙈'}</Text>
+            <Text style={{fontSize:24,fontWeight:'900',color:T.text,marginBottom:20}}>{isReg?t.register:t.login}</Text>
+
+            {/* Mode toggle - Email / Phone */}
+            <View style={{flexDirection:'row',backgroundColor:T.card,borderRadius:12,padding:4,marginBottom:20,borderWidth:1,borderColor:T.border}}>
+              <TouchableOpacity style={{flex:1,padding:10,alignItems:'center',borderRadius:10,backgroundColor:loginMode==='email'?T.blue:'transparent'}} onPress={()=>{setLoginMode('email');setOtpSent(false);}}>
+                <Text style={{color:loginMode==='email'?'#fff':T.sub,fontWeight:'700',fontSize:13}}>📧 E-Mail</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={{flex:1,padding:10,alignItems:'center',borderRadius:10,backgroundColor:loginMode==='phone'?T.blue:'transparent'}} onPress={()=>{setLoginMode('phone');setOtpSent(false);}}>
+                <Text style={{color:loginMode==='phone'?'#fff':T.sub,fontWeight:'700',fontSize:13}}>📱 Telefon / تلفن</Text>
               </TouchableOpacity>
             </View>
-            <TouchableOpacity style={{backgroundColor:T.blue,borderRadius:12,padding:15,alignItems:'center'}} disabled={loading} onPress={async()=>{
-              if(!email||!password){Alert.alert('Fehler','E-Mail und Passwort eingeben');return;}
-              setLoading(true);
-              if(isReg){
-                const r=await sbReq('users','POST',{email,password_hash:password,full_name:fullName||email,language:lang,is_premium:false,created_at:new Date().toISOString()});
-                if(r.ok&&Array.isArray(r.data)&&r.data[0]){setUser(r.data[0]);setScreen('home');Alert.alert('🎉 Willkommen!','Hallo '+r.data[0].full_name+'! Schön, dass Sie dabei sind.');}
-                else Alert.alert('Fehler','Registrierung fehlgeschlagen. E-Mail bereits vorhanden?');
-              }else{
-                const r=await sbReq(`users?email=eq.${encodeURIComponent(email)}&password_hash=eq.${encodeURIComponent(password)}`);
-                if(r.ok&&Array.isArray(r.data)&&r.data[0]){setUser(r.data[0]);setScreen('home');Alert.alert('👋 Willkommen zurück!','Hallo '+r.data[0].full_name+'!');}
-                else Alert.alert('Fehler','Falsche E-Mail oder Passwort');
-              }
-              setLoading(false);
-            }}>
-              {loading?<ActivityIndicator color="#fff"/>:<Text style={{color:'#fff',fontSize:15,fontWeight:'800'}}>{isReg?t.register:t.login}</Text>}
+
+            {loginMode==='phone' ? (
+              <View>
+                {!otpSent ? (
+                  <View>
+                    <Text style={{color:T.sub,fontSize:12,marginBottom:8}}>Format: +41791234567 / +49...</Text>
+                    <TextInput style={{borderWidth:1.5,borderColor:T.border,borderRadius:10,padding:13,fontSize:15,marginBottom:16,color:T.text,backgroundColor:T.card}} placeholder="+41 79 123 45 67" placeholderTextColor={T.sub} value={phone} onChangeText={setPhone} keyboardType="phone-pad"/>
+                    <TouchableOpacity style={{backgroundColor:T.blue,borderRadius:12,padding:15,alignItems:'center'}} disabled={otpLoading} onPress={sendOtp}>
+                      {otpLoading?<ActivityIndicator color="#fff"/>:<Text style={{color:'#fff',fontSize:15,fontWeight:'800'}}>📱 SMS Code senden</Text>}
+                    </TouchableOpacity>
+                  </View>
+                ) : (
+                  <View>
+                    <Text style={{color:T.sub,fontSize:13,marginBottom:12,textAlign:'center'}}>Code an {phone} gesendet</Text>
+                    <TextInput style={{borderWidth:1.5,borderColor:T.border,borderRadius:10,padding:13,fontSize:22,marginBottom:16,color:T.text,backgroundColor:T.card,textAlign:'center',letterSpacing:10}} placeholder="------" placeholderTextColor={T.sub} value={otp} onChangeText={setOtp} keyboardType="number-pad" maxLength={6}/>
+                    <TouchableOpacity style={{backgroundColor:T.blue,borderRadius:12,padding:15,alignItems:'center',marginBottom:10}} disabled={loading} onPress={verifyOtp}>
+                      {loading?<ActivityIndicator color="#fff"/>:<Text style={{color:'#fff',fontSize:15,fontWeight:'800'}}>✓ Code bestätigen</Text>}
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={()=>{setOtpSent(false);setOtp('');}} style={{padding:10,alignItems:'center'}}>
+                      <Text style={{color:T.sub,fontSize:13}}>← Nummer ändern</Text>
+                    </TouchableOpacity>
+                  </View>
+                )}
+              </View>
+            ) : (
+              <View>
+                {isReg&&<TextInput style={{borderWidth:1.5,borderColor:T.border,borderRadius:10,padding:13,fontSize:13,marginBottom:12,color:T.text,backgroundColor:T.card}} placeholder="Vollstaendiger Name" placeholderTextColor={T.sub} value={fullName} onChangeText={setFullName}/>}
+                <TextInput style={{borderWidth:1.5,borderColor:T.border,borderRadius:10,padding:13,fontSize:13,marginBottom:12,color:T.text,backgroundColor:T.card}} placeholder="E-Mail" placeholderTextColor={T.sub} value={email} onChangeText={setEmail} keyboardType="email-address" autoCapitalize="none"/>
+                <View style={{flexDirection:'row',alignItems:'center',borderWidth:1.5,borderColor:T.border,borderRadius:10,marginBottom:20,backgroundColor:T.card}}>
+                  <TextInput style={{flex:1,padding:13,fontSize:13,color:T.text}} placeholder="Passwort" placeholderTextColor={T.sub} value={password} onChangeText={setPassword} secureTextEntry={!showPass}/>
+                  <TouchableOpacity onPress={()=>setShowPass(p=>!p)} style={{padding:13}}>
+                    <Text style={{fontSize:16}}>{showPass?'👁️':'🙈'}</Text>
+                  </TouchableOpacity>
+                </View>
+                <TouchableOpacity style={{backgroundColor:T.blue,borderRadius:12,padding:15,alignItems:'center'}} disabled={loading} onPress={async()=>{
+                  if(!email||!password){Alert.alert('Fehler','E-Mail und Passwort eingeben');return;}
+                  setLoading(true);
+                  if(isReg){
+                    const r=await sbReq('users','POST',{email,password_hash:password,full_name:fullName||email,language:lang,is_premium:false,created_at:new Date().toISOString()});
+                    if(r.ok&&Array.isArray(r.data)&&r.data[0]){setUser(r.data[0]);setScreen('home');Alert.alert('Willkommen!','Hallo '+r.data[0].full_name+'!');}
+                    else Alert.alert('Fehler','E-Mail bereits vorhanden?');
+                  }else{
+                    const r=await sbReq(`users?email=eq.${encodeURIComponent(email)}&password_hash=eq.${encodeURIComponent(password)}`);
+                    if(r.ok&&Array.isArray(r.data)&&r.data[0]){setUser(r.data[0]);setScreen('home');Alert.alert('Willkommen zurueck!','Hallo '+r.data[0].full_name+'!');}
+                    else Alert.alert('Fehler','Falsche E-Mail oder Passwort');
+                  }
+                  setLoading(false);
+                }}>
+                  {loading?<ActivityIndicator color="#fff"/>:<Text style={{color:'#fff',fontSize:15,fontWeight:'800'}}>{isReg?t.register:t.login}</Text>}
+                </TouchableOpacity>
+                <TouchableOpacity onPress={()=>setScreen(isReg?'login':'register')} style={{marginTop:16,padding:12}}>
+                  <Text style={{color:T.accent,textAlign:'center',fontWeight:'600'}}>{isReg?t.login+' →':'Registrieren →'}</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+
+            <TouchableOpacity onPress={()=>{setUser({id:'anon',email:'',full_name:t.guest,is_premium:false,isAnon:true});setScreen('home');}} style={{marginTop:16,padding:12}}>
+              <Text style={{color:T.sub,textAlign:'center',fontSize:13}}>👤 {t.guest} / Als Gast fortfahren</Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={()=>setScreen(isReg?'login':'register')} style={{marginTop:16,padding:12}}>
-              <Text style={{color:T.accent,textAlign:'center',fontWeight:'600'}}>{isReg?t.login+' →':'Registrieren →'}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={()=>{setUser({id:'anon',email:'anon',full_name:'Gast / مهمان',is_premium:false,isAnon:true});setScreen('home');}} style={{marginTop:8,padding:12}}>
-              <Text style={{color:T.sub,textAlign:'center',fontSize:13}}>👤 Als Gast fortfahren / ادامه به عنوان مهمان</Text>
+            <TouchableOpacity onPress={()=>Linking.openURL('https://fahrready.ch/privacy.html')} style={{marginTop:8,padding:8}}>
+              <Text style={{color:T.sub,textAlign:'center',fontSize:11}}>🔒 Datenschutz / حریم خصوصی</Text>
             </TouchableOpacity>
           </ScrollView>
         </SafeAreaView>
@@ -585,6 +699,7 @@ export default function App() {
       </View>
     );
   }
+
 
   // ── PROFILE ──
   if(screen==='profile') return (
