@@ -78,17 +78,36 @@ jobs:
 
       - name: Configure release signing
         run: |
-          cd android
-          { echo "MYAPP_RELEASE_STORE_FILE=fahrready-release.keystore"; echo "MYAPP_RELEASE_KEY_ALIAS=fahrready"; echo "MYAPP_RELEASE_STORE_PASSWORD=FahrReady2026"; echo "MYAPP_RELEASE_KEY_PASSWORD=FahrReady2026"; } >> gradle.properties
-          sed -i 's/signingConfig signingConfigs.debug/signingConfig signingConfigs.release/' app/build.gradle
-          if ! grep -q 'signingConfigs.release' app/build.gradle; then
-            sed -i '/signingConfigs {/a\        release { storeFile file(MYAPP_RELEASE_STORE_FILE); storePassword MYAPP_RELEASE_STORE_PASSWORD; keyAlias MYAPP_RELEASE_KEY_ALIAS; keyPassword MYAPP_RELEASE_KEY_PASSWORD }' app/build.gradle
-          fi
-          if ! grep -q 'signingConfigs.release' app/build.gradle; then
-            sed -i '/buildTypes {/i\    signingConfigs {\n        release { storeFile file(MYAPP_RELEASE_STORE_FILE); storePassword MYAPP_RELEASE_STORE_PASSWORD; keyAlias MYAPP_RELEASE_KEY_ALIAS; keyPassword MYAPP_RELEASE_KEY_PASSWORD }\n    }' app/build.gradle
-            sed -i '0,/release {/{s/release {/release {\n            signingConfig signingConfigs.release/}' app/build.gradle
-          fi
-          cat app/build.gradle | grep -A 20 signingConfigs
+          { echo "MYAPP_RELEASE_STORE_FILE=fahrready-release.keystore"; echo "MYAPP_RELEASE_KEY_ALIAS=fahrready"; echo "MYAPP_RELEASE_STORE_PASSWORD=FahrReady2026"; echo "MYAPP_RELEASE_KEY_PASSWORD=FahrReady2026"; } >> android/gradle.properties
+          cat > /tmp/patch_gradle.py << 'PATCHEOF'
+          import re
+          with open('android/app/build.gradle') as f:
+              g = f.read()
+          
+          release_sc = """        release {
+                      if (project.hasProperty('MYAPP_RELEASE_STORE_FILE')) {
+                          storeFile file(MYAPP_RELEASE_STORE_FILE)
+                          storePassword MYAPP_RELEASE_STORE_PASSWORD
+                          keyAlias MYAPP_RELEASE_KEY_ALIAS
+                          keyPassword MYAPP_RELEASE_KEY_PASSWORD
+                      }
+                  }
+          """
+          
+          if 'signingConfigs.release' not in g:
+              if 'signingConfigs {' in g:
+                  g = g.replace('signingConfigs {', 'signingConfigs {\n' + release_sc, 1)
+              else:
+                  g = re.sub(r'(android\s*\{)', r'\1\n    signingConfigs {\n' + release_sc + '    }\n', g, count=1)
+          
+          g = re.sub(r'signingConfig\s+signingConfigs\.debug', 'signingConfig signingConfigs.release', g)
+          
+          with open('android/app/build.gradle','w') as f:
+              f.write(g)
+          print("build.gradle patched")
+          PATCHEOF
+          python3 /tmp/patch_gradle.py
+          grep -A 12 'signingConfigs {' android/app/build.gradle
 
       - name: Build APK
         run: |
