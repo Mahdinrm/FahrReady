@@ -25,7 +25,9 @@ jobs:
           java-version: '17'
 
       - name: Install dependencies
-        run: npm install
+        run: |
+          npm install
+          npx react-native link react-native-sound
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
