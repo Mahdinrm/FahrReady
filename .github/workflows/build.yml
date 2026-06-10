@@ -59,8 +59,15 @@ jobs:
             fs.mkdirSync(dir, {recursive: true});
             fs.writeFileSync(dir + '/ic_launcher.png', buf);
             fs.writeFileSync(dir + '/ic_launcher_round.png', buf);
-            fs.writeFileSync(dir + '/ic_launcher_foreground.png', buf);
+            // Remove XML adaptive icon files that override PNG
+            const xmlFiles = [dir + '/ic_launcher.xml', dir + '/ic_launcher_round.xml'];
+            xmlFiles.forEach(f => { try { fs.unlinkSync(f); } catch(e) {} });
           });
+          // Also remove mipmap-anydpi-v26 which has adaptive icons
+          try {
+            const anydpi = 'android/app/src/main/res/mipmap-anydpi-v26';
+            fs.readdirSync(anydpi).forEach(f => fs.unlinkSync(anydpi + '/' + f));
+          } catch(e) {}
           console.log('Icons set!');
           "
 

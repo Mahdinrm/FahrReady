@@ -800,10 +800,17 @@ export default function App() {
             {!isPractice?<Text style={{fontSize:14,fontWeight:'700',color:T.accent}}>{formatTime(timeLeft)}</Text>:<View style={{width:40}}/>}
           </View>
           <View style={{height:4,backgroundColor:T.border}}><View style={{height:4,backgroundColor:T.blue,width:`${pct}%`}}/></View>
-          <View style={{flexDirection:'row',justifyContent:'center',gap:20,paddingVertical:8,backgroundColor:T.navBg,borderBottomWidth:1,borderBottomColor:T.border}}>
-            <Text style={{fontSize:13,fontWeight:'700',color:'#16A34A'}}>✓ {score}</Text>
-            <Text style={{fontSize:13,fontWeight:'700',color:'#DC2626'}}>✗ {errors}</Text>
-            {!isPractice&&<Text style={{fontSize:13,fontWeight:'700',color:T.text}}>Pkt: {score*3}/150</Text>}
+          <View style={{flexDirection:'row',justifyContent:'space-between',alignItems:'center',paddingHorizontal:16,paddingVertical:8,backgroundColor:T.navBg,borderBottomWidth:1,borderBottomColor:T.border}}>
+            <View style={{flexDirection:'row',gap:16}}>
+              <Text style={{fontSize:13,fontWeight:'700',color:'#16A34A'}}>✓ {score}</Text>
+              <Text style={{fontSize:13,fontWeight:'700',color:'#DC2626'}}>✗ {errors}</Text>
+              {!isPractice&&<Text style={{fontSize:13,fontWeight:'700',color:T.text}}>Pkt: {score*3}/150</Text>}
+            </View>
+            {user?.is_premium&&results.length>0&&(
+              <TouchableOpacity onPress={()=>{finishExam();setTimeout(()=>setScreen('analysis'),100);}} style={{backgroundColor:'#7C3AED',borderRadius:8,paddingHorizontal:10,paddingVertical:4}}>
+                <Text style={{color:'#fff',fontSize:11,fontWeight:'700'}}>🤖 AI</Text>
+              </TouchableOpacity>
+            )}
           </View>
           <ScrollView style={{flex:1}} contentContainerStyle={{padding:16}}>
             <Animated.View style={{opacity:fadeAnim}}>
