@@ -151,9 +151,17 @@ export default function App() {
   }
 
   function playRingtone(name) {
-    // Play system notification sound
-    const sound = new Sound('notification.mp3', Sound.MAIN_BUNDLE, (error) => {
+    const files = {
+      '🔔 Standard': 'standard',
+      '🎵 Melodie': 'melodie',
+      '📯 Trompete': 'trompete',
+      '🔊 Laut': 'laut',
+      '🎶 Sanft': 'sanft',
+    };
+    const file = files[name] || 'standard';
+    const sound = new Sound(file + '.mp3', Sound.MAIN_BUNDLE, (error) => {
       if (!error) { sound.play(() => sound.release()); }
+      else { console.log('Sound error:', error); }
     });
   }
 
