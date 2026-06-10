@@ -529,29 +529,12 @@ Gib konkrete Tipps. Max 150 Wörter pro Sprache.`;
               )}
 
               {/* Hesaptan Çık */}
-              <TouchableOpacity style={{backgroundColor:T.card,borderRadius:14,padding:14,alignItems:'center',marginBottom:10,borderWidth:1.5,borderColor:'#F59E0B'}} onPress={()=>{
-                setLogoutStep(1);
-                  }}
-                ]);
-              }}>
+              <TouchableOpacity style={{backgroundColor:T.card,borderRadius:14,padding:14,alignItems:'center',marginBottom:10,borderWidth:1.5,borderColor:'#F59E0B'}} onPress={()=>setLogoutStep(1)}>
                 <Text style={{color:'#F59E0B',fontWeight:'800',fontSize:15}}>🚪 Hesaptan Çık / Abmelden</Text>
               </TouchableOpacity>
 
               {/* Hesabı Sil */}
-              <TouchableOpacity style={{backgroundColor:'#FEF2F2',borderRadius:14,padding:14,alignItems:'center',borderWidth:1.5,borderColor:'#DC2626'}} onPress={()=>{
-                Alert.alert('⚠️ Konto löschen / حساب را حذف کنید','Alle Daten werden unwiderruflich gelöscht!',[
-                  {text:'❌ Abbrechen / لغو',style:'cancel'},
-                  {text:'🗑️ Weiter',style:'destructive',onPress:()=>{
-                    Alert.alert('🚨 LETZTE WARNUNG!','Wirklich alle Daten löschen? Dies kann NICHT rückgängig gemacht werden!',[
-                      {text:'❌ Abbrechen',style:'cancel'},
-                      {text:'💀 Endgültig löschen',style:'destructive',onPress:async()=>{
-                        if(user?.id) await sbReq(`users?id=eq.${user.id}`,'DELETE');
-                        setUser(null);goHome();Alert.alert('Konto gelöscht');
-                      }}
-                    ]);
-                  }}
-                ]);
-              }}>
+              <TouchableOpacity style={{backgroundColor:'#FEF2F2',borderRadius:14,padding:14,alignItems:'center',borderWidth:1.5,borderColor:'#DC2626'}} onPress={deleteAccount}>
                 <Text style={{color:'#DC2626',fontWeight:'800',fontSize:15}}>🗑️ Hesabı Sil / Konto löschen</Text>
               </TouchableOpacity>
             </View>
