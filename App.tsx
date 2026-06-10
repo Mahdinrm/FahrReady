@@ -329,7 +329,7 @@ Gib konkrete Tipps. Max 150 Wörter pro Sprache.`;
           </ScrollView>
           <View style={{padding:16,borderTopWidth:1,borderTopColor:T.border}}>
             {user?(
-              <TouchableOpacity style={{backgroundColor:'#DC2626',borderRadius:10,padding:12,alignItems:'center'} onPress={()=>setLogoutStep(1)}>
+              <TouchableOpacity style={{backgroundColor:'#DC2626',borderRadius:10,padding:12,alignItems:'center'}} onPress={()=>setLogoutStep(1)}>
                 <Text style={{color:'#fff',fontWeight:'700'}}>🚪 {t.logout}</Text>
               </TouchableOpacity>
             ):(
