@@ -227,10 +227,7 @@ export default function App() {
   async function runAiAnalysis() {
     setAiLoading(true);
     const wrong=results.filter(r=>!r.correct);
-    const prompt=`Du bist Fahrlehrer. Analysiere diese Prüfung kurz auf Deutsch UND Persisch:
-Richtig: ${results.filter(r=>r.correct).length}/${results.length}
-Falsch: ${wrong.slice(0,8).map(r=>r.q.text_de).join(', ')}
-Gib konkrete Tipps. Max 150 Wörter pro Sprache.`;
+    const prompt=`Du bist Schweizer Fahrlehrer. Analysiere auf DEUTSCH und PERSISCH. Richtig: ${results.filter(r=>r.correct).length}/${results.length}. Falsche Themen: ${wrong.slice(0,6).map(r=>r.q.text_de).join('; ')}. Gib fuer jede falsche Antwort eine Lernmethode. Max 200 Woerter pro Sprache.`;
     try{
       const r=await fetch('https://npfvlfdjngzczxhghmyu.supabase.co/functions/v1/ai-analysis',{
         method:'POST',
@@ -886,9 +883,15 @@ Gib konkrete Tipps. Max 150 Wörter pro Sprache.`;
             <TouchableOpacity style={{backgroundColor:T.blue,borderRadius:12,padding:13,alignItems:'center',width:'100%',marginBottom:10}} onPress={()=>startExam(isPractice)}>
               <Text style={{color:'#fff',fontWeight:'700'}}>{t.again}</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={{backgroundColor:'#7C3AED',borderRadius:12,padding:13,alignItems:'center',width:'100%',marginBottom:10}} onPress={()=>setScreen('analysis')}>
-              <Text style={{color:'#fff',fontWeight:'700'}}>{t.analysis}</Text>
-            </TouchableOpacity>
+            {user?.is_premium ? (
+              <TouchableOpacity style={{backgroundColor:'#7C3AED',borderRadius:12,padding:13,alignItems:'center',width:'100%',marginBottom:10}} onPress={()=>setScreen('analysis')}>
+                <Text style={{color:'#fff',fontWeight:'700'}}>🤖 KI-Analyse (Premium)</Text>
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity style={{backgroundColor:'#7C3AED44',borderRadius:12,padding:13,alignItems:'center',width:'100%',marginBottom:10,borderWidth:1,borderColor:'#7C3AED'}} onPress={()=>setScreen('premium')}>
+                <Text style={{color:'#7C3AED',fontWeight:'700'}}>🤖 KI-Analyse — ⭐ Premium</Text>
+              </TouchableOpacity>
+            )}
             <TouchableOpacity style={{backgroundColor:T.card,borderRadius:12,padding:13,alignItems:'center',width:'100%',borderWidth:1,borderColor:T.border}} onPress={goHome}>
               <Text style={{color:T.text,fontWeight:'700'}}>{t.back}</Text>
             </TouchableOpacity>
