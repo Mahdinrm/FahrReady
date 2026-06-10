@@ -98,6 +98,7 @@ export default function App() {
   const logoutStepRef = useRef(0);
   const screenRef = useRef('home');
   const backPressTime = useRef(0);
+  const [showExitMsg, setShowExitMsg] = useState(false);
   useEffect(() => { logoutStepRef.current = logoutStep; }, [logoutStep]);
   useEffect(() => { screenRef.current = screen; }, [screen]);
 
@@ -109,10 +110,11 @@ export default function App() {
       const now = Date.now();
       if (now - backPressTime.current < 2000) {
         BackHandler.exitApp();
-        return true;
+      } else {
+        backPressTime.current = now;
+        setShowExitMsg(true);
+        setTimeout(() => setShowExitMsg(false), 2000);
       }
-      backPressTime.current = now;
-      Alert.alert('', 'Zum Beenden nochmal tippen / برای خروج دوباره بزنید');
       return true;
     });
     return () => sub.remove();
