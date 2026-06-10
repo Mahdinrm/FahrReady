@@ -659,7 +659,7 @@ export default function App() {
               ].map((r,i)=>(
                 <TouchableOpacity key={i} onPress={()=>{
                     setCalRingtone(r.name);
-                    Alert.alert('🔔 '+r.name, r.desc+' - Klingelton ausgewählt!');
+                    playRingtone(r.name);
                   }}
                   style={{paddingHorizontal:14,paddingVertical:8,borderRadius:20,marginRight:8,borderWidth:1.5,borderColor:calRingtone===r.name?T.blue:T.border,backgroundColor:calRingtone===r.name?T.blue+'22':'transparent'}}>
                   <Text style={{color:calRingtone===r.name?T.blue:T.sub,fontSize:12,fontWeight:'600'}}>{r.name}</Text>
