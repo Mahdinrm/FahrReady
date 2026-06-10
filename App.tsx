@@ -4,7 +4,7 @@ Sound.setCategory('Playback');
 import {
   View, Text, ScrollView, TouchableOpacity, TextInput,
   Alert, ActivityIndicator, Image, Dimensions,
-  SafeAreaView, StatusBar, Animated, BackHandler, Linking,
+  SafeAreaView, StatusBar, Animated, BackHandler, Linking, AppState,
 } from 'react-native';
 
 const {width} = Dimensions.get('window');
@@ -124,6 +124,15 @@ export default function App() {
 
   useEffect(() => { loadData(); }, []);
 
+  useEffect(() => {
+    const sub = AppState.addEventListener('change', state => {
+      if (state === 'background' || state === 'inactive') {
+        stopAllSounds();
+      }
+    });
+    return () => sub.remove();
+  }, []);
+
   async function loadData() {
     try {
       const [qRes,nRes,aRes] = await Promise.all([
@@ -150,7 +159,15 @@ export default function App() {
     }catch(e){}
   }
 
+  const currentSound = useRef(null);
+
   function playRingtone(name) {
+    // Stop previous sound
+    if (currentSound.current) {
+      currentSound.current.stop();
+      currentSound.current.release();
+      currentSound.current = null;
+    }
     const files = {
       '🔔 Standard': 'standard',
       '🎵 Melodie': 'melodie',
@@ -160,9 +177,22 @@ export default function App() {
     };
     const file = files[name] || 'standard';
     const sound = new Sound(file + '.mp3', Sound.MAIN_BUNDLE, (error) => {
-      if (!error) { sound.play(() => sound.release()); }
-      else { console.log('Sound error:', error); }
+      if (!error) {
+        currentSound.current = sound;
+        sound.play(() => {
+          sound.release();
+          currentSound.current = null;
+        });
+      }
     });
+  }
+
+  function stopAllSounds() {
+    if (currentSound.current) {
+      currentSound.current.stop();
+      currentSound.current.release();
+      currentSound.current = null;
+    }
   }
 
   function goHome() { if(timerRef){clearInterval(timerRef);setTimerRef(null);} setScreen('home'); setShowMenu(false); setShowTheme(false); }
@@ -806,7 +836,7 @@ export default function App() {
               <Text style={{fontSize:13,fontWeight:'700',color:'#DC2626'}}>✗ {errors}</Text>
               {!isPractice&&<Text style={{fontSize:13,fontWeight:'700',color:T.text}}>Pkt: {score*3}/150</Text>}
             </View>
-            {user?.is_premium&&results.length>0&&(
+            {user?.is_premium&&(
               <TouchableOpacity onPress={()=>{finishExam();setTimeout(()=>setScreen('analysis'),100);}} style={{backgroundColor:'#7C3AED',borderRadius:8,paddingHorizontal:10,paddingVertical:4}}>
                 <Text style={{color:'#fff',fontSize:11,fontWeight:'700'}}>🤖 AI</Text>
               </TouchableOpacity>
