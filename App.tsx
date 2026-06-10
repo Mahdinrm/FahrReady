@@ -95,12 +95,16 @@ export default function App() {
   const t = TX[lang] || TX.de;
 
   // BackHandler - always intercept
+  const logoutStepRef = useRef(0);
+  const screenRef = useRef('home');
+  useEffect(() => { logoutStepRef.current = logoutStep; }, [logoutStep]);
+  useEffect(() => { screenRef.current = screen; }, [screen]);
+
   useEffect(() => {
     const sub = BackHandler.addEventListener('hardwareBackPress', () => {
-      setShowTheme(false);
-      setShowMenu(false);
-      setScreen(s => s === 'home' ? s : 'home');
-      return true; // always intercept
+      if (logoutStepRef.current > 0) { setLogoutStep(0); return true; }
+      if (screenRef.current !== 'home') { setScreen('home'); return true; }
+      return true;
     });
     return () => sub.remove();
   }, []);
@@ -385,6 +389,47 @@ Gib konkrete Tipps. Max 150 Wörter pro Sprache.`;
       </TouchableOpacity>
     );
   };
+
+  // ── LOGOUT OVERLAY (global - must be before all screens) ──
+  if (logoutStep > 0) {
+    return (
+      <View style={{flex:1,backgroundColor:T.bg}}>
+        <SafeAreaView style={{flex:1,justifyContent:'center',alignItems:'center',padding:30,backgroundColor:'rgba(0,0,0,0.85)'}}>
+          <View style={{backgroundColor:T.card,borderRadius:20,padding:28,width:'100%',borderWidth:1,borderColor:T.border}}>
+            {logoutStep===1 ? (
+              <>
+                <Text style={{fontSize:32,textAlign:'center',marginBottom:10}}>🚪</Text>
+                <Text style={{color:T.text,fontSize:20,fontWeight:'900',textAlign:'center',marginBottom:4}}>Abmelden?</Text>
+                <Text style={{color:T.sub,fontSize:13,textAlign:'center',marginBottom:24}}>Moechten Sie sich wirklich abmelden?</Text>
+                <View style={{flexDirection:'row',gap:12}}>
+                  <TouchableOpacity style={{flex:1,backgroundColor:T.bg,borderRadius:12,padding:14,alignItems:'center',borderWidth:1,borderColor:T.border}} onPress={()=>setLogoutStep(0)}>
+                    <Text style={{color:T.text,fontWeight:'700'}}>❌ Nein</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={{flex:1,backgroundColor:'#F59E0B',borderRadius:12,padding:14,alignItems:'center'}} onPress={()=>setLogoutStep(2)}>
+                    <Text style={{color:'#fff',fontWeight:'700'}}>⚠️ Ja</Text>
+                  </TouchableOpacity>
+                </View>
+              </>
+            ) : (
+              <>
+                <Text style={{fontSize:32,textAlign:'center',marginBottom:10}}>✋</Text>
+                <Text style={{color:'#DC2626',fontSize:20,fontWeight:'900',textAlign:'center',marginBottom:4}}>Wirklich sicher?</Text>
+                <Text style={{color:T.sub,fontSize:13,textAlign:'center',marginBottom:24}}>Diese Aktion kann nicht rueckgaengig gemacht werden.</Text>
+                <View style={{flexDirection:'row',gap:12}}>
+                  <TouchableOpacity style={{flex:1,backgroundColor:T.bg,borderRadius:12,padding:14,alignItems:'center',borderWidth:1,borderColor:T.border}} onPress={()=>setLogoutStep(0)}>
+                    <Text style={{color:T.text,fontWeight:'700'}}>❌ Abbrechen</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={{flex:1,backgroundColor:'#DC2626',borderRadius:12,padding:14,alignItems:'center'}} onPress={()=>{setLogoutStep(0);setUser(null);goHome();}}>
+                    <Text style={{color:'#fff',fontWeight:'700'}}>🚪 Abmelden</Text>
+                  </TouchableOpacity>
+                </View>
+              </>
+            )}
+          </View>
+        </SafeAreaView>
+      </View>
+    );
+  }
 
   // ── HOME ──
   if(screen==='home') return (
@@ -879,48 +924,7 @@ Gib konkrete Tipps. Max 150 Wörter pro Sprache.`;
     );
   }
 
-  // Global overlays that work on ANY screen
-  if (logoutStep > 0) {
-    return (
-      <View style={{flex:1,backgroundColor:T.bg}}>
-        <View style={{position:'absolute',top:0,left:0,right:0,bottom:0,zIndex:9999,backgroundColor:'rgba(0,0,0,0.8)',justifyContent:'center',alignItems:'center',padding:30}}>
-          <View style={{backgroundColor:T.card,borderRadius:20,padding:28,width:'100%',borderWidth:1,borderColor:T.border}}>
-            {logoutStep===1 ? (
-              <>
-                <Text style={{fontSize:32,textAlign:'center',marginBottom:10}}>🚪</Text>
-                <Text style={{color:T.text,fontSize:20,fontWeight:'900',textAlign:'center',marginBottom:4}}>Abmelden?</Text>
-                <Text style={{color:T.sub,fontSize:14,textAlign:'center',marginBottom:4}}>خروج از حساب؟</Text>
-                <Text style={{color:T.sub,fontSize:12,textAlign:'center',marginBottom:24}}>Möchten Sie sich wirklich abmelden?</Text>
-                <View style={{flexDirection:'row',gap:12}}>
-                  <TouchableOpacity style={{flex:1,backgroundColor:T.bg,borderRadius:12,padding:14,alignItems:'center',borderWidth:1,borderColor:T.border}} onPress={()=>setLogoutStep(0)}>
-                    <Text style={{color:T.text,fontWeight:'700'}}>❌ Nein</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={{flex:1,backgroundColor:'#F59E0B',borderRadius:12,padding:14,alignItems:'center'}} onPress={()=>setLogoutStep(2)}>
-                    <Text style={{color:'#fff',fontWeight:'700'}}>⚠️ Ja</Text>
-                  </TouchableOpacity>
-                </View>
-              </>
-            ) : (
-              <>
-                <Text style={{fontSize:32,textAlign:'center',marginBottom:10}}>✋</Text>
-                <Text style={{color:'#DC2626',fontSize:20,fontWeight:'900',textAlign:'center',marginBottom:4}}>Wirklich sicher?</Text>
-                <Text style={{color:T.sub,fontSize:14,textAlign:'center',marginBottom:4}}>مطمئنی؟</Text>
-                <Text style={{color:T.sub,fontSize:12,textAlign:'center',marginBottom:24}}>Diese Aktion kann nicht rückgängig gemacht werden.</Text>
-                <View style={{flexDirection:'row',gap:12}}>
-                  <TouchableOpacity style={{flex:1,backgroundColor:T.bg,borderRadius:12,padding:14,alignItems:'center',borderWidth:1,borderColor:T.border}} onPress={()=>setLogoutStep(0)}>
-                    <Text style={{color:T.text,fontWeight:'700'}}>❌ Abbrechen</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={{flex:1,backgroundColor:'#DC2626',borderRadius:12,padding:14,alignItems:'center'}} onPress={()=>{setLogoutStep(0);setUser(null);goHome();}}>
-                    <Text style={{color:'#fff',fontWeight:'700'}}>🚪 Abmelden</Text>
-                  </TouchableOpacity>
-                </View>
-              </>
-            )}
-          </View>
-        </View>
-      </View>
-    );
-  }
+
 
   return <View style={{flex:1,alignItems:'center',justifyContent:'center',backgroundColor:T.bg}}><ActivityIndicator size="large" color="#1B4FD8"/></View>;
 }
