@@ -836,11 +836,14 @@ export default function App() {
               <Text style={{fontSize:13,fontWeight:'700',color:'#DC2626'}}>✗ {errors}</Text>
               {!isPractice&&<Text style={{fontSize:13,fontWeight:'700',color:T.text}}>Pkt: {score*3}/150</Text>}
             </View>
-            {user?.is_premium&&(
-              <TouchableOpacity onPress={()=>{finishExam();setTimeout(()=>setScreen('analysis'),100);}} style={{backgroundColor:'#7C3AED',borderRadius:8,paddingHorizontal:10,paddingVertical:4}}>
-                <Text style={{color:'#fff',fontSize:11,fontWeight:'700'}}>🤖 AI</Text>
-              </TouchableOpacity>
-            )}
+            <TouchableOpacity
+              onPress={()=>{
+                if(user?.is_premium){finishExam();setTimeout(()=>setScreen('analysis'),100);}
+                else{setScreen('premium');}
+              }}
+              style={{backgroundColor:'#7C3AED',borderRadius:8,paddingHorizontal:10,paddingVertical:4}}>
+              <Text style={{color:'#fff',fontSize:11,fontWeight:'700'}}>{user?.is_premium?'🤖 AI':'🤖 AI ⭐'}</Text>
+            </TouchableOpacity>
           </View>
           <ScrollView style={{flex:1}} contentContainerStyle={{padding:16}}>
             <Animated.View style={{opacity:fadeAnim}}>
