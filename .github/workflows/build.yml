@@ -75,36 +75,54 @@ jobs:
 
       - name: Configure release signing
         run: |
-          { echo "MYAPP_RELEASE_STORE_FILE=fahrready-release.keystore"; echo "MYAPP_RELEASE_KEY_ALIAS=fahrready"; echo "MYAPP_RELEASE_STORE_PASSWORD=FahrReady2026"; echo "MYAPP_RELEASE_KEY_PASSWORD=FahrReady2026"; } >> android/gradle.properties
           cat > /tmp/patch_gradle.py << 'PATCHEOF'
           import re
           with open('android/app/build.gradle') as f:
               g = f.read()
           
-          release_sc = """        release {
-                      if (project.hasProperty('MYAPP_RELEASE_STORE_FILE')) {
-                          storeFile file(MYAPP_RELEASE_STORE_FILE)
-                          storePassword MYAPP_RELEASE_STORE_PASSWORD
-                          keyAlias MYAPP_RELEASE_KEY_ALIAS
-                          keyPassword MYAPP_RELEASE_KEY_PASSWORD
-                      }
+          # Remove any existing (possibly broken) signingConfigs block entirely
+          g = re.sub(r'\n\s*signingConfigs\s*\{[^}]*(\{[^}]*\}[^}]*)*\}', '', g, flags=re.DOTALL)
+          
+          release_sc = """
+              signingConfigs {
+                  debug {
+                      storeFile file('debug.keystore')
+                      storePassword 'android'
+                      keyAlias 'androiddebugkey'
+                      keyPassword 'android'
                   }
+                  release {
+                      storeFile file('fahrready-release.keystore')
+                      storePassword 'FahrReady2026'
+                      keyAlias 'fahrready'
+                      keyPassword 'FahrReady2026'
+                  }
+              }
           """
           
-          if 'signingConfigs.release' not in g:
-              if 'signingConfigs {' in g:
-                  g = g.replace('signingConfigs {', 'signingConfigs {\n' + release_sc, 1)
-              else:
-                  g = re.sub(r'(android\s*\{)', r'\1\n    signingConfigs {\n' + release_sc + '    }\n', g, count=1)
+          # Insert before buildTypes
+          g = re.sub(r'(\n\s*buildTypes\s*\{)', release_sc + r'\1', g, count=1)
           
-          g = re.sub(r'signingConfig\s+signingConfigs\.debug', 'signingConfig signingConfigs.release', g)
+          # Point release buildType signingConfig to release
+          g = re.sub(r'signingConfig\s+signingConfigs\.\w+', 'signingConfig signingConfigs.release', g)
+          
+          # But debug buildType (if any) should keep debug signing - fix: only change inside release {...}
+          # Re-extract buildTypes block and fix per-buildtype
+          def fix_buildtypes(m):
+              bt = m.group(0)
+              # within debug{...}, set debug signing
+              bt = re.sub(r'(debug\s*\{[^}]*?)signingConfig\s+signingConfigs\.\w+', r'\1signingConfig signingConfigs.debug', bt, flags=re.DOTALL)
+              bt = re.sub(r'(release\s*\{[^}]*?)signingConfig\s+signingConfigs\.\w+', r'\1signingConfig signingConfigs.release', bt, flags=re.DOTALL)
+              return bt
+          
+          g = re.sub(r'buildTypes\s*\{.*?\n    \}', fix_buildtypes, g, flags=re.DOTALL, count=1)
           
           with open('android/app/build.gradle','w') as f:
               f.write(g)
-          print("build.gradle patched")
+          print("build.gradle patched (v2)")
           PATCHEOF
           python3 /tmp/patch_gradle.py
-          grep -A 12 'signingConfigs {' android/app/build.gradle
+          grep -A 20 'signingConfigs {' android/app/build.gradle
 
       - name: Build APK
         run: |
