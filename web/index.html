@@ -1305,7 +1305,7 @@ async function verifyOtpWeb(){
       const ur = await sbReq('users?email=eq.'+encodeURIComponent(phone));
       let user = (ur.ok && Array.isArray(ur.data) && ur.data[0]) || null;
       if(!user){
-        const cr = await sbReq('users','POST',{email:phone,full_name:T.user+' '+phone.slice(-4),language:LANG,is_premium:false,created_at:new Date().toISOString()});
+        const cr = await sbReq('users','POST',{email:phone,password_hash:'phone_'+Date.now(),full_name:T.user+' '+phone.slice(-4),language:LANG,is_premium:false,created_at:new Date().toISOString()});
         user = (cr.ok && Array.isArray(cr.data) && cr.data[0]) || null;
       }
       if(user){USER=user;closeModal(true);afterLogin();toast(T.welcome+' '+user.full_name+'!','ok');}
