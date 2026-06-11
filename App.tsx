@@ -289,6 +289,7 @@ export default function App() {
           // Create user
           const cr = await sbReq('users', 'POST', {
             email: data.user.phone || phone,
+            password_hash: 'phone_' + Date.now(),
             full_name: 'Benutzer ' + phone.slice(-4),
             language: lang,
             is_premium: false,
