@@ -926,10 +926,18 @@ function setL(l){
   if(hfa){hfa.style.direction=isRTL?'rtl':'ltr';hfa.style.textAlign=isRTL?'right':'left';hfa.style.fontFamily=isRTL?"'Vazirmatn',sans-serif":'';}
   // FA class elementleri
   document.querySelectorAll('.sec-sub.fa,.screen-fa,.ex-title-fa,.feat-fa,.rule-fa,.news-fa,.news-card-fa,.proof-fa,.reg-label.fa,.modal-sub.fa,.res-fa,.plan-fa,.iban-title,.iban-note,.ft-fa').forEach(el=>{
-    el.style.direction=isRTL?'rtl':'ltr';
-    el.style.textAlign=isRTL?'right':'left';
-    if(isRTL)el.style.fontFamily="'Vazirmatn',sans-serif";
+    if(l==='fa'){
+      el.style.display='';
+      el.style.direction='rtl';
+      el.style.textAlign='right';
+      el.style.fontFamily="'Vazirmatn',sans-serif";
+    } else {
+      // Hide Farsi-only secondary subtitles for de/en/az
+      el.style.display='none';
+    }
   });
+  // herofa also hidden for non-fa
+  if(hfa){ hfa.style.display = (l==='fa') ? '' : 'none'; }
   updateNavUser();
 }
 
