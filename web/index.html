@@ -1308,7 +1308,7 @@ async function verifyOtpWeb(){
         const cr = await sbReq('users','POST',{email:phone,password_hash:'phone_'+Date.now(),full_name:T.user+' '+phone.slice(-4),language:LANG,is_premium:false,created_at:new Date().toISOString()});
         user = (cr.ok && Array.isArray(cr.data) && cr.data[0]) || null;
       }
-      if(user){USER=user;closeModal(true);afterLogin();toast(T.welcome+' '+user.full_name+'!','ok');}
+      if(user){saveUser(user);closeModal(true);toast(T.welcome+' '+user.full_name+'!','ok');setL(user.language||'de');}
     } else {
       toast(data.msg||T.wrongCode,'err');
     }
