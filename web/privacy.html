@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Datenschutz – FahrReady</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background:#F8FAFF; color:#0f172a; line-height:1.7; }
+  .header { background:#1B4FD8; color:#fff; padding:40px 20px; text-align:center; }
+  .header h1 { font-size:28px; font-weight:900; margin-bottom:8px; }
+  .header p { opacity:0.8; font-size:14px; }
+  .container { max-width:800px; margin:0 auto; padding:40px 20px; }
+  h2 { font-size:18px; font-weight:800; color:#1B4FD8; margin:30px 0 12px; }
+  p { margin-bottom:14px; font-size:15px; color:#374151; }
+  ul { margin:0 0 14px 20px; }
+  ul li { margin-bottom:6px; font-size:15px; color:#374151; }
+  .card { background:#fff; border-radius:12px; padding:20px; margin-bottom:20px; border:1px solid #E5E7EB; }
+  .lang-btn { display:inline-block; padding:6px 14px; border-radius:20px; border:1px solid #1B4FD8; color:#1B4FD8; cursor:pointer; margin:4px; font-size:13px; font-weight:600; }
+  .lang-btn.active { background:#1B4FD8; color:#fff; }
+  .lang-section { display:none; }
+  .lang-section.active { display:block; }
+  .footer { text-align:center; padding:30px; color:#6B7280; font-size:13px; border-top:1px solid #E5E7EB; margin-top:40px; }
+  a { color:#1B4FD8; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🚗 FahrReady</h1>
+  <p>Datenschutzerklärung / سیاست حریم خصوصی / Gizlilik Politikası</p>
+  <div style="margin-top:16px;">
+    <span class="lang-btn active" onclick="setLang('de')">DE</span>
+    <span class="lang-btn" onclick="setLang('fa')">FA</span>
+    <span class="lang-btn" onclick="setLang('az')">AZ</span>
+    <span class="lang-btn" onclick="setLang('en')">EN</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- DEUTSCH -->
+  <div id="lang-de" class="lang-section active">
+    <div class="card">
+      <h2>1. Verantwortlicher</h2>
+      <p>FahrReady<br>E-Mail: info@fahrready.ch<br>Website: fahrready.ch</p>
+    </div>
+    <div class="card">
+      <h2>2. Erhobene Daten</h2>
+      <p>Wir erheben folgende personenbezogene Daten:</p>
+      <ul>
+        <li>E-Mail-Adresse (bei Registrierung)</li>
+        <li>Telefonnummer (bei SMS-Anmeldung)</li>
+        <li>Name (freiwillig)</li>
+        <li>Prüfungsergebnisse und Lernfortschritt</li>
+        <li>Zahlungsdaten (werden von Stripe verarbeitet)</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h2>3. Verwendung der Daten</h2>
+      <ul>
+        <li>Bereitstellung des Lerndienstes</li>
+        <li>Speicherung von Prüfungsergebnissen</li>
+        <li>Versand von SMS-Verifizierungscodes</li>
+        <li>Verwaltung von Premium-Abonnements</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h2>4. Datenspeicherung</h2>
+      <p>Daten werden auf Servern von <strong>Supabase</strong> (EU) gespeichert. Zahlungen werden über <strong>Stripe</strong> abgewickelt. Wir speichern keine Kreditkartendaten.</p>
+    </div>
+    <div class="card">
+      <h2>5. SMS-Verifizierung</h2>
+      <p>Für die Telefon-Anmeldung nutzen wir <strong>Twilio</strong>. Ihre Telefonnummer wird zur Authentifizierung verwendet und nicht für Werbezwecke genutzt.</p>
+    </div>
+    <div class="card">
+      <h2>6. Ihre Rechte</h2>
+      <ul>
+        <li>Recht auf Auskunft über Ihre Daten</li>
+        <li>Recht auf Löschung (Konto löschen in der App)</li>
+        <li>Recht auf Datenportabilität</li>
+        <li>Widerspruchsrecht</li>
+      </ul>
+      <p>Kontakt: info@fahrready.ch</p>
+    </div>
+    <div class="card">
+      <h2>7. Cookies</h2>
+      <p>Die Website verwendet technisch notwendige Cookies. Keine Tracking- oder Werbe-Cookies.</p>
+    </div>
+    <div class="card">
+      <h2>8. Änderungen</h2>
+      <p>Wir behalten uns vor, diese Datenschutzerklärung zu aktualisieren. Die aktuelle Version ist stets auf dieser Seite verfügbar.</p>
+      <p><strong>Stand:</strong> Juni 2026</p>
+    </div>
+  </div>
+
+  <!-- FARSI -->
+  <div id="lang-fa" class="lang-section" dir="rtl" style="font-family:'Tahoma',sans-serif;">
+    <div class="card">
+      <h2>۱. مسئول</h2>
+      <p>FahrReady<br>ایمیل: info@fahrready.ch<br>وبسایت: fahrready.ch</p>
+    </div>
+    <div class="card">
+      <h2>۲. داده‌های جمع‌آوری‌شده</h2>
+      <ul>
+        <li>آدرس ایمیل (هنگام ثبت‌نام)</li>
+        <li>شماره تلفن (برای ورود با SMS)</li>
+        <li>نام (اختیاری)</li>
+        <li>نتایج آزمون و پیشرفت یادگیری</li>
+        <li>اطلاعات پرداخت (توسط Stripe پردازش می‌شود)</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h2>۳. استفاده از داده‌ها</h2>
+      <ul>
+        <li>ارائه خدمات آموزشی</li>
+        <li>ذخیره نتایج آزمون</li>
+        <li>ارسال کد تأیید SMS</li>
+        <li>مدیریت اشتراک Premium</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h2>۴. ذخیره‌سازی داده‌ها</h2>
+      <p>داده‌ها در سرورهای <strong>Supabase</strong> (اتحادیه اروپا) ذخیره می‌شوند. پرداخت‌ها از طریق <strong>Stripe</strong> انجام می‌شود. ما اطلاعات کارت بانکی ذخیره نمی‌کنیم.</p>
+    </div>
+    <div class="card">
+      <h2>۵. حقوق شما</h2>
+      <ul>
+        <li>حق دسترسی به داده‌های خود</li>
+        <li>حق حذف حساب (از طریق اپلیکیشن)</li>
+        <li>حق اعتراض</li>
+      </ul>
+      <p>تماس: info@fahrready.ch</p>
+    </div>
+  </div>
+
+  <!-- AZERBAYCANCA -->
+  <div id="lang-az" class="lang-section">
+    <div class="card">
+      <h2>1. Məsul şəxs</h2>
+      <p>FahrReady<br>E-poçt: info@fahrready.ch<br>Vebsayt: fahrready.ch</p>
+    </div>
+    <div class="card">
+      <h2>2. Toplanan məlumatlar</h2>
+      <ul>
+        <li>E-poçt ünvanı (qeydiyyat zamanı)</li>
+        <li>Telefon nömrəsi (SMS girişi üçün)</li>
+        <li>Ad (könüllü)</li>
+        <li>İmtahan nəticələri</li>
+        <li>Ödəniş məlumatları (Stripe tərəfindən işlənir)</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h2>3. Hüquqlarınız</h2>
+      <ul>
+        <li>Məlumatlarınıza giriş hüququ</li>
+        <li>Hesabı silmə hüququ (tətbiqdən)</li>
+        <li>Etiraz hüququ</li>
+      </ul>
+      <p>Əlaqə: info@fahrready.ch</p>
+    </div>
+  </div>
+
+  <!-- ENGLISH -->
+  <div id="lang-en" class="lang-section">
+    <div class="card">
+      <h2>1. Controller</h2>
+      <p>FahrReady<br>Email: info@fahrready.ch<br>Website: fahrready.ch</p>
+    </div>
+    <div class="card">
+      <h2>2. Data Collected</h2>
+      <ul>
+        <li>Email address (on registration)</li>
+        <li>Phone number (for SMS login)</li>
+        <li>Name (optional)</li>
+        <li>Exam results and learning progress</li>
+        <li>Payment data (processed by Stripe)</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h2>3. Use of Data</h2>
+      <ul>
+        <li>Providing the learning service</li>
+        <li>Storing exam results</li>
+        <li>Sending SMS verification codes</li>
+        <li>Managing Premium subscriptions</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h2>4. Data Storage</h2>
+      <p>Data is stored on <strong>Supabase</strong> servers (EU). Payments are processed via <strong>Stripe</strong>. We do not store credit card data.</p>
+    </div>
+    <div class="card">
+      <h2>5. Your Rights</h2>
+      <ul>
+        <li>Right to access your data</li>
+        <li>Right to deletion (delete account in app)</li>
+        <li>Right to data portability</li>
+        <li>Right to object</li>
+      </ul>
+      <p>Contact: info@fahrready.ch</p>
+    </div>
+    <div class="card">
+      <h2>6. Changes</h2>
+      <p>We reserve the right to update this privacy policy. The current version is always available on this page.</p>
+      <p><strong>Last updated:</strong> June 2026</p>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  <p>© 2026 FahrReady · <a href="/">fahrready.ch</a> · info@fahrready.ch</p>
+</div>
+
+<script>
+function setLang(lang) {
+  document.querySelectorAll('.lang-section').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.lang-btn').forEach(el => el.classList.remove('active'));
+  document.getElementById('lang-'+lang).classList.add('active');
+  event.target.classList.add('active');
+}
+</script>
+</body>
+</html>

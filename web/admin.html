@@ -1,0 +1,1359 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FahrReady Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{--bl:#1B4FD8;--gn:#16A34A;--rd:#DC2626;--yw:#D97706;--gr:#6B7280;--bg:#F1F5F9;--white:#fff;--border:#E2E8F0;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:#1e293b;}
+
+/* LOGIN */
+#loginWrap{display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,#0f172a 0%,#1B4FD8 100%);}
+.lbox{background:#fff;border-radius:20px;padding:40px;width:340px;text-align:center;box-shadow:0 25px 60px rgba(0,0,0,.3);}
+.llogo{font-size:26px;font-weight:800;margin-bottom:4px;color:#0f172a;}
+.llogo span{color:var(--bl);}
+.lsub{font-size:12px;color:var(--gr);margin-bottom:28px;}
+.linp{width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;margin-bottom:10px;font-family:inherit;outline:none;transition:border .2s;}
+.linp:focus{border-color:var(--bl);}
+.lbtn{width:100%;padding:12px;background:var(--bl);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;transition:background .2s;}
+.lbtn:hover{background:#1239A0;}
+.lerr{color:var(--rd);font-size:12px;margin-bottom:8px;display:none;}
+
+/* LAYOUT */
+#app{display:none;min-height:100vh;}
+.sidebar{position:fixed;top:0;left:0;bottom:0;width:240px;background:#0f172a;display:flex;flex-direction:column;padding:20px 0;z-index:100;overflow-y:auto;}
+.slogo{padding:0 20px;margin-bottom:6px;}
+.slogo-t{font-size:19px;font-weight:800;color:#fff;}
+.slogo-t span{color:#60a5fa;}
+.sver{font-size:10px;color:rgba(255,255,255,.25);padding:0 20px;margin-bottom:24px;}
+.ssec{font-size:9px;font-weight:700;color:rgba(255,255,255,.2);text-transform:uppercase;letter-spacing:1.2px;padding:8px 20px 4px;}
+.sit{display:flex;align-items:center;gap:10px;padding:9px 20px;cursor:pointer;font-size:13px;font-weight:500;color:rgba(255,255,255,.5);transition:all .15s;border-left:3px solid transparent;}
+.sit:hover{background:rgba(255,255,255,.05);color:#fff;}
+.sit.on{background:rgba(27,79,216,.3);color:#fff;border-left-color:#60a5fa;}
+.sit-icon{font-size:16px;width:22px;text-align:center;}
+.sbot{margin-top:auto;border-top:1px solid rgba(255,255,255,.06);padding-top:12px;}
+
+.main{margin-left:240px;padding:28px 32px;min-height:100vh;}
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;}
+.ptitle{font-size:22px;font-weight:800;color:#0f172a;}
+.pdate{font-size:11px;color:var(--gr);}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:24px;}
+.stat{background:#fff;border-radius:14px;padding:18px;border:1px solid var(--border);}
+.stat-n{font-size:28px;font-weight:800;color:var(--bl);line-height:1;}
+.stat-l{font-size:10px;color:var(--gr);margin-top:3px;}
+.stat.gn .stat-n{color:var(--gn);}
+.stat.yw .stat-n{color:var(--yw);}
+.stat.rd .stat-n{color:var(--rd);}
+
+/* CARD */
+.card{background:#fff;border-radius:14px;border:1px solid var(--border);overflow:hidden;margin-bottom:20px;}
+.card-head{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:10px;}
+.card-title{font-size:14px;font-weight:700;}
+.card-acts{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+
+/* BUTTONS */
+.btn{padding:7px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:none;transition:all .15s;display:inline-flex;align-items:center;gap:5px;}
+.btn:hover{opacity:.88;}
+.btn.primary{background:var(--bl);color:#fff;}
+.btn.success{background:var(--gn);color:#fff;}
+.btn.danger{background:var(--rd);color:#fff;}
+.btn.warn{background:var(--yw);color:#fff;}
+.btn.gray{background:#F1F5F9;color:#374151;border:1px solid var(--border);}
+.btn.outline{background:#fff;color:var(--bl);border:1.5px solid var(--bl);}
+.btn.sm{padding:5px 10px;font-size:11px;}
+.btn.refresh{background:none;border:1.5px solid var(--border);color:var(--gr);padding:6px 12px;}
+.btn.refresh:hover{border-color:var(--bl);color:var(--bl);}
+
+.srch{padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:12px;outline:none;width:220px;font-family:inherit;}
+.srch:focus{border-color:var(--bl);}
+.fsel{padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:12px;outline:none;cursor:pointer;font-family:inherit;}
+
+/* TABLE */
+table{width:100%;border-collapse:collapse;}
+th{padding:10px 16px;text-align:left;font-size:10px;font-weight:700;color:var(--gr);text-transform:uppercase;letter-spacing:.5px;background:#F8FAFC;border-bottom:1px solid var(--border);}
+td{padding:10px 16px;border-bottom:1px solid #F8FAFC;font-size:12px;color:#0f172a;vertical-align:middle;}
+tr:last-child td{border:none;}
+tr:hover td{background:#FAFBFF;}
+.acts{display:flex;gap:5px;flex-wrap:wrap;}
+
+/* BADGES */
+.bdg{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;}
+.bdg.free{background:#EEF2FF;color:var(--bl);}
+.bdg.prem{background:#FEF9E7;color:#92700A;}
+.bdg.pend{background:#FFF7ED;color:#C2410C;}
+.bdg.ok{background:#DCFCE7;color:var(--gn);}
+.bdg.no{background:#FEF2F2;color:var(--rd);}
+.bdg.ban{background:#FEF2F2;color:var(--rd);}
+.bdg.act{background:#DCFCE7;color:var(--gn);}
+
+/* TABS */
+.tab-page{display:none;}
+.tab-page.on{display:block;}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;padding:11px 18px;border-radius:10px;font-size:13px;font-weight:600;color:#fff;background:#0f172a;z-index:9999;opacity:0;transform:translateY(8px);transition:all .25s;pointer-events:none;max-width:340px;}
+.toast.show{opacity:1;transform:translateY(0);}
+.toast.ok{background:var(--gn);}
+.toast.err{background:var(--rd);}
+.toast.warn{background:var(--yw);}
+
+/* MODAL */
+.mbg{position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:500;opacity:0;pointer-events:none;transition:opacity .2s;}
+.mbg.open{opacity:1;pointer-events:all;}
+.mbox{background:#fff;border-radius:16px;padding:28px;width:520px;max-width:96vw;max-height:92vh;overflow-y:auto;transform:scale(.97);transition:transform .2s;}
+.mbg.open .mbox{transform:scale(1);}
+.mtitle{font-size:16px;font-weight:800;margin-bottom:16px;color:#0f172a;}
+.mlabel{display:block;font-size:10px;font-weight:700;color:var(--gr);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;margin-top:12px;}
+.minp,.msel,.mta{width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;outline:none;font-family:inherit;}
+.minp:focus,.msel:focus,.mta:focus{border-color:var(--bl);}
+.mta{resize:vertical;min-height:65px;}
+.mrow{display:flex;gap:8px;margin-top:16px;}
+.mgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.msec{border-top:1px solid var(--border);padding-top:14px;margin-top:14px;}
+
+/* UPLOAD */
+.upload{border:2px dashed var(--border);border-radius:10px;padding:16px;text-align:center;cursor:pointer;position:relative;transition:all .2s;}
+.upload:hover{border-color:var(--bl);background:#EEF2FF;}
+.upload input{position:absolute;inset:0;opacity:0;cursor:pointer;}
+.upload-txt{font-size:12px;color:var(--gr);}
+.img-prev{max-width:100%;max-height:220px;border-radius:10px;object-fit:contain;border:1px solid #e5e7eb;background:#F8FAFC;display:none;margin-top:8px;}
+
+/* ANSWER ROWS */
+.arow{display:flex;align-items:center;gap:8px;margin-bottom:8px;background:#F8FAFC;border-radius:8px;padding:8px 10px;}
+.arow input[type=radio]{width:16px;height:16px;accent-color:var(--gn);cursor:pointer;flex-shrink:0;}
+.arow input[type=text]{flex:1;padding:7px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:12px;outline:none;font-family:inherit;background:#fff;}
+.arow input[type=text]:focus{border-color:var(--gn);}
+.arow .correct-label{font-size:10px;color:var(--gn);font-weight:700;white-space:nowrap;}
+.arow .adel{background:none;border:none;color:var(--rd);cursor:pointer;font-size:18px;line-height:1;padding:0 4px;}
+
+/* AD CARDS */
+.ad-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;padding:20px;}
+.ad-card{background:#fff;border:2px solid var(--border);border-radius:12px;overflow:hidden;transition:all .2s;}
+.ad-card:hover{border-color:var(--bl);box-shadow:0 6px 20px rgba(0,0,0,.08);}
+.ad-img{height:120px;background:#F1F5F9;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+.ad-img img{width:100%;height:100%;object-fit:cover;}
+.ad-img-placeholder{font-size:36px;color:#CBD5E1;}
+.ad-body{padding:12px;}
+.ad-name{font-size:13px;font-weight:700;margin-bottom:3px;}
+.ad-pos{font-size:10px;color:var(--bl);font-weight:600;margin-bottom:6px;}
+.ad-acts{display:flex;gap:6px;}
+.ad-status{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px;}
+.ad-status.on{background:var(--gn);}
+.ad-status.off{background:var(--rd);}
+
+/* SPIN */
+.spin{width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--bl);border-radius:50%;animation:sp .6s linear infinite;display:inline-block;}
+@keyframes sp{to{transform:rotate(360deg);}}
+.loading td,.empty-row td{text-align:center;padding:30px;color:var(--gr);font-size:12px;}
+
+/* SETTINGS */
+.sgrid{display:grid;grid-template-columns:1fr 1fr;gap:16px;padding:20px;}
+.sg{display:flex;flex-direction:column;gap:5px;}
+.sg label{font-size:10px;font-weight:700;color:var(--gr);text-transform:uppercase;}
+.sg input{padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;outline:none;font-family:inherit;}
+.sg input:focus{border-color:var(--bl);}
+.sql-box{background:#F8FAFC;border-radius:8px;padding:14px;font-size:11px;font-family:monospace;line-height:1.7;overflow-x:auto;border:1px solid var(--border);margin:16px;}
+
+/* APP LINKS */
+.app-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:20px;}
+.app-card{background:linear-gradient(135deg,#1B4FD8,#0f2d8a);border-radius:14px;padding:20px;color:#fff;display:flex;align-items:center;gap:14px;}
+.app-card.ios{background:linear-gradient(135deg,#000,#1a1a1a);}
+.app-icon{font-size:38px;}
+.app-info{flex:1;}
+.app-platform{font-size:10px;opacity:.7;text-transform:uppercase;letter-spacing:1px;}
+.app-name{font-size:16px;font-weight:700;margin:2px 0 8px;}
+.app-inp{width:100%;padding:8px 10px;border-radius:7px;border:none;font-size:12px;background:rgba(255,255,255,.15);color:#fff;outline:none;font-family:inherit;}
+.app-inp::placeholder{color:rgba(255,255,255,.5);}
+
+/* IMG in table */
+.timg{height:38px;border-radius:6px;object-fit:contain;border:1px solid var(--border);background:#F8FAFC;}
+
+/* ── MOBİL ─────────────────── */
+.mob-menu-btn {
+  display: none;
+  background: #1B4FD8;
+  border: none;
+  color: #fff;
+  padding: 10px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 20px;
+  margin-right: 10px;
+}
+.mob-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 99;
+}
+@media (max-width: 768px) {
+  .mob-menu-btn { display: inline-block; }
+  .sidebar {
+    display: none !important;
+    width: 260px !important;
+  }
+  .sidebar.open {
+    display: flex !important;
+    position: fixed !important;
+    top: 0 !important; left: 0 !important;
+    height: 100vh !important;
+    z-index: 200 !important;
+  }
+  .mob-overlay.open { display: block; }
+  .main {
+    margin-left: 0 !important;
+    padding: 10px !important;
+  }
+  .topbar { padding: 8px 10px !important; gap: 8px !important; }
+  .ptitle { font-size: 16px !important; }
+  table { font-size: 12px !important; display: block; overflow-x: auto; }
+  .btn, button { padding: 8px 10px !important; font-size: 12px !important; }
+  .modal-box {
+    width: 96% !important;
+    max-width: 96% !important;
+    margin: 8px auto !important;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  .mgrid { grid-template-columns: 1fr !important; }
+  .minp, .mta, .msel { font-size: 15px !important; padding: 10px !important; }
+  .stat-grid { grid-template-columns: 1fr 1fr !important; }
+  .card { padding: 10px !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginWrap">
+  <div class="lbox">
+    <div class="llogo">Fahr<span>Ready</span></div>
+    <div class="lsub">🔐 Admin Paneli</div>
+    <div class="lerr" id="lerr">Yanlış e-mail veya şifre</div>
+    <input class="linp" type="email" id="lem" placeholder="Admin E-Mail">
+    <input class="linp" type="password" id="lps" placeholder="Şifre">
+    <button class="lbtn" onclick="doLogin()">Giriş Yap →</button>
+    <div style="margin-top:12px;font-size:10px;color:#9CA3AF;">Varsayılan: admin@fahrready.ch / fahrready2025</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <!-- SIDEBAR -->
+  <div class="mob-overlay" onclick="document.querySelector('.sidebar').classList.remove('open');this.classList.remove('open')"></div>
+  <div class="sidebar">
+    <div class="slogo"><div class="slogo-t">Fahr<span>Ready</span></div></div>
+    <div class="sver">Admin v4.0</div>
+
+    <div class="ssec">Genel</div>
+    <div class="sit on" onclick="goTab('dashboard',this)"><span class="sit-icon">📊</span> Dashboard</div>
+
+    <div class="ssec">İçerik</div>
+    <div class="sit" onclick="goTab('questions',this)"><span class="sit-icon">❓</span> Sorular</div>
+    <div class="sit" onclick="goTab('news',this)"><span class="sit-icon">📰</span> Haberler</div>
+    <div class="sit" onclick="goTab('ads',this)"><span class="sit-icon">📢</span> Reklamlar</div>
+
+    <div class="ssec">Üyeler</div>
+    <div class="sit" onclick="goTab('users',this)"><span class="sit-icon">👥</span> Kullanıcılar</div>
+    <div class="sit" onclick="goTab('payments',this)"><span class="sit-icon">💳</span> Ödemeler</div>
+
+    <div class="ssec">Sistem</div>
+    <div class="sit" onclick="goTab('apps',this)"><span class="sit-icon">📱</span> Uygulama Linkleri</div>
+    <div class="sit" onclick="goTab('settings',this)"><span class="sit-icon">⚙️</span> Ayarlar</div>
+
+    <div class="sbot">
+      <div class="sit" onclick="doLogout()"><span class="sit-icon">🚪</span> Çıkış</div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar" style="display:flex;align-items:center;gap:10px;">
+  <button class="mob-menu-btn" onclick="document.querySelector('.sidebar').classList.toggle('open');document.querySelector('.mob-overlay').classList.toggle('open')">☰</button>
+      <div class="ptitle" id="ptitle">Dashboard</div>
+      <div class="pdate" id="pdate"></div>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div class="tab-page on" id="tab-dashboard">
+      <div class="stats">
+        <div class="stat"><div class="stat-n" id="su">—</div><div class="stat-l">Kullanıcı</div></div>
+        <div class="stat gn"><div class="stat-n" id="sp">—</div><div class="stat-l">Premium</div></div>
+        <div class="stat yw"><div class="stat-n" id="sw">—</div><div class="stat-l">Bekleyen Ödeme</div></div>
+        <div class="stat"><div class="stat-n" id="sq">—</div><div class="stat-l">Soru</div></div>
+        <div class="stat gn"><div class="stat-n" id="se">—</div><div class="stat-l">Sınav</div></div>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">⏳ Onay Bekleyen Ödemeler</div>
+          <button class="btn refresh" onclick="loadDashboard()">🔄 Yenile</button>
+        </div>
+        <div style="overflow-x:auto;"><table>
+          <thead><tr><th>E-Mail</th><th>Plan</th><th>Tutar</th><th>Referans</th><th>Tarih</th><th>İşlem</th></tr></thead>
+          <tbody id="tb-pend"><tr class="loading"><td colspan="6"><span class="spin"></span></td></tr></tbody>
+        </table></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div class="card-title">🆕 Son Kayıtlar</div></div>
+        <div style="overflow-x:auto;"><table>
+          <thead><tr><th>İsim</th><th>E-Mail</th><th>Dil</th><th>Üyelik</th><th>Kayıt</th></tr></thead>
+          <tbody id="tb-recent"><tr class="loading"><td colspan="5"><span class="spin"></span></td></tr></tbody>
+        </table></div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><div class="card-title">⚙️ Ayarlar</div></div>
+        <div style="padding:0 4px;">
+          <label style="font-size:12px;font-weight:600;color:#6B7280;">📱 Android Play Store Linki</label>
+          <div style="display:flex;gap:8px;margin-top:6px;">
+            <input id="androidLinkInput" type="text" placeholder="https://play.google.com/store/apps/details?id=..." style="flex:1;padding:10px;border:1px solid #E2E8F0;border-radius:8px;font-size:13px;">
+            <button class="btn primary" onclick="saveAndroidLink()">💾 Kaydet</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SORULAR -->
+    <div class="tab-page" id="tab-questions">
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">❓ Soru Yönetimi</div>
+          <div class="card-acts">
+            <input class="srch" type="text" id="qsrch" placeholder="Soru ara..." oninput="filterQ()">
+            <button class="btn success" onclick="openQ()">➕ Yeni Soru</button>
+            <button class="btn refresh" onclick="loadQ()">🔄</button>
+          </div>
+        </div>
+        <div style="overflow-x:auto;"><table style="min-width:800px;">
+          <thead><tr><th>#</th><th>Fotoğraf</th><th>Soru Metni (DE)</th><th>Kategori</th><th>Tip</th><th>Durum</th><th>İşlemler</th></tr></thead>
+          <tbody id="tb-q"><tr class="loading"><td colspan="7"><span class="spin"></span></td></tr></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- HABERLER -->
+    <div class="tab-page" id="tab-news">
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">📰 Haber Yönetimi</div>
+          <div class="card-acts">
+            <button class="btn success" onclick="openNews()">➕ Yeni Haber</button>
+            <button class="btn refresh" onclick="loadNews()">🔄</button>
+          </div>
+        </div>
+        <div style="overflow-x:auto;"><table style="min-width:900px;">
+          <thead><tr><th>#</th><th>Fotoğraf</th><th>İkon</th><th>Başlık (DE)</th><th>Tag</th><th>Öne Çıkan</th><th>Durum</th><th>İşlemler</th></tr></thead>
+          <tbody id="tb-news"><tr class="loading"><td colspan="8"><span class="spin"></span></td></tr></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- REKLAMLAR -->
+    <div class="tab-page" id="tab-ads">
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">📢 Reklam Yönetimi</div>
+          <div class="card-acts">
+            <button class="btn success" onclick="openAd()">➕ Yeni Reklam</button>
+            <button class="btn refresh" onclick="loadAds()">🔄</button>
+          </div>
+        </div>
+        <div class="ad-grid" id="ad-grid">
+          <div style="padding:30px;text-align:center;color:var(--gr);grid-column:1/-1;"><span class="spin"></span></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div class="card-title">📍 Reklam Konumları</div></div>
+        <div style="padding:16px 20px;">
+          <p style="font-size:12px;color:var(--gr);margin-bottom:14px;">Reklamlar sitede şu konumlarda gösterilir:</p>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">
+            <div style="background:#F8FAFC;border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center;">
+              <div style="font-size:20px;margin-bottom:6px;">🔝</div>
+              <div style="font-size:12px;font-weight:700;">Üst Banner</div>
+              <div style="font-size:10px;color:var(--gr);margin-top:3px;">position: top</div>
+            </div>
+            <div style="background:#F8FAFC;border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center;">
+              <div style="font-size:20px;margin-bottom:6px;">📋</div>
+              <div style="font-size:12px;font-weight:700;">Orta Alan</div>
+              <div style="font-size:10px;color:var(--gr);margin-top:3px;">position: middle</div>
+            </div>
+            <div style="background:#F8FAFC;border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center;">
+              <div style="font-size:20px;margin-bottom:6px;">⬇️</div>
+              <div style="font-size:12px;font-weight:700;">Alt Banner</div>
+              <div style="font-size:10px;color:var(--gr);margin-top:3px;">position: bottom</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- KULLANICILAR -->
+    <div class="tab-page" id="tab-users">
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">👥 Kullanıcı Yönetimi</div>
+          <div class="card-acts">
+            <input class="srch" type="text" id="usrch" placeholder="İsim veya e-mail..." oninput="filterU()">
+            <button class="btn refresh" onclick="loadUsers()">🔄</button>
+          </div>
+        </div>
+        <div style="overflow-x:auto;"><table style="min-width:800px;">
+          <thead><tr><th>İsim</th><th>E-Mail</th><th>Dil</th><th>Üyelik</th><th>Son Giriş</th><th>İşlemler</th></tr></thead>
+          <tbody id="tb-users"><tr class="loading"><td colspan="6"><span class="spin"></span></td></tr></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- ÖDEMELER -->
+    <div class="tab-page" id="tab-payments">
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">💳 Ödemeler</div>
+          <div class="card-acts">
+            <input class="srch" type="text" id="psrch" placeholder="Referans veya e-mail..." oninput="filterP()">
+            <select class="fsel" id="pstatus" onchange="filterP()">
+              <option value="">Tümü</option>
+              <option value="pending">Bekliyor</option>
+              <option value="approved">Onaylandı</option>
+              <option value="rejected">Reddedildi</option>
+            </select>
+            <button class="btn refresh" onclick="loadPayments()">🔄</button>
+          </div>
+        </div>
+        <div style="overflow-x:auto;"><table style="min-width:850px;">
+          <thead><tr><th>E-Mail</th><th>Plan</th><th>Tutar</th><th>Referans</th><th>Durum</th><th>Tarih</th><th>İşlemler</th></tr></thead>
+          <tbody id="tb-pay"><tr class="loading"><td colspan="7"><span class="spin"></span></td></tr></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- UYGULAMA LİNKLERİ -->
+    <div class="tab-page" id="tab-apps">
+      <div class="card">
+        <div class="card-head"><div class="card-title">📱 iOS & Android Uygulama Linkleri</div></div>
+        <div class="app-grid">
+          <div class="app-card">
+            <div class="app-icon">🍎</div>
+            <div class="app-info">
+              <div class="app-platform">Apple App Store</div>
+              <div class="app-name">iOS Linki</div>
+              <input class="app-inp" id="ios-link" placeholder="https://apps.apple.com/...">
+            </div>
+          </div>
+          <div class="app-card ios">
+            <div class="app-icon">🤖</div>
+            <div class="app-info">
+              <div class="app-platform">Google Play Store</div>
+              <div class="app-name">Android Linki</div>
+              <input class="app-inp" id="android-link" placeholder="https://play.google.com/...">
+            </div>
+          </div>
+        </div>
+        <div style="padding:0 20px 20px;">
+          <p style="font-size:11px;color:var(--gr);margin-bottom:12px;">Bu linkler sitede "Uygulamayı İndir" bölümünde gösterilir. Henüz yayında değilse boş bırakın.</p>
+          <button class="btn success" onclick="saveAppLinks()">💾 Linkleri Kaydet</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- AYARLAR -->
+    <div class="tab-page" id="tab-settings">
+      <div class="card">
+        <div class="card-head"><div class="card-title">⚙️ Site Ayarları</div></div>
+        <div class="sgrid">
+          <div class="sg"><label>IBAN Numarası</label><input id="s-iban" placeholder="CH00 0000 0000 0000 0000 0"></div>
+          <div class="sg"><label>Wise / Alternatif</label><input id="s-wise" placeholder="wise@fahrready.ch"></div>
+          <div class="sg"><label>Aylık Fiyat (CHF)</label><input type="number" id="s-monthly" value="9"></div>
+          <div class="sg"><label>Yıllık Fiyat (CHF)</label><input type="number" id="s-yearly" value="29"></div>
+          <div class="sg"><label>Admin E-Mail</label><input type="email" id="s-email"></div>
+          <div class="sg"><label>Admin Şifre (boş = değişmez)</label><input type="password" id="s-pass" placeholder="Yeni şifre..."></div>
+        </div>
+        <div style="padding:0 20px 20px;">
+          <button class="btn success" onclick="saveSettings()">💾 Kaydet</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div class="card-title">🛠️ Supabase SQL — Tablo Güncelleme</div></div>
+        <div class="sql-box">-- Reklam tablosu oluştur
+CREATE TABLE IF NOT EXISTS ads (
+  id BIGSERIAL PRIMARY KEY,
+  name TEXT NOT NULL,
+  image_url TEXT DEFAULT '',
+  link_url TEXT NOT NULL,
+  position TEXT DEFAULT 'top',
+  is_active BOOLEAN DEFAULT true,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT now()
+);
+ALTER TABLE ads ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "ads_all" ON ads USING (true) WITH CHECK (true);
+
+-- App linkleri için settings
+INSERT INTO settings (key, value) VALUES ('ios_link',''),('android_link','') ON CONFLICT (key) DO NOTHING;
+
+-- news tablosu image_url sütunu
+ALTER TABLE news ADD COLUMN IF NOT EXISTS image_url TEXT DEFAULT '';
+ALTER TABLE news ADD COLUMN IF NOT EXISTS title_fa TEXT DEFAULT '';
+ALTER TABLE news ADD COLUMN IF NOT EXISTS title_az TEXT DEFAULT '';
+ALTER TABLE news ADD COLUMN IF NOT EXISTS title_en TEXT DEFAULT '';</div>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- MODAL -->
+<div class="mbg" id="mbg">
+  <div class="mbox">
+    <div class="mtitle" id="mtitle">İşlem</div>
+    <div id="mbody"></div>
+    <div class="mrow" id="mbtns">
+      <button class="btn gray" onclick="closeModal()" style="flex:1;">İptal</button>
+      <button class="btn primary" id="mok" onclick="mConfirm()" style="flex:2;">Onayla</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════
+// CONFIG
+// ═══════════════════════════════════
+const SB = 'https://npfvlfdjngzczxhghmyu.supabase.co';
+const KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5wZnZsZmRqbmd6Y3p4aGdobXl1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkzMTI2NjgsImV4cCI6MjA5NDg4ODY2OH0.oqnB4FTnmj-wno7AEgTz-MAmunazqwpj5jEkvB5xN8s';
+const STORE = SB + '/storage/v1/object/public/question-images/';
+
+function adm(){ return { e: localStorage.getItem('fr_ae')||'admin@fahrready.ch', p: localStorage.getItem('fr_ap')||'fahrready2025' }; }
+
+// ═══════════════════════════════════
+// SUPABASE
+// ═══════════════════════════════════
+async function api(path, method='GET', body=null){
+  try {
+    const prefer = method==='POST' ? 'return=representation' : method==='PATCH'||method==='DELETE' ? 'return=minimal' : 'return=representation';
+    const r = await fetch(SB+'/rest/v1/'+path, {
+      method,
+      headers:{'apikey':KEY,'Authorization':'Bearer '+KEY,'Content-Type':'application/json','Prefer':prefer},
+      body: body ? JSON.stringify(body) : undefined
+    });
+    if(r.status===204) return {ok:true,data:[]};
+    const data = await r.json().catch(()=>[]);
+    return {ok:r.ok, status:r.status, data};
+  } catch(e){ return {ok:false, status:0, data:[]}; }
+}
+
+async function uploadFile(file){
+  const name = 'img_'+Date.now()+'_'+Math.random().toString(36).slice(2)+'.'+file.name.split('.').pop();
+  try {
+    const r = await fetch(SB+'/storage/v1/object/question-images/'+name, {
+      method:'POST',
+      headers:{'apikey':KEY,'Authorization':'Bearer '+KEY,'Content-Type':file.type,'x-upsert':'true'},
+      body: file
+    });
+    if(!r.ok){
+      const err = await r.json().catch(()=>({}));
+      console.error('Upload error:', r.status, err);
+      return '';
+    }
+    return STORE+name;
+  } catch(e){ return ''; }
+}
+
+// ═══════════════════════════════════
+// STATE
+// ═══════════════════════════════════
+let allUsers=[], allPayments=[], allQ=[], allNews=[], allAds=[];
+let mAction=null, mData=null;
+
+// ═══════════════════════════════════
+// LOGIN
+// ═══════════════════════════════════
+window.onload = ()=>{
+  document.getElementById('lem').value = adm().e;
+  document.getElementById('lem').addEventListener('keydown', e=>{ if(e.key==='Enter') document.getElementById('lps').focus(); });
+  document.getElementById('lps').addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(); });
+};
+
+function doLogin(){
+  const e=document.getElementById('lem').value.trim(), p=document.getElementById('lps').value;
+  const a=adm();
+  if(e===a.e && p===a.p){
+    document.getElementById('loginWrap').style.display='none';
+    document.getElementById('app').style.display='block';
+    document.getElementById('pdate').textContent = new Date().toLocaleString('tr-TR');
+    loadSettings(); loadDashboard(); loadQ(); loadNews(); loadUsers(); loadPayments(); loadAds();
+  } else { document.getElementById('lerr').style.display='block'; }
+}
+function doLogout(){
+  if(!confirm('Çıkış yapmak istediğinizden emin misiniz?')) return;
+  if(!confirm('Emin misiniz? Tüm oturumunuz kapanacak.')) return;
+  document.getElementById('loginWrap').style.display='flex';
+  document.getElementById('app').style.display='none';
+}
+
+// ═══════════════════════════════════
+// TABS
+// ═══════════════════════════════════
+const TAB_TITLES = {dashboard:'Dashboard',questions:'Soru Yönetimi',news:'Haber Yönetimi',ads:'Reklam Yönetimi',users:'Kullanıcılar',payments:'Ödemeler',apps:'Uygulama Linkleri',settings:'Ayarlar'};
+const TAB_LOADERS = {questions:loadQ, news:loadNews, ads:loadAds, users:loadUsers, payments:loadPayments};
+
+function goTab(name, el){
+  document.querySelectorAll('.tab-page').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.sit').forEach(i=>i.classList.remove('on'));
+  document.getElementById('tab-'+name).classList.add('on');
+  el.classList.add('on');
+  document.getElementById('ptitle').textContent = TAB_TITLES[name]||name;
+  if(TAB_LOADERS[name]) TAB_LOADERS[name]();
+}
+
+// ═══════════════════════════════════
+// DASHBOARD
+// ═══════════════════════════════════
+async function loadDashboard(){
+  loadAndroidLink();
+  const [u,p,q,e] = await Promise.all([
+    api('users?select=id,is_premium'),
+    api('payments?select=id,status'),
+    api('questions?select=id'),
+    api('exam_results?select=id')
+  ]);
+  if(u.ok && Array.isArray(u.data)){
+    document.getElementById('su').textContent = u.data.length;
+    document.getElementById('sp').textContent = u.data.filter(x=>x.is_premium).length;
+  }
+  if(p.ok && Array.isArray(p.data)) document.getElementById('sw').textContent = p.data.filter(x=>x.status==='pending').length;
+  if(q.ok && Array.isArray(q.data)) document.getElementById('sq').textContent = q.data.length;
+  if(e.ok && Array.isArray(e.data)) document.getElementById('se').textContent = e.data.length;
+
+  const pr = await api('payments?status=eq.pending&order=created_at.desc&limit=15');
+  const pt = document.getElementById('tb-pend');
+  const pd = pr.ok && Array.isArray(pr.data) ? pr.data : [];
+  pt.innerHTML = pd.length ? pd.map(p=>`<tr>
+    <td>${p.user_email||'—'}</td>
+    <td><span class="bdg ${p.plan==='y'?'prem':'free'}">${p.plan==='y'?'Yıllık':'Aylık'}</span></td>
+    <td><b>CHF ${p.amount}</b></td>
+    <td><code style="font-size:10px;background:#F1F5F9;padding:2px 5px;border-radius:4px;">${p.reference||'—'}</code></td>
+    <td>${fmtDate(p.created_at)}</td>
+    <td class="acts">
+      <button class="btn sm success" onclick="approveP('${p.id}','${p.user_email||''}','${p.plan||'m'}')">✓ Onayla</button>
+      <button class="btn sm danger" onclick="rejectP('${p.id}')">✗ Reddet</button>
+    </td></tr>`).join('') : '<tr class="empty-row"><td colspan="6">🎉 Bekleyen ödeme yok</td></tr>';
+
+  const ur = await api('users?order=created_at.desc&limit=8&select=full_name,email,language,is_premium,created_at');
+  const ut = document.getElementById('tb-recent');
+  const ud = ur.ok && Array.isArray(ur.data) ? ur.data : [];
+  ut.innerHTML = ud.length ? ud.map(u=>`<tr>
+    <td><b>${u.full_name}</b></td>
+    <td style="font-size:11px;">${u.email}</td>
+    <td>${langF(u.language)}</td>
+    <td><span class="bdg ${u.is_premium?'prem':'free'}">${u.is_premium?'⭐ Premium':'Free'}</span></td>
+    <td>${fmtDate(u.created_at)}</td></tr>`).join('') : '<tr class="empty-row"><td colspan="5">Henüz kayıt yok</td></tr>';
+}
+
+// ═══════════════════════════════════
+// PAYMENTS
+// ═══════════════════════════════════
+
+async function loadAndroidLink(){
+  const r = await api('settings?key=eq.android_store_url&select=value');
+  if(r.ok && Array.isArray(r.data) && r.data[0]){
+    document.getElementById('androidLinkInput').value = r.data[0].value;
+  }
+}
+
+async function saveAndroidLink(){
+  const url = document.getElementById('androidLinkInput').value.trim();
+  if(!url){toast('Link giriniz','err');return;}
+  const check = await api('settings?key=eq.android_store_url&select=key');
+  if(check.ok && Array.isArray(check.data) && check.data.length>0){
+    await api('settings?key=eq.android_store_url','PATCH',{value:url});
+  } else {
+    await api('settings','POST',{key:'android_store_url',value:url});
+  }
+  toast('Link kaydedildi! ✓','ok');
+}
+
+async function loadPayments(){
+  document.getElementById('tb-pay').innerHTML='<tr class="loading"><td colspan="7"><span class="spin"></span></td></tr>';
+  const r = await api('payments?order=created_at.desc&limit=300');
+  allPayments = r.ok && Array.isArray(r.data) ? r.data : [];
+  renderP(allPayments);
+}
+function renderP(data){
+  const tb=document.getElementById('tb-pay');
+  if(!data.length){ tb.innerHTML='<tr class="empty-row"><td colspan="7">💳 Ödeme bulunamadı</td></tr>'; return; }
+  tb.innerHTML = data.map(p=>`<tr>
+    <td style="font-size:11px;">${p.user_email||'—'}</td>
+    <td><span class="bdg ${p.plan==='y'?'prem':'free'}">${p.plan==='y'?'Yıllık':'Aylık'}</span></td>
+    <td><b>CHF ${p.amount}</b></td>
+    <td><code style="font-size:10px;background:#F1F5F9;padding:2px 5px;border-radius:4px;">${p.reference||'—'}</code></td>
+    <td><span class="bdg ${p.status==='approved'?'ok':p.status==='rejected'?'no':'pend'}">${statusL(p.status)}</span></td>
+    <td style="font-size:10px;">${fmtDate(p.created_at)}</td>
+    <td class="acts">${p.status==='pending'
+      ?`<button class="btn sm success" onclick="approveP('${p.id}','${p.user_email||''}','${p.plan||'m'}')">✓ Onayla</button>
+        <button class="btn sm danger" onclick="rejectP('${p.id}')">✗</button>`
+      :`<span style="font-size:10px;color:var(--gr);">${p.status==='approved'?'✓ Onaylandı':'✗ Reddedildi'}</span>`
+    }</td></tr>`).join('');
+}
+function filterP(){
+  const q=document.getElementById('psrch').value.toLowerCase(), st=document.getElementById('pstatus').value;
+  renderP(allPayments.filter(p=>((p.reference||'').toLowerCase().includes(q)||(p.user_email||'').toLowerCase().includes(q))&&(st?p.status===st:true)));
+}
+
+function approveP(id,email,plan){
+  confirm2('approveP',{id,email,plan},
+    `✓ Ödeme onaylanacak\n📧 ${email||'e-mail yok'}\n📦 ${plan==='y'?'Yıllık':'Aylık'}`,
+    '✓ Onayla & Premium Ver','var(--gn)');
+}
+function rejectP(id){
+  confirm2('rejectP',{id},'✗ Ödeme reddedilecek.','✗ Reddet','var(--rd)');
+}
+async function doApproveP(id,email,plan){
+  const r=await api('payments?id=eq.'+id,'PATCH',{status:'approved'});
+  if(!r.ok){ toast('Hata: Ödeme güncellenemedi','err'); return; }
+  if(email){
+    const exp = new Date(Date.now()+(plan==='y'?365:30)*86400000).toISOString();
+    await api('users?email=eq.'+encodeURIComponent(email),'PATCH',{is_premium:true,premium_expires_at:exp});
+  }
+  toast('✓ Ödeme onaylandı, premium verildi!','ok');
+  closeModal(); loadDashboard(); loadPayments();
+}
+async function doRejectP(id){
+  const r=await api('payments?id=eq.'+id,'PATCH',{status:'rejected'});
+  if(!r.ok){ toast('Hata','err'); return; }
+  toast('Ödeme reddedildi');
+  closeModal(); loadDashboard(); loadPayments();
+}
+
+// ═══════════════════════════════════
+// USERS
+// ═══════════════════════════════════
+async function loadUsers(){
+  document.getElementById('tb-users').innerHTML='<tr class="loading"><td colspan="6"><span class="spin"></span></td></tr>';
+  const r=await api('users?order=created_at.desc&limit=500&select=*');
+  allUsers = r.ok && Array.isArray(r.data) ? r.data : [];
+  renderU(allUsers);
+}
+function renderU(data){
+  const tb=document.getElementById('tb-users');
+  if(!data.length){ tb.innerHTML='<tr class="empty-row"><td colspan="6">👤 Kullanıcı bulunamadı</td></tr>'; return; }
+  tb.innerHTML=data.map(u=>`<tr>
+    <td><b>${u.full_name}</b>${u.is_banned?' 🚫':''}</td>
+    <td style="font-size:11px;">${u.email}</td>
+    <td>${langF(u.language)}</td>
+    <td><span class="bdg ${u.is_premium?'prem':'free'}">${u.is_premium?'⭐ Premium':'Free'}</span></td>
+    <td style="font-size:10px;">${u.last_login?fmtDate(u.last_login):'—'}</td>
+    <td class="acts">
+      ${u.is_premium
+        ?`<button class="btn sm warn" onclick="confirm2('revPrem',{id:'${u.id}',email:'${u.email}'},'Premium kaldırılacak','Kaldır','var(--yw)')">Premium Al</button>`
+        :`<button class="btn sm success" onclick="confirm2('givePrem',{id:'${u.id}',email:'${u.email}'},'1 yıl Premium verilecek','⭐ Ver','var(--gn)')">⭐ Premium</button>`}
+      ${u.is_banned
+        ?`<button class="btn sm gray" onclick="confirm2('unban',{id:'${u.id}',email:'${u.email}'},'Ban kaldırılacak','Kaldır','var(--gn)')">Ban Kaldır</button>`
+        :`<button class="btn sm warn" onclick="confirm2('ban',{id:'${u.id}',email:'${u.email}'},'Kullanıcı banlanacak','🚫 Banla','var(--rd)')">🚫 Ban</button>`}
+      <button class="btn sm danger" onclick="confirm2('delUser',{id:'${u.id}',email:'${u.email}'},'Kullanıcı kalıcı silinecek!','Sil','var(--rd)')">🗑️</button>
+    </td></tr>`).join('');
+}
+function filterU(){
+  const q=document.getElementById('usrch').value.toLowerCase();
+  renderU(allUsers.filter(u=>(u.full_name||'').toLowerCase().includes(q)||(u.email||'').toLowerCase().includes(q)));
+}
+
+// ═══════════════════════════════════
+// QUESTIONS
+// ═══════════════════════════════════
+async function loadQ(){
+  document.getElementById('tb-q').innerHTML='<tr class="loading"><td colspan="7"><span class="spin"></span></td></tr>';
+  const r=await api('questions?order=created_at.desc&limit=500');
+  allQ = r.ok && Array.isArray(r.data) ? r.data : [];
+  renderQ(allQ);
+}
+function renderQ(data){
+  const tb=document.getElementById('tb-q');
+  if(!data.length){ tb.innerHTML='<tr class="empty-row"><td colspan="7">❓ Soru eklenmemiş — Yeni Soru butonuna tıkla</td></tr>'; return; }
+  tb.innerHTML=data.map(q=>`<tr>
+    <td style="color:#94A3B8;font-size:10px;">#${q.id}</td>
+    <td>${q.img_url?`<img class="timg" src="${q.img_url}" alt="soru">`:
+      `<div style="width:38px;height:38px;background:#F1F5F9;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:16px;color:#CBD5E1;">📷</div>`}</td>
+    <td style="max-width:260px;">
+      <div style="font-weight:600;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${(q.text_de||'').replace(/"/g,'')}">${q.text_de||'—'}</div>
+      <div style="font-size:10px;color:var(--gr);">${q.category||'genel'}</div>
+    </td>
+    <td style="font-size:11px;">${q.category||'genel'}</td>
+    <td><span class="bdg ${q.is_free!==false?'free':'prem'}">${q.is_free!==false?'Free':'Premium'}</span></td>
+    <td><span class="bdg ${q.is_active!==false?'act':'no'}">${q.is_active!==false?'Aktif':'Pasif'}</span></td>
+    <td class="acts">
+      <button class="btn sm outline" onclick="editQ(${q.id})">✏️ Düzenle</button>
+      <button class="btn sm danger" onclick="confirm2('delQ',{id:'${q.id}'},'Soru ve cevaplar silinecek!','Sil','var(--rd)')">🗑️</button>
+    </td></tr>`).join('');
+}
+function filterQ(){
+  const q=document.getElementById('qsrch').value.toLowerCase();
+  renderQ(allQ.filter(x=>(x.text_de||'').toLowerCase().includes(q)));
+}
+
+function openQ(){ buildQModal(null); }
+function editQ(id){ buildQModal(allQ.find(x=>x.id===id)||null, id); }
+
+function buildQModal(q, editId=null){
+  mAction = editId ? 'editQ' : 'addQ';
+  mData = {id: editId};
+  document.getElementById('mtitle').textContent = editId ? '✏️ Soruyu Düzenle' : '➕ Yeni Soru Ekle';
+  document.getElementById('mok').textContent = editId ? '💾 Güncelle' : '✓ Soruyu Kaydet';
+  document.getElementById('mok').style.background = editId ? 'var(--bl)' : 'var(--gn)';
+  document.getElementById('mbody').innerHTML = `
+    <label class="mlabel">Soru Metni — Almanca *</label>
+    <div style="display:flex;gap:6px;align-items:flex-start;">
+      <textarea class="mta" id="qde" rows="2" style="flex:1;">${q?q.text_de||'':''}</textarea>
+      <button type="button" onclick="autoTranslateQ()" title="Otomatik çevir" style="background:#1B4FD8;color:#fff;border:none;border-radius:8px;padding:8px 12px;cursor:pointer;font-size:16px;margin-top:2px;">🌐</button>
+    </div>
+    <div class="mgrid">
+      <div><label class="mlabel">Farsça</label><input class="minp" id="qfa" value="${q?q.text_fa||'':''}"></div>
+      <div><label class="mlabel">Azerbaycanca</label><input class="minp" id="qaz" value="${q?q.text_az||'':''}"></div>
+      <div><label class="mlabel">İngilizce</label><input class="minp" id="qen" value="${q?q.text_en||'':''}"></div>
+      <div>
+        <label class="mlabel">Kategori</label>
+        <select class="msel" id="qcat">
+          <option value="general" ${q&&q.category==='general'?'selected':''}>Genel</option>
+          <option value="signs" ${q&&q.category==='signs'?'selected':''}>Trafik İşaretleri</option>
+          <option value="priority" ${q&&q.category==='priority'?'selected':''}>Öncelik</option>
+          <option value="speed" ${q&&q.category==='speed'?'selected':''}>Hız</option>
+          <option value="parking" ${q&&q.category==='parking'?'selected':''}>Park</option>
+          <option value="safety" ${q&&q.category==='safety'?'selected':''}>Güvenlik</option>
+        </select>
+      </div>
+    </div>
+    <div class="mgrid">
+      <div>
+        <label class="mlabel">Tip</label>
+        <select class="msel" id="qfree">
+          <option value="1" ${!q||q.is_free!==false?'selected':''}>✓ Free (ücretsiz)</option>
+          <option value="0" ${q&&q.is_free===false?'selected':''}>⭐ Premium</option>
+        </select>
+      </div>
+      <div>
+        <label class="mlabel">Durum</label>
+        <select class="msel" id="qactive">
+          <option value="1" ${!q||q.is_active!==false?'selected':''}>Aktif</option>
+          <option value="0" ${q&&q.is_active===false?'selected':''}>Pasif</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="msec">
+      <label class="mlabel">📷 Fotoğraf</label>
+      ${q&&q.img_url?`<div style="margin-bottom:8px;"><img src="${q.img_url}" style="width:100%;max-height:220px;border-radius:10px;object-fit:contain;border:1px solid var(--border);background:#F8FAFC;display:block;margin-bottom:4px;"> <span style="font-size:10px;color:var(--gr);">Mevcut fotoğraf</span></div>`:''}
+      <input class="minp" id="qimgurl" placeholder="Fotoğraf URL (Wikipedia link gibi)" value="${q?q.img_url||'':''}">
+      <div style="text-align:center;margin:6px 0;font-size:11px;color:var(--gr);">— veya —</div>
+      <div class="upload" onclick="document.getElementById('qimgfile').click()">
+        <input type="file" id="qimgfile" accept="image/*" style="display:none;" onchange="prevImg(this,'qprev')">
+        <div class="upload-txt">📷 Bilgisayardan Yükle (tıkla veya sürükle)</div>
+        <img id="qprev" class="img-prev">
+      </div>
+    </div>
+
+    <div class="msec">
+      <label class="mlabel">✅ Cevap Seçenekleri</label>
+      <p style="font-size:10px;color:var(--gr);margin-bottom:10px;">✓ işaret = doğru cevap. Birden fazla doğru varsa birkaç kutucuğu işaretle.</p>
+      <div id="ansbox"></div>
+      <button class="btn gray" style="margin-top:8px;font-size:11px;" onclick="if(document.querySelectorAll('#ansbox .arow').length>=3){alert('En fazla 3 cevap eklenebilir!');return;}addAns()">+ Seçenek Ekle</button>
+    </div>
+  `;
+  document.getElementById('mbg').classList.add('open');
+  // Add default 3 answer rows
+  if(!editId){ addAns('',false); addAns('',false); addAns('',true); }
+  else { loadAnsEdit(editId); }
+}
+
+function prevImg(inp,prevId){
+  const f=inp.files[0]; if(!f) return;
+  const r=new FileReader(); r.onload=e=>{const i=document.getElementById(prevId);i.src=e.target.result;i.style.display='block';}; r.readAsDataURL(f);
+}
+function addAns(val='',fa='',az='',en='',correct=false){
+  const box=document.getElementById('ansbox'); if(!box) return;
+  const d=document.createElement('div'); d.className='arow';
+  d.style.cssText='border:1px solid #e5e7eb;border-radius:10px;padding:10px;margin-bottom:8px;';
+  d.innerHTML=`
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+      <input type="checkbox" class="qcorrect" ${correct?'checked':''}><span class="correct-label">✓ Doğru</span>
+      <button class="adel" onclick="this.closest('.arow').remove()" title="Sil" style="margin-left:auto;">×</button>
+    </div>
+    <div style="display:flex;gap:4px;margin-bottom:4px;"><input type="text" class="ans-de" placeholder="🇩🇪 Almanca cevap..." value="${val}" style="flex:1;"><button type="button" onclick="autoTranslateAns(this)" style="background:#1B4FD8;color:#fff;border:none;border-radius:6px;padding:0 8px;cursor:pointer;font-size:12px;" title="Çevir">🌐</button></div>
+    <input type="text" class="ans-fa" placeholder="🇮🇷 Farsça cevap..." value="${fa}" style="width:100%;margin-bottom:4px;direction:rtl;">
+    <input type="text" class="ans-az" placeholder="🇦🇿 Azerbaycanca cevap..." value="${az}" style="width:100%;margin-bottom:4px;">
+    <input type="text" class="ans-en" placeholder="🇬🇧 İngilizce cevap..." value="${en}" style="width:100%;">
+  `;
+  box.appendChild(d);
+}
+async function loadAnsEdit(qid){
+  const r=await api('answers?question_id=eq.'+qid+'&order=id.asc');
+  if(r.ok && Array.isArray(r.data) && r.data.length){
+    const box=document.getElementById('ansbox'); if(box){ box.innerHTML=''; r.data.forEach(a=>addAns(a.text_de,a.text_fa||'',a.text_az||'',a.text_en||'',a.is_correct)); }
+  } else { addAns('','','','',true); addAns('','','','',false); addAns('','','','',false); }
+}
+async function saveQ(editId){
+  const de=document.getElementById('qde').value.trim();
+  if(!de){ toast('Almanca soru metni zorunlu!','err'); return; }
+  const rows=document.querySelectorAll('#ansbox .arow');
+  if(rows.length<2){ toast('En az 2 cevap seçeneği gerekli!','err'); return; }
+  const hasCorrect = Array.from(rows).some(r=>r.querySelector('.qcorrect').checked);
+  if(!hasCorrect){ toast('En az bir doğru cevap işaretlenmeli!','err'); return; }
+
+  let imgUrl=document.getElementById('qimgurl').value.trim();
+  const imgFile=document.getElementById('qimgfile').files[0];
+  if(imgFile){
+    toast('Fotoğraf yükleniyor...','warn');
+    const up=await uploadFile(imgFile);
+    if(up){ 
+      imgUrl=up;
+      document.getElementById('qimgurl').value=up;
+      toast('Fotoğraf yüklendi ✓','ok');
+    } else { 
+      toast('Fotoğraf yüklenemedi! Lütfen URL kullanın.','err');
+    }
+  }
+
+  const checkedCount=[...rows].filter(r=>r.querySelector('.qcorrect').checked).length;
+  // Only send fields that exist in DB
+  const payload={};
+  payload.text_de = de;
+  const fa=document.getElementById('qfa').value.trim();
+  const az=document.getElementById('qaz').value.trim();
+  const en=document.getElementById('qen').value.trim();
+  if(fa) payload.text_fa=fa;
+  if(az) payload.text_az=az;
+  if(en) payload.text_en=en;
+  if(imgUrl) payload.img_url=imgUrl;
+  payload.is_multi=checkedCount>1;
+  payload.is_active=document.getElementById('qactive').value==='1';
+  payload.is_free=document.getElementById('qfree').value==='1';
+  payload.category=document.getElementById('qcat').value;
+
+  let qid=editId;
+  if(editId){
+    const pr = await api('questions?id=eq.'+editId,'PATCH',payload);
+    if(!pr.ok){ 
+      const errMsg = JSON.stringify(pr.data||{});
+      toast('Güncelleme hatası '+pr.status+': '+errMsg.slice(0,100),'err'); 
+      console.error('PATCH error:', pr.status, pr.data, payload);
+      return; 
+    }
+    const dr = await api('answers?question_id=eq.'+editId,'DELETE');
+    if(!dr.ok){ console.error('DELETE answers error:', dr.status, dr.data); }
+  } else {
+    const r=await api('questions','POST',{...payload,created_at:new Date().toISOString()});
+    if(r.ok && Array.isArray(r.data) && r.data[0]) qid=r.data[0].id;
+  }
+  if(qid){
+    for(const row of rows){
+      const txt=row.querySelector('.ans-de')?.value.trim()||row.querySelector('input[type=text]')?.value.trim()||'';
+      const fa=row.querySelector('.ans-fa')?.value.trim()||'';
+      const az=row.querySelector('.ans-az')?.value.trim()||'';
+      const en=row.querySelector('.ans-en')?.value.trim()||'';
+      const cor=row.querySelector('.qcorrect').checked;
+      if(txt) await api('answers','POST',{question_id:qid,text_de:txt,text_fa:fa,text_az:az,text_en:en,is_correct:cor});
+    }
+  }
+  toast(editId?'✓ Soru güncellendi! (ID: '+editId+')':'✓ Soru eklendi!','ok');
+  console.log('Saved:', editId, payload);
+  closeModal(); loadQ();
+}
+
+// ═══════════════════════════════════
+// NEWS
+// ═══════════════════════════════════
+async function loadNews(){
+  document.getElementById('tb-news').innerHTML='<tr class="loading"><td colspan="8"><span class="spin"></span></td></tr>';
+  const r=await api('news?order=created_at.desc&limit=100');
+  allNews = r.ok && Array.isArray(r.data) ? r.data : [];
+  renderNews(allNews);
+}
+function renderNews(data){
+  const tb=document.getElementById('tb-news');
+  if(!data.length){ tb.innerHTML='<tr class="empty-row"><td colspan="8">📰 Haber eklenmemiş</td></tr>'; return; }
+  tb.innerHTML=data.map(n=>`<tr>
+    <td style="color:#94A3B8;font-size:10px;">#${n.id}</td>
+    <td>${n.image_url?`<img class="timg" src="${n.image_url}" alt="haber">`:
+      `<div style="width:38px;height:38px;background:#F1F5F9;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:18px;">${n.icon||'📰'}</div>`}</td>
+    <td style="font-size:18px;">${n.icon||'📰'}</td>
+    <td style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600;">${n.title_de}</td>
+    <td><span class="bdg free">${n.tag||'NEU'}</span></td>
+    <td>${n.is_main?'⭐ Öne Çıkan':'—'}</td>
+    <td><span class="bdg ${n.is_active!==false?'act':'no'}">${n.is_active!==false?'Aktif':'Pasif'}</span></td>
+    <td class="acts">
+      <button class="btn sm outline" onclick="editNews(${n.id})">✏️ Düzenle</button>
+      <button class="btn sm ${n.is_active!==false?'warn':'success'}" onclick="toggleNews('${n.id}',${n.is_active!==false})">${n.is_active!==false?'Gizle':'Göster'}</button>
+      <button class="btn sm danger" onclick="confirm2('delNews',{id:'${n.id}'},'Haber silinecek!','Sil','var(--rd)')">🗑️</button>
+    </td></tr>`).join('');
+}
+
+function openNews(){ buildNewsModal(null); }
+function editNews(id){ buildNewsModal(allNews.find(x=>x.id===id)||null, id); }
+
+function buildNewsModal(n, editId=null){
+  mAction = editId ? 'editNews' : 'addNews';
+  mData = {id: editId};
+  document.getElementById('mtitle').textContent = editId ? '✏️ Haberi Düzenle' : '➕ Yeni Haber';
+  document.getElementById('mok').textContent = editId ? '💾 Güncelle' : '✓ Kaydet';
+  document.getElementById('mok').style.background = editId ? 'var(--bl)' : 'var(--gn)';
+  document.getElementById('mbody').innerHTML = `
+    <div class="mgrid">
+      <div><label class="mlabel">İkon (emoji)</label><input class="minp" id="nicon" value="${n?n.icon||'📰':'📰'}"></div>
+      <div><label class="mlabel">Tag</label><input class="minp" id="ntag" value="${n?n.tag||'NEU':'NEU'}"></div>
+    </div>
+    <label class="mlabel">Başlık — Almanca *</label><input class="minp" id="nde" value="${n?n.title_de||'':''}">
+    <label class="mlabel">Başlık — Farsça</label><input class="minp" id="nfa" value="${n?n.title_fa||'':''}">
+    <label class="mlabel">Başlık — Azerbaycanca</label><input class="minp" id="naz" value="${n?n.title_az||'':''}">
+    <label class="mlabel">Başlık — İngilizce</label><input class="minp" id="nen" value="${n?n.title_en||'':''}">
+    <div class="msec">
+      <label class="mlabel">📷 Haber Fotoğrafı</label>
+      ${n&&n.image_url?`<div style="margin-bottom:8px;"><img src="${n.image_url}" style="height:80px;border-radius:8px;object-fit:cover;border:1px solid var(--border);">  <span style="font-size:10px;color:var(--gr);">Mevcut fotoğraf</span></div>`:''}
+      <input class="minp" id="nimgurl" placeholder="Fotoğraf URL veya boş bırak" value="${n?n.image_url||'':''}">
+      <div style="text-align:center;margin:6px 0;font-size:11px;color:var(--gr);">— veya —</div>
+      <div class="upload" onclick="document.getElementById('nimgfile').click()">
+        <input type="file" id="nimgfile" accept="image/*" style="display:none;" onchange="prevImg(this,'nprev')">
+        <div class="upload-txt">📷 Bilgisayardan Yükle</div>
+        <img id="nprev" class="img-prev">
+      </div>
+    </div>
+    <label style="display:flex;align-items:center;gap:8px;font-size:13px;margin-top:14px;cursor:pointer;">
+      <input type="checkbox" id="nmain" ${n&&n.is_main?'checked':''}> <span>⭐ Öne Çıkan Haber (büyük kart olarak göster)</span>
+    </label>
+  `;
+  document.getElementById('mbg').classList.add('open');
+}
+async function saveNews(editId){
+  const de=document.getElementById('nde').value.trim();
+  if(!de){ toast('Almanca başlık zorunlu!','err'); return; }
+  let imgUrl=document.getElementById('nimgurl').value.trim();
+  const imgFile=document.getElementById('nimgfile').files[0];
+  if(imgFile){
+    toast('Fotoğraf yükleniyor...','warn');
+    const up=await uploadFile(imgFile);
+    if(up) imgUrl=up;
+  }
+  const payload={
+    icon:document.getElementById('nicon').value,
+    tag:document.getElementById('ntag').value,
+    title_de:de,
+    title_fa:document.getElementById('nfa').value.trim(),
+    title_az:document.getElementById('naz').value.trim(),
+    title_en:document.getElementById('nen').value.trim(),
+    image_url:imgUrl,
+    is_main:document.getElementById('nmain').checked,
+    is_active:true
+  };
+  if(editId) await api('news?id=eq.'+editId,'PATCH',payload);
+  else await api('news','POST',{...payload,created_at:new Date().toISOString()});
+  toast(editId?'✓ Haber güncellendi!':'✓ Haber eklendi!','ok');
+  closeModal(); loadNews();
+}
+async function toggleNews(id, active){
+  await api('news?id=eq.'+id,'PATCH',{is_active:!active});
+  toast(active?'Haber gizlendi':'Haber yayınlandı','ok'); loadNews();
+}
+
+// ═══════════════════════════════════
+// ADS
+// ═══════════════════════════════════
+async function loadAds(){
+  document.getElementById('ad-grid').innerHTML='<div style="padding:30px;text-align:center;color:var(--gr);grid-column:1/-1;"><span class="spin"></span></div>';
+  const r=await api('ads?order=created_at.desc&limit=50');
+  allAds = r.ok && Array.isArray(r.data) ? r.data : [];
+  renderAds(allAds);
+}
+function renderAds(data){
+  const grid=document.getElementById('ad-grid');
+  if(!data.length){
+    grid.innerHTML='<div style="padding:40px;text-align:center;color:var(--gr);grid-column:1/-1;">📢 Henüz reklam eklenmemiş. Yeni Reklam butonuna tıkla.</div>';
+    return;
+  }
+  grid.innerHTML=data.map(ad=>`
+    <div class="ad-card">
+      <div class="ad-img">
+        ${ad.image_url?`<img src="${ad.image_url}" alt="${ad.name}">`:`<div class="ad-img-placeholder">🖼️</div>`}
+      </div>
+      <div class="ad-body">
+        <div class="ad-name"><span class="ad-status ${ad.is_active?'on':'off'}"></span>${ad.name}</div>
+        <div class="ad-pos">📍 ${posLabel(ad.position)}</div>
+        <div style="font-size:10px;color:var(--gr);margin-bottom:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">🔗 ${ad.link_url}</div>
+        <div class="ad-acts">
+          <button class="btn sm outline" onclick="editAd(${ad.id})">✏️ Düzenle</button>
+          <button class="btn sm ${ad.is_active?'warn':'success'}" onclick="toggleAd('${ad.id}',${ad.is_active})">${ad.is_active?'Gizle':'Göster'}</button>
+          <button class="btn sm danger" onclick="confirm2('delAd',{id:'${ad.id}'},'Reklam silinecek!','Sil','var(--rd)')">🗑️</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function openAd(){ buildAdModal(null); }
+function editAd(id){ buildAdModal(allAds.find(x=>x.id===id)||null, id); }
+
+function buildAdModal(ad, editId=null){
+  mAction = editId ? 'editAd' : 'addAd';
+  mData = {id: editId};
+  document.getElementById('mtitle').textContent = editId ? '✏️ Reklamı Düzenle' : '➕ Yeni Reklam Ekle';
+  document.getElementById('mok').textContent = editId ? '💾 Güncelle' : '✓ Reklamı Kaydet';
+  document.getElementById('mok').style.background = editId ? 'var(--bl)' : 'var(--gn)';
+  document.getElementById('mbody').innerHTML = `
+    <label class="mlabel">Reklam Adı / Firma Adı *</label>
+    <input class="minp" id="adname" placeholder="örn: Fahrschule Müller" value="${ad?ad.name||'':''}">
+
+    <label class="mlabel">Tıklandığında Gidilecek Link (URL) *</label>
+    <input class="minp" id="adlink" placeholder="https://www.orneksite.ch" value="${ad?ad.link_url||'':''}">
+
+    <label class="mlabel">Sitede Gösterim Konumu</label>
+    <select class="msel" id="adpos">
+      <option value="top" ${ad&&ad.position==='top'?'selected':''}>🔝 Üst Banner (sayfa başında)</option>
+      <option value="middle" ${ad&&ad.position==='middle'?'selected':''}>📋 Orta Alan (içerik arası)</option>
+      <option value="bottom" ${ad&&ad.position==='bottom'?'selected':''}>⬇️ Alt Banner (sayfa sonu)</option>
+    </select>
+
+    <div class="msec">
+      <label class="mlabel">📷 Reklam Görseli (Banner)</label>
+      ${ad&&ad.image_url?`<div style="margin-bottom:8px;"><img src="${ad.image_url}" style="max-height:80px;border-radius:8px;object-fit:contain;border:1px solid var(--border);"> <span style="font-size:10px;color:var(--gr);">Mevcut görsel</span></div>`:''}
+      <input class="minp" id="adimgurl" placeholder="Görsel URL veya boş bırak" value="${ad?ad.image_url||'':''}">
+      <div style="text-align:center;margin:6px 0;font-size:11px;color:var(--gr);">— veya —</div>
+      <div class="upload" onclick="document.getElementById('adimgfile').click()">
+        <input type="file" id="adimgfile" accept="image/*" style="display:none;" onchange="prevImg(this,'adprev')">
+        <div class="upload-txt">📷 Bilgisayardan Banner Yükle (önerilen boyut: 728x90 veya 320x100)</div>
+        <img id="adprev" class="img-prev">
+      </div>
+    </div>
+    <p style="font-size:11px;color:var(--gr);margin-top:12px;">💡 Reklam kaydedilince sitede otomatik görünür. İstediğin zaman Gizle/Göster yapabilirsin.</p>
+  `;
+  document.getElementById('mbg').classList.add('open');
+}
+
+async function saveAd(editId){
+  const name=document.getElementById('adname').value.trim();
+  const link=document.getElementById('adlink').value.trim();
+  if(!name||!link){ toast('Ad ve link zorunlu!','err'); return; }
+
+  let imgUrl=document.getElementById('adimgurl').value.trim();
+  const imgFile=document.getElementById('adimgfile').files[0];
+  if(imgFile){
+    toast('Görsel yükleniyor...','warn');
+    const up=await uploadFile(imgFile);
+    if(up) imgUrl=up;
+  }
+
+  const payload={
+    name, link_url:link,
+    position:document.getElementById('adpos').value,
+    image_url:imgUrl,
+    is_active:true
+  };
+  if(editId) await api('ads?id=eq.'+editId,'PATCH',payload);
+  else await api('ads','POST',{...payload,created_at:new Date().toISOString()});
+  toast(editId?'✓ Reklam güncellendi!':'✓ Reklam eklendi!','ok');
+  closeModal(); loadAds();
+}
+
+async function toggleAd(id, active){
+  await api('ads?id=eq.'+id,'PATCH',{is_active:!active});
+  toast(active?'Reklam gizlendi':'Reklam yayınlandı','ok'); loadAds();
+}
+
+function posLabel(p){ return({top:'Üst Banner',middle:'Orta Alan',bottom:'Alt Banner'}[p])||p; }
+
+// ═══════════════════════════════════
+// APP LINKS
+// ═══════════════════════════════════
+async function loadAppLinks(){
+  const r=await api('settings?key=in.(ios_link,android_link)');
+  if(r.ok && Array.isArray(r.data)){
+    r.data.forEach(s=>{
+      if(s.key==='ios_link') document.getElementById('ios-link').value=s.value||'';
+      if(s.key==='android_link') document.getElementById('android-link').value=s.value||'';
+    });
+  }
+}
+async function saveAppLinks(){
+  const ios=document.getElementById('ios-link').value.trim();
+  const and=document.getElementById('android-link').value.trim();
+  await api('settings?key=eq.ios_link','PATCH',{value:ios});
+  await api('settings?key=eq.android_link','PATCH',{value:and});
+  toast('✓ Uygulama linkleri kaydedildi!','ok');
+}
+
+// ═══════════════════════════════════
+// SETTINGS
+// ═══════════════════════════════════
+async function loadSettings(){
+  const r=await api('settings?select=key,value');
+  if(r.ok && Array.isArray(r.data)){
+    const m={iban:'s-iban',wise:'s-wise',price_monthly:'s-monthly',price_yearly:'s-yearly'};
+    r.data.forEach(s=>{ const el=document.getElementById(m[s.key]); if(el) el.value=s.value||''; });
+  }
+  document.getElementById('s-email').value=localStorage.getItem('fr_ae')||'admin@fahrready.ch';
+  loadAppLinks();
+}
+async function saveSettings(){
+  const pairs=[
+    {key:'iban',val:document.getElementById('s-iban').value.trim()},
+    {key:'wise',val:document.getElementById('s-wise').value.trim()},
+    {key:'price_monthly',val:document.getElementById('s-monthly').value},
+    {key:'price_yearly',val:document.getElementById('s-yearly').value},
+  ];
+  for(const p of pairs) await api('settings?key=eq.'+p.key,'PATCH',{value:p.val});
+  const em=document.getElementById('s-email').value.trim();
+  const ps=document.getElementById('s-pass').value;
+  if(em) localStorage.setItem('fr_ae',em);
+  if(ps) localStorage.setItem('fr_ap',ps);
+  toast('✓ Ayarlar kaydedildi!','ok');
+}
+
+// ═══════════════════════════════════
+// MODAL CONFIRM
+// ═══════════════════════════════════
+function confirm2(action, data, msg, btnLabel, btnColor){
+  mAction=action; mData=data;
+  document.getElementById('mtitle').textContent='Onay Gerekiyor';
+  document.getElementById('mbody').innerHTML=`<p style="font-size:13px;color:var(--gr);white-space:pre-line;line-height:1.7;">${msg}</p>`;
+  document.getElementById('mok').textContent=btnLabel;
+  document.getElementById('mok').style.background=btnColor||'var(--bl)';
+  document.getElementById('mbg').classList.add('open');
+}
+
+async function mConfirm(){
+  const {id,email,plan}=mData||{};
+  if(mAction==='approveP'){ await doApproveP(id,email,plan); }
+  else if(mAction==='rejectP'){ await doRejectP(id); }
+  else if(mAction==='addQ'){ await saveQ(null); }
+  else if(mAction==='editQ'){ await saveQ(id); }
+  else if(mAction==='addNews'){ await saveNews(null); }
+  else if(mAction==='editNews'){ await saveNews(id); }
+  else if(mAction==='addAd'){ await saveAd(null); }
+  else if(mAction==='editAd'){ await saveAd(id); }
+  else if(mAction==='givePrem'){
+    const r=await api('users?id=eq.'+id,'PATCH',{is_premium:true,premium_expires_at:new Date(Date.now()+365*86400000).toISOString()});
+    toast(r.ok?'⭐ Premium verildi!':'Hata',r.ok?'ok':'err'); closeModal(); loadUsers();
+  }
+  else if(mAction==='revPrem'){
+    const r=await api('users?id=eq.'+id,'PATCH',{is_premium:false,premium_expires_at:null});
+    toast(r.ok?'Premium kaldırıldı':'Hata',r.ok?'ok':'err'); closeModal(); loadUsers();
+  }
+  else if(mAction==='ban'){
+    const r=await api('users?id=eq.'+id,'PATCH',{is_banned:true});
+    toast(r.ok?'🚫 Kullanıcı banlı':'Hata',r.ok?'ok':'err'); closeModal(); loadUsers();
+  }
+  else if(mAction==='unban'){
+    const r=await api('users?id=eq.'+id,'PATCH',{is_banned:false});
+    toast(r.ok?'Ban kaldırıldı':'Hata',r.ok?'ok':'err'); closeModal(); loadUsers();
+  }
+  else if(mAction==='delUser'){
+    // Delete related records first (foreign key constraints)
+    await api('exam_results?user_id=eq.'+id,'DELETE');
+    await api('payments?user_id=eq.'+id,'DELETE');
+    const r=await api('users?id=eq.'+id,'DELETE');
+    toast(r.ok?'Kullanıcı silindi':'Hata',r.ok?'ok':'err'); closeModal(); loadUsers();
+  }
+  else if(mAction==='delQ'){
+    await api('answers?question_id=eq.'+id,'DELETE');
+    const r=await api('questions?id=eq.'+id,'DELETE');
+    toast(r.ok?'Soru silindi':'Hata',r.ok?'ok':'err'); closeModal(); loadQ();
+  }
+  else if(mAction==='delNews'){
+    const r=await api('news?id=eq.'+id,'DELETE');
+    toast(r.ok?'Haber silindi':'Hata',r.ok?'ok':'err'); closeModal(); loadNews();
+  }
+  else if(mAction==='delAd'){
+    const r=await api('ads?id=eq.'+id,'DELETE');
+    toast(r.ok?'Reklam silindi':'Hata',r.ok?'ok':'err'); closeModal(); loadAds();
+  }
+}
+
+function closeModal(){ document.getElementById('mbg').classList.remove('open'); mAction=null; mData=null; }
+
+// ═══════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════
+function fmtDate(s){ if(!s)return'—'; return new Date(s).toLocaleString('tr-TR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}); }
+function langF(l){ return({fa:'🇮🇷 FA',az:'🇦🇿 AZ',de:'🇩🇪 DE',en:'🇬🇧 EN'}[l])||l||'—'; }
+function statusL(s){ return({pending:'⏳ Bekliyor',approved:'✓ Onaylandı',rejected:'✗ Reddedildi'}[s])||s; }
+function toast(msg,type=''){
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.className='toast '+(type||'');
+  setTimeout(()=>el.classList.add('show'),10);
+  setTimeout(()=>el.classList.remove('show'),3800);
+}
+
+// ── OTOMATİK ÇEVİRİ (MyMemory) ────────────────────────
+async function translateText(text, targetLang){
+  if(!text) return '';
+  try{
+    const r = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=de|${targetLang}`);
+    const d = await r.json();
+    if(d.responseStatus===200) return d.responseData.translatedText;
+  }catch(e){}
+  return '';
+}
+
+async function autoTranslate(sourceEl, faEl, azEl, enEl){
+  const text = sourceEl.value.trim();
+  if(!text) return;
+  sourceEl.disabled=true;
+  const btn = sourceEl.parentElement?.querySelector('.trans-btn');
+  if(btn) btn.textContent='⏳';
+  
+  const [fa, az, en] = await Promise.all([
+    translateText(text, 'fa'),
+    translateText(text, 'az'),
+    translateText(text, 'en'),
+  ]);
+  
+  if(faEl && !faEl.value) faEl.value = fa;
+  if(azEl && !azEl.value) azEl.value = az;
+  if(enEl && !enEl.value) enEl.value = en;
+  
+  sourceEl.disabled=false;
+  if(btn) btn.textContent='🌐';
+}
+
+async function autoTranslateQ(){
+  const de = document.getElementById('qde');
+  const fa = document.getElementById('qfa');
+  const az = document.getElementById('qaz');
+  const en = document.getElementById('qen');
+  await autoTranslate(de, fa, az, en);
+}
+
+async function autoTranslateAns(btn){
+  const row = btn.closest('.arow');
+  const de = row.querySelector('.ans-de');
+  const fa = row.querySelector('.ans-fa');
+  const az = row.querySelector('.ans-az');
+  const en = row.querySelector('.ans-en');
+  await autoTranslate(de, fa, az, en);
+}
+
+
+function previewImg(input){
+  if(input.files && input.files[0]){
+    const reader = new FileReader();
+    reader.onload = e => {
+      let prev = document.getElementById('imgPreview');
+      if(!prev){
+        prev = document.createElement('img');
+        prev.id = 'imgPreview';
+        prev.style.cssText = 'width:100%;max-height:220px;border-radius:10px;object-fit:contain;border:1px solid #e5e7eb;background:#F8FAFC;display:block;margin-top:8px;';
+        input.closest('.upload').parentElement.appendChild(prev);
+      }
+      prev.src = e.target.result;
+      document.getElementById('qimgurl').value = '';
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+
+</script>
+
+</body>
+</html>

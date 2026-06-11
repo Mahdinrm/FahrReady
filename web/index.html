@@ -1,0 +1,1647 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FahrReady – Schweizer Theorieprüfung</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600;700&family=Vazirmatn:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'DM Sans',sans-serif;background:#fff;color:#111;overflow-x:hidden;}
+:root{--bl:#1B4FD8;--bld:#1239A0;--bll:#EEF2FF;--gr:#6B7280;--grl:#F3F4F6;--grb:#E5E7EB;--gn:#16A34A;--gnl:#DCFCE7;--rd:#DC2626;--rdl:#FEF2F2;--gd:#D4AC0D;}
+::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-thumb{background:var(--bl);border-radius:3px;}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:999;background:rgba(255,255,255,.97);backdrop-filter:blur(16px);border-bottom:1px solid var(--grb);height:62px;display:flex;align-items:center;justify-content:space-between;padding:0 5%;}
+.n-logo{display:flex;align-items:center;gap:9px;cursor:pointer;}
+.n-logo-box{width:34px;height:34px;background:var(--bl);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;}
+.n-logo-txt{font-family:'Playfair Display',serif;font-size:20px;font-weight:900;color:#000;}
+.n-logo-txt span{color:var(--bl);}
+.n-links{display:flex;gap:22px;list-style:none;}
+.n-links a{text-decoration:none;color:var(--gr);font-size:13px;font-weight:500;cursor:pointer;}
+.n-links a:hover{color:var(--bl);}
+.n-right{display:flex;align-items:center;gap:8px;}
+.lang-wrap{display:flex;gap:3px;}
+.lang-btn{padding:3px 9px;border-radius:20px;border:1.5px solid var(--grb);background:none;font-size:11px;font-weight:700;cursor:pointer;color:var(--gr);}
+.lang-btn.on{background:var(--bl);color:#fff;border-color:var(--bl);}
+.btn-in{padding:7px 15px;border-radius:8px;border:1.5px solid var(--bl);background:none;color:var(--bl);font-size:13px;font-weight:600;cursor:pointer;}
+.btn-in:hover{background:var(--bl);color:#fff;}
+.btn-reg{padding:7px 15px;border-radius:8px;background:var(--bl);color:#fff;font-size:13px;font-weight:600;border:none;cursor:pointer;}
+.btn-reg:hover{background:var(--bld);}
+.user-pill{display:flex;align-items:center;gap:7px;padding:6px 14px;background:var(--bll);border-radius:20px;font-size:13px;font-weight:600;color:var(--bl);cursor:pointer;}
+
+/* AD BAR */
+.adbar{background:#f0f4ff;border:1.5px dashed #a5b4fc;border-radius:9px;padding:10px 18px;text-align:center;font-size:12px;color:var(--gr);cursor:pointer;position:relative;margin:62px 5% 0;}
+.adbar .albl{position:absolute;top:3px;right:8px;font-size:9px;color:#9ca3af;font-weight:600;}
+.adbar:hover{border-color:var(--bl);}
+
+/* HERO */
+.hero{min-height:90vh;background:linear-gradient(135deg,#fff 0%,#eef2ff 55%,#fff 100%);display:flex;flex-direction:column;justify-content:center;padding:80px 5% 50px;position:relative;overflow:hidden;}
+.hero-blob1{position:absolute;width:500px;height:500px;background:var(--bl);border-radius:50%;opacity:.06;top:-80px;right:-80px;pointer-events:none;}
+.hero-blob2{position:absolute;width:300px;height:300px;background:var(--gd);border-radius:50%;opacity:.06;bottom:-50px;left:-50px;pointer-events:none;}
+.hero-flag{position:absolute;top:90px;right:5%;width:100px;height:100px;background:var(--bl);border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:48px;box-shadow:0 12px 40px rgba(0,0,0,.15);animation:bob 4s ease-in-out infinite;}
+@keyframes bob{0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}
+.hero-badge{display:inline-flex;align-items:center;gap:7px;background:var(--bll);color:var(--bl);padding:7px 14px;border-radius:100px;font-size:12px;font-weight:600;margin-bottom:18px;width:fit-content;}
+.hero-h1{font-family:'Playfair Display',serif;font-size:clamp(36px,6vw,76px);font-weight:900;line-height:1.05;color:#000;max-width:640px;margin-bottom:8px;}
+.hero-h1 .blue{color:var(--bl);}
+.hero-fa{font-family:'Vazirmatn',sans-serif;font-size:clamp(15px,2.5vw,22px);color:var(--gr);direction:rtl;text-align:right;margin-bottom:6px;max-width:540px;}
+.hero-sub{font-size:clamp(13px,1.6vw,15px);color:var(--gr);margin-bottom:34px;}
+.hero-cta{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:46px;}
+.btn-primary{padding:13px 30px;background:var(--bl);color:#fff;border:none;border-radius:11px;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(27,79,216,.3);transition:all .3s;}
+.btn-primary:hover{background:var(--bld);transform:translateY(-2px);}
+.btn-secondary{padding:13px 30px;background:#fff;color:#000;border:2px solid var(--grb);border-radius:11px;font-size:15px;font-weight:600;cursor:pointer;transition:all .3s;}
+.btn-secondary:hover{border-color:var(--bl);color:var(--bl);}
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--grb);border:1px solid var(--grb);border-radius:12px;overflow:hidden;max-width:680px;}
+.stat-box{background:#fff;padding:14px 18px;text-align:center;}
+.stat-n{font-family:'Playfair Display',serif;font-size:28px;font-weight:900;color:var(--bl);line-height:1;}
+.stat-l{font-size:10px;color:var(--gr);margin-top:2px;}
+
+/* SECTION BASE */
+.section{padding:52px 5%;}
+.section.gray{background:var(--grl);}
+.section.dark{background:#060616;color:#fff;}
+.section.gold{background:#FEF9E7;}
+.section.blue-grad{background:linear-gradient(135deg,var(--bl),var(--bld));color:#fff;text-align:center;}
+.sec-tag{display:inline-block;background:var(--bll);color:var(--bl);padding:5px 12px;border-radius:100px;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px;}
+.sec-tag.dark{background:rgba(27,79,216,.3);color:#93c5fd;}
+.sec-tag.gold{background:rgba(212,172,13,.2);color:#92700A;}
+.sec-tag.white{background:rgba(255,255,255,.15);color:#fff;}
+.sec-h2{font-family:'Playfair Display',serif;font-size:clamp(26px,4vw,42px);font-weight:900;color:#000;margin-bottom:6px;}
+.sec-h2.white{color:#fff;}
+.sec-sub{font-size:clamp(13px,2vw,17px);color:var(--gr);margin-bottom:26px;}
+.sec-sub.fa{font-family:'Vazirmatn',sans-serif;direction:rtl;text-align:right;}
+.sec-sub.white{color:rgba(255,255,255,.6);}
+
+/* PREP */
+.prep-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:26px;}
+.prep-card{border-radius:16px;padding:24px;text-align:center;cursor:pointer;border:2px solid var(--grb);background:#fff;transition:all .3s;}
+.prep-card:hover{border-color:var(--bl);transform:translateY(-4px);box-shadow:0 12px 40px rgba(0,0,0,.12);}
+.prep-card.prem{background:linear-gradient(135deg,#1B4FD8,#0f2d8a);color:#fff;border:none;}
+.prep-icon{font-size:36px;margin-bottom:11px;}
+.prep-title{font-size:16px;font-weight:700;margin-bottom:4px;}
+.prep-fa{font-family:'Vazirmatn',sans-serif;font-size:11px;opacity:.7;direction:rtl;margin-bottom:9px;}
+.prep-num{font-family:'Playfair Display',serif;font-size:32px;font-weight:900;color:var(--bl);line-height:1;}
+.prep-card.prem .prep-num{color:#fff;}
+.prep-sub{font-size:10px;color:var(--gr);margin-top:3px;}
+.prep-card.prem .prep-sub{color:rgba(255,255,255,.6);}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:9px;font-weight:700;margin-top:9px;}
+.badge.free{background:var(--gnl);color:var(--gn);}
+.badge.prem{background:var(--gd);color:#fff;}
+
+/* FEATURES */
+.feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:26px;}
+.feat-card{background:#fff;border-radius:16px;padding:24px;border:1px solid var(--grb);transition:all .3s;position:relative;overflow:hidden;}
+.feat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--bl);transform:scaleX(0);transition:transform .3s;transform-origin:left;}
+.feat-card:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(0,0,0,.1);}
+.feat-card:hover::before{transform:scaleX(1);}
+.feat-icon{font-size:32px;margin-bottom:12px;}
+.feat-title{font-size:14px;font-weight:700;color:#000;margin-bottom:4px;}
+.feat-fa{font-family:'Vazirmatn',sans-serif;font-size:11px;color:var(--gr);direction:rtl;text-align:right;margin-bottom:8px;}
+.feat-desc{font-size:11px;color:var(--gr);line-height:1.6;}
+
+/* RULES */
+.rules-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-top:26px;}
+.rule-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:20px 16px;text-align:center;transition:all .3s;}
+.rule-card:hover{background:rgba(27,79,216,.2);border-color:var(--bl);}
+.rule-n{font-family:'Playfair Display',serif;font-size:40px;font-weight:900;color:var(--bl);line-height:1;}
+.rule-u{font-size:10px;color:rgba(255,255,255,.35);margin-bottom:2px;}
+.rule-t{font-size:12px;font-weight:600;color:#fff;margin-bottom:2px;}
+.rule-fa{font-family:'Vazirmatn',sans-serif;font-size:10px;color:rgba(255,255,255,.4);direction:rtl;}
+
+/* NEWS */
+.news-grid{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-top:26px;}
+.news-main{background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.08);cursor:pointer;transition:transform .3s;}
+.news-main:hover{transform:translateY(-3px);}
+.news-img{height:190px;background:linear-gradient(135deg,var(--bl),#0f2d8a);display:flex;align-items:center;justify-content:center;font-size:60px;}
+.news-body{padding:16px;}
+.news-tag{display:inline-block;background:var(--bll);color:var(--bl);padding:2px 8px;border-radius:4px;font-size:9px;font-weight:700;text-transform:uppercase;margin-bottom:8px;}
+.news-title{font-size:16px;font-weight:700;color:#000;margin-bottom:4px;line-height:1.4;}
+.news-fa{font-family:'Vazirmatn',sans-serif;font-size:12px;color:var(--gr);direction:rtl;text-align:right;margin-bottom:8px;}
+.news-meta{font-size:9px;color:var(--gr);}
+.news-list{display:flex;flex-direction:column;gap:10px;}
+.news-card{background:#fff;border-radius:10px;padding:12px 14px;box-shadow:0 4px 20px rgba(0,0,0,.08);cursor:pointer;transition:all .3s;display:flex;gap:10px;}
+.news-card:hover{transform:translateX(3px);border-left:3px solid var(--bl);}
+.news-card-icon{font-size:20px;flex-shrink:0;}
+.news-card-title{font-size:11px;font-weight:600;color:#000;margin-bottom:2px;line-height:1.4;}
+.news-card-fa{font-family:'Vazirmatn',sans-serif;font-size:10px;color:var(--gr);direction:rtl;}
+.news-card-date{font-size:9px;color:var(--gr);}
+
+/* MEMBERS */
+.ticker-wrap{overflow:hidden;margin-top:20px;border-radius:9px;}
+.ticker-track{display:flex;gap:11px;animation:ticker 22s linear infinite;width:max-content;}
+@keyframes ticker{0%{transform:translateX(0);}100%{transform:translateX(-50%);}}
+.mbr-pill{background:#fff;border-radius:40px;padding:7px 14px;display:flex;align-items:center;gap:7px;box-shadow:0 4px 20px rgba(0,0,0,.08);white-space:nowrap;flex-shrink:0;}
+.mbr-flag{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;color:#fff;}
+.mbr-name{font-size:11px;font-weight:600;color:#000;}
+.mbr-city{font-size:9px;color:var(--gr);}
+.mbr-badge{padding:2px 7px;border-radius:20px;font-size:9px;font-weight:700;}
+.mbr-badge.pass{background:var(--gnl);color:var(--gn);}
+.mbr-badge.study{background:#FEF9E7;color:#92700A;}
+.proof-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:22px;}
+.proof-card{background:#fff;border-radius:16px;padding:20px;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,.08);}
+.proof-n{font-family:'Playfair Display',serif;font-size:36px;font-weight:900;color:var(--bl);line-height:1;}
+.proof-l{font-size:11px;color:var(--gr);margin-top:2px;}
+.proof-fa{font-family:'Vazirmatn',sans-serif;font-size:10px;color:var(--gr);direction:rtl;margin-top:1px;}
+
+/* REGISTER */
+.reg-form{max-width:420px;margin:26px auto 0;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:16px;padding:24px;backdrop-filter:blur(10px);}
+.reg-label{display:block;font-size:10px;font-weight:600;color:rgba(255,255,255,.8);margin-bottom:3px;}
+.reg-label.fa{font-family:'Vazirmatn',sans-serif;direction:rtl;text-align:right;color:rgba(255,255,255,.55);}
+.reg-input{width:100%;padding:9px 12px;border-radius:8px;border:1.5px solid rgba(255,255,255,.3);background:rgba(255,255,255,.12);color:#fff;font-size:13px;outline:none;margin-bottom:10px;}
+.reg-input::placeholder{color:rgba(255,255,255,.4);}
+.reg-input:focus{border-color:#fff;}
+.reg-select{width:100%;padding:9px 12px;border-radius:8px;border:1.5px solid rgba(255,255,255,.3);background:rgba(255,255,255,.12);color:#fff;font-size:13px;cursor:pointer;outline:none;margin-bottom:10px;}
+.reg-select option{background:#1239A0;}
+.btn-regsubmit{width:100%;padding:12px;background:#fff;color:var(--bl);border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;}
+.btn-regsubmit:hover{background:var(--bll);}
+
+/* EXAM */
+.exam-wrap{max-width:740px;margin:26px auto 0;background:#fff;border-radius:20px;box-shadow:0 12px 48px rgba(0,0,0,.14);overflow:hidden;}
+.ex-header{background:var(--bl);color:#fff;padding:15px 22px;display:flex;align-items:center;justify-content:space-between;}
+.ex-header-left{display:flex;flex-direction:column;gap:2px;}
+.ex-title{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;}
+.ex-title-fa{font-family:'Vazirmatn',sans-serif;font-size:11px;opacity:.8;direction:rtl;}
+.ex-timer{background:rgba(255,255,255,.18);border-radius:8px;padding:8px 14px;text-align:center;}
+.ex-timer-n{font-family:'Playfair Display',serif;font-size:22px;font-weight:900;line-height:1;}
+.ex-timer-l{font-size:8px;opacity:.7;margin-top:1px;}
+.ex-progress{height:4px;background:rgba(27,79,216,.15);}
+.ex-progress-fill{height:100%;background:var(--bl);transition:width .5s;}
+.ex-body{padding:24px 22px;}
+.ex-qnum{font-size:10px;font-weight:700;color:var(--gr);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;}
+.ex-qtext{font-size:17px;font-weight:600;color:#000;line-height:1.5;margin-bottom:4px;}
+.ex-qsub{font-family:'Vazirmatn',sans-serif;font-size:13px;color:var(--gr);direction:rtl;text-align:right;margin-bottom:16px;line-height:1.6;}
+.ex-qimg{width:100%;max-height:200px;object-fit:contain;border-radius:10px;margin-bottom:14px;background:var(--grl);border:1px solid var(--grb);}
+.ex-options{display:flex;flex-direction:column;gap:8px;}
+.ex-opt{padding:11px 15px;border-radius:10px;border:2px solid var(--grb);cursor:pointer;transition:all .2s;display:flex;align-items:flex-start;gap:10px;font-size:13px;font-weight:500;color:#000;background:#fff;}
+.ex-opt:hover{border-color:var(--bl);background:var(--bll);color:var(--bl);}
+.ex-opt.selected{border-color:var(--bl);background:var(--bll);color:var(--bl);}
+.ex-opt.correct{border-color:var(--gn);background:var(--gnl);color:var(--gn);}
+.ex-opt.wrong{border-color:var(--rd);background:var(--rdl);color:var(--rd);}
+.ex-opt-letter{width:22px;height:22px;border-radius:50%;background:var(--grb);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;transition:all .2s;}
+.ex-opt.selected .ex-opt-letter{background:var(--bl);color:#fff;}
+.ex-opt.correct .ex-opt-letter{background:var(--gn);color:#fff;}
+.ex-opt.wrong .ex-opt-letter{background:var(--rd);color:#fff;}
+.ex-opt-sub{font-family:'Vazirmatn',sans-serif;font-size:10px;opacity:.75;direction:rtl;margin-top:2px;}
+.ex-footer{padding:14px 22px;border-top:1px solid var(--grb);display:flex;align-items:center;justify-content:space-between;}
+.ex-score{display:flex;gap:14px;}
+.ex-score-item{text-align:center;}
+.ex-score-n{font-size:18px;font-weight:700;color:#000;}
+.ex-score-n.g{color:var(--gn);}
+.ex-score-n.r{color:var(--rd);}
+.ex-score-l{font-size:8px;color:var(--gr);}
+.btn-next{padding:9px 24px;background:var(--bl);color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;}
+.btn-next:hover{background:var(--bld);}
+.btn-next:disabled{opacity:.4;cursor:not-allowed;}
+
+/* SCREENS */
+.screen{padding:30px 22px;text-align:center;}
+.screen-icon{font-size:52px;margin-bottom:12px;}
+.screen-title{font-family:'Playfair Display',serif;font-size:22px;font-weight:900;margin-bottom:4px;}
+.screen-fa{font-family:'Vazirmatn',sans-serif;font-size:14px;color:var(--gr);direction:rtl;margin-bottom:14px;}
+.rules-box{background:var(--grl);border-radius:10px;padding:14px 18px;text-align:left;margin-bottom:20px;}
+.rule-row{display:flex;align-items:center;gap:8px;font-size:11px;color:#111;padding:3px 0;border-bottom:1px solid var(--grb);}
+.rule-row:last-child{border:none;}
+.rule-dot{width:5px;height:5px;border-radius:50%;background:var(--bl);flex-shrink:0;}
+.btn-startexam{padding:12px 40px;background:var(--bl);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(27,79,216,.3);}
+.btn-startexam:hover{background:var(--bld);}
+
+/* PAYWALL */
+.plan-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:18px;}
+.plan-card{border:2px solid var(--grb);border-radius:12px;padding:16px 12px;cursor:pointer;text-align:center;transition:all .3s;}
+.plan-card:hover,.plan-card.on{border-color:var(--bl);background:var(--bll);}
+.plan-card.featured{border-color:var(--gd);background:#FEF9E7;}
+.plan-badge-lbl{display:inline-block;background:var(--gd);color:#fff;font-size:8px;font-weight:700;padding:2px 6px;border-radius:20px;margin-bottom:5px;}
+.plan-name{font-size:13px;font-weight:700;color:#000;margin-bottom:2px;}
+.plan-fa{font-family:'Vazirmatn',sans-serif;font-size:10px;color:var(--gr);direction:rtl;margin-bottom:5px;}
+.plan-price{font-family:'Playfair Display',serif;font-size:26px;font-weight:900;color:var(--bl);}
+.plan-per{font-size:9px;color:var(--gr);}
+.plan-feat{font-size:10px;color:var(--gr);margin-top:6px;line-height:1.8;}
+.iban-box{background:var(--bll);border:1px solid var(--bl);border-radius:9px;padding:12px 16px;margin-bottom:12px;text-align:left;}
+.iban-title{font-family:'Vazirmatn',sans-serif;font-size:11px;font-weight:700;color:var(--bl);margin-bottom:5px;direction:rtl;}
+.iban-num{font-family:monospace;font-size:13px;font-weight:700;color:#000;word-break:break-all;}
+.iban-note{font-family:'Vazirmatn',sans-serif;font-size:10px;color:var(--gr);direction:rtl;margin-top:5px;line-height:1.5;}
+.ref-box{background:#FEF9E7;border:1px solid var(--gd);border-radius:9px;padding:10px 16px;margin-bottom:12px;}
+.ref-lbl{font-size:10px;color:var(--gr);margin-bottom:3px;}
+.ref-code{font-family:monospace;font-size:14px;font-weight:700;color:#000;}
+.conf-input{width:100%;padding:9px 12px;border-radius:8px;border:1.5px solid var(--grb);font-size:13px;outline:none;margin-bottom:9px;}
+.conf-input:focus{border-color:var(--bl);}
+.btn-confirm{width:100%;padding:11px;background:var(--gn);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:8px;}
+.btn-back{background:none;border:none;color:var(--gr);font-size:11px;cursor:pointer;text-decoration:underline;}
+
+/* RESULT */
+.res-title{font-family:'Playfair Display',serif;font-size:28px;font-weight:900;margin-bottom:4px;}
+.res-title.pass{color:var(--gn);}
+.res-title.fail{color:var(--rd);}
+.res-fa{font-family:'Vazirmatn',sans-serif;font-size:15px;color:var(--gr);direction:rtl;margin-bottom:16px;}
+.res-stats{display:flex;justify-content:center;gap:16px;margin-bottom:22px;flex-wrap:wrap;}
+.res-stat{background:var(--grl);border-radius:10px;padding:12px 18px;}
+.res-stat-n{font-size:22px;font-weight:700;color:#000;}
+.res-stat-l{font-size:10px;color:var(--gr);}
+.btn-retry{padding:10px 24px;background:var(--bl);color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;margin:3px;}
+.btn-retry.out{background:#fff;color:var(--bl);border:2px solid var(--bl);}
+
+/* MODAL */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:9999;display:none;align-items:center;justify-content:center;backdrop-filter:blur(5px);}
+.modal-bg.open{display:flex;}
+.modal-box{background:#fff;border-radius:20px;padding:30px;max-width:440px;width:90%;box-shadow:0 12px 48px rgba(0,0,0,.2);animation:pop .3s ease;position:relative;max-height:90vh;overflow-y:auto;}
+@keyframes pop{from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:translateY(0);}}
+.modal-close{position:absolute;top:12px;right:12px;width:28px;height:28px;background:var(--grl);border:none;border-radius:50%;cursor:pointer;font-size:14px;}
+.modal-h{font-family:'Playfair Display',serif;font-size:20px;font-weight:900;margin-bottom:3px;}
+.modal-sub{font-size:12px;color:var(--gr);margin-bottom:16px;}
+.modal-sub.fa{font-family:'Vazirmatn',sans-serif;direction:rtl;}
+.m-input{width:100%;padding:9px 12px;border-radius:8px;border:1.5px solid var(--grb);font-size:13px;outline:none;margin-bottom:10px;}
+.m-input:focus{border-color:var(--bl);}
+.m-select{width:100%;padding:9px 12px;border-radius:8px;border:1.5px solid var(--grb);font-size:13px;cursor:pointer;outline:none;margin-bottom:10px;}
+.btn-msubmit{width:100%;padding:11px;background:var(--bl);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;}
+.btn-msubmit:hover{background:var(--bld);}
+.m-link{text-align:center;margin-top:9px;font-size:11px;color:var(--gr);}
+.m-link a{color:var(--bl);font-weight:600;cursor:pointer;}
+.m-err{background:var(--rdl);color:var(--rd);padding:7px 11px;border-radius:7px;font-size:11px;margin-bottom:9px;display:none;}
+.m-ok{background:var(--gnl);color:var(--gn);padding:7px 11px;border-radius:7px;font-size:11px;margin-bottom:9px;display:none;}
+.m-spin{display:none;text-align:center;padding:14px;color:var(--gr);}
+.spinner{width:26px;height:26px;border:3px solid var(--bll);border-top-color:var(--bl);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 6px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* TOAST */
+.toast{position:fixed;bottom:18px;right:18px;z-index:9998;background:#000;color:#fff;padding:11px 15px;border-radius:10px;font-size:12px;font-weight:500;box-shadow:0 4px 20px rgba(0,0,0,.3);transform:translateX(120%);transition:transform .4s;max-width:280px;}
+.toast.show{transform:translateX(0);}
+.toast.ok{background:var(--gn);}
+.toast.err{background:var(--rd);}
+
+/* FOOTER */
+footer{background:#060616;color:rgba(255,255,255,.5);padding:38px 5%;text-align:center;}
+.ft-logo{font-family:'Playfair Display',serif;font-size:22px;font-weight:900;color:#fff;margin-bottom:4px;}
+.ft-logo span{color:var(--bl);}
+.ft-fa{font-family:'Vazirmatn',sans-serif;font-size:11px;direction:rtl;margin-bottom:16px;}
+.ft-links{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-bottom:16px;}
+.ft-links a{color:rgba(255,255,255,.4);text-decoration:none;font-size:11px;cursor:pointer;}
+.ft-links a:hover{color:var(--bl);}
+.ft-copy{font-size:9px;color:rgba(255,255,255,.2);padding-top:16px;border-top:1px solid rgba(255,255,255,.06);}
+
+/* FADE IN */
+.fadein{opacity:0;transform:translateY(18px);transition:opacity .6s,transform .6s;}
+.fadein.vis{opacity:1;transform:translateY(0);}
+
+/* RESPONSIVE */
+@media(max-width:860px){
+  .n-links{display:none;}
+  .hero-flag{display:none;}
+  .prep-grid,.feat-grid{grid-template-columns:1fr;}
+  .news-grid{grid-template-columns:1fr;}
+  .rules-grid,.proof-grid{grid-template-columns:repeat(2,1fr);}
+  .stat-grid{grid-template-columns:repeat(2,1fr);}
+  .plan-grid{grid-template-columns:1fr;}
+  .res-stats{flex-direction:column;align-items:center;}
+}
+
+.pbox{background:#fff;border-radius:20px;border:2px solid #E5E7EB;padding:24px;max-width:700px;margin:0 auto;}
+.pbox-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.pbox-ttl{font-size:17px;font-weight:800;color:#0f172a;}
+.pbox-close{background:none;border:1.5px solid #E5E7EB;border-radius:8px;padding:5px 12px;cursor:pointer;font-size:12px;color:#6B7280;}
+.pbar{display:flex;gap:3px;margin-bottom:14px;}
+.pbar span{flex:1;height:8px;border-radius:4px;background:#E5E7EB;}
+.pimg{width:100%;max-height:200px;object-fit:contain;border-radius:12px;margin-bottom:14px;border:1px solid #E5E7EB;background:#F8FAFF;display:none;}
+.pq{font-size:17px;font-weight:800;color:#0f172a;margin-bottom:14px;line-height:1.5;}
+.pq-sub{font-size:13px;color:#6B7280;margin-top:4px;}
+.popt{display:flex;align-items:center;gap:10px;padding:13px;background:#fff;border-radius:12px;margin-bottom:8px;border:1.5px solid #E5E7EB;cursor:pointer;}
+.popt:hover{border-color:#1B4FD8;background:#EEF2FF;}
+.popt.sel{background:#EEF2FF;border-color:#1B4FD8;}
+.popt.ok{background:#DCFCE7!important;border-color:#16A34A!important;}
+.popt.no{background:#FEF2F2!important;border-color:#DC2626!important;}
+.pltr{width:28px;height:28px;border-radius:50%;background:#F1F5F9;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;}
+.pfb{border-radius:10px;padding:12px;margin:10px 0;text-align:center;font-size:14px;font-weight:800;display:none;}
+.pbtn{width:100%;padding:14px;background:#94A3B8;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:800;cursor:pointer;margin-top:8px;}
+.pbtn.on{background:#1B4FD8;}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script>emailjs.init("6h01tKUIY5IzmPJ4F");</script>
+<link rel="icon" type="image/png" href="data:image/png;base64,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">
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="n-logo" onclick="goto('home')">
+    <div class="n-logo-box">🚗</div>
+    <span class="n-logo-txt">Fahr<span>Ready</span></span>
+  </div>
+  <ul class="n-links">
+    <li><a onclick="goto('exam')" id="nl1">Prüfung</a></li>
+    <li><a onclick="goto('prep')" id="nl2">Vorbereitung</a></li>
+    <li><a onclick="goto('news')" id="nl3">Nachrichten</a></li>
+    <li><a onclick="goto('reg')" id="nl4">Registrieren</a></li>
+  </ul>
+  <div class="n-right">
+    <div class="lang-wrap">
+      <button class="lang-btn" onclick="setL('fa')">FA</button>
+      <button class="lang-btn" onclick="setL('az')">AZ</button>
+      <button class="lang-btn on" onclick="setL('de')">DE</button>
+      <button class="lang-btn" onclick="setL('en')">EN</button>
+    </div>
+    <div id="navUser">
+      <button class="btn-in" onclick="openModal('login')" id="nb1">Anmelden</button>
+      <button class="btn-reg" onclick="openModal('reg')" id="nb2">Registrieren</button>
+    </div>
+  </div>
+</nav>
+
+<!-- AD TOP -->
+<div class="adbar" onclick="adClick()">
+  <span class="albl">WERBUNG / تبلیغات</span>
+  <span id="adtop">📢 Ihre Werbung hier — Fahrschulen & Versicherungen willkommen! | اینجا جای تبلیغ شماست | info@fahrready.ch</span>
+</div>
+
+<!-- HERO -->
+<section class="hero" id="home">
+  <div class="hero-blob1"></div>
+  <div class="hero-blob2"></div>
+  <div class="hero-flag">🇨🇭</div>
+  <div class="hero-badge">🇨🇭 <span id="hbadge">Offizielle Schweizer Theorieprüfung</span></div>
+  <h1 class="hero-h1" id="htitle">Bestehe deine<br><span class="blue">Fahrprüfung</span></h1>
+  <p class="hero-fa" id="herofa">آزمون تئوری رانندگی سوئیس را با اطمینان کامل قبول کنید</p>
+  <p class="hero-sub" id="herosub">Persisch · Aserbaidschanisch · Deutsch · Englisch</p>
+  <div class="hero-cta">
+    <button class="btn-primary" onclick="goto('exam')" id="hbtn1">▶ Prüfung starten</button>
+    <button class="btn-secondary" onclick="openModal('reg')" id="hbtn2">✦ Kostenlos registrieren</button>
+  </div>
+  <div class="stat-grid">
+    <div class="stat-box"><div class="stat-n">50</div><div class="stat-l" id="st1">Fragen</div></div>
+    <div class="stat-box"><div class="stat-n">45</div><div class="stat-l" id="st2">Minuten</div></div>
+    <div class="stat-box"><div class="stat-n">135</div><div class="stat-l" id="st3">Punkte zum Bestehen</div></div>
+    <div class="stat-box"><div class="stat-n">4</div><div class="stat-l" id="st4">Sprachen</div></div>
+  </div>
+</section>
+
+<!-- PREP -->
+<section class="section" id="prep">
+  <span class="sec-tag" id="ptag">LERNMODUS</span>
+  <h2 class="sec-h2" id="ptitle">Vorbereitung & Übung</h2>
+  <p class="sec-sub fa" id="psub">۵۰ سوال تمرینی رایگان — ۴۰۰ سوال با اشتراک ویژه</p>
+  <div class="prep-grid fadein">
+    <div class="prep-card" onclick="pBegin()">
+      <div class="prep-icon">📝</div>
+      <div class="prep-title" id="pp1t">Kostenlose Übung</div>
+      <div class="prep-fa" id="pp1f">بدون ثبت‌نام — همین الان شروع کنید</div>
+      <div class="prep-num">50</div>
+      <div class="prep-sub" id="pp1s">Fragen kostenlos</div>
+      <span class="badge free" id="pp1b">✓ GRATIS</span>
+    </div>
+    <div class="prep-card prem" onclick="pPay()">
+      <div class="prep-icon">⭐</div>
+      <div class="prep-title" id="pp2t">Premium Übung</div>
+      <div class="prep-fa" id="pp2f">کامل‌ترین بانک سوالات سوئیس</div>
+      <div class="prep-num">400</div>
+      <div class="prep-sub" id="pp2s">Fragen + KI-Analyse</div>
+      <span class="badge prem" id="pp2b">⭐ PREMIUM</span>
+    </div>
+    <div class="prep-card" onclick="goto('exam')">
+      <div class="prep-icon">🎯</div>
+      <div class="prep-title" id="pp3t">Prüfungssimulation</div>
+      <div class="prep-fa" id="pp3f">دقیقاً مثل آزمون واقعی سوئیس</div>
+      <div class="prep-num">5</div>
+      <div class="prep-sub" id="pp3s">Fragen kostenlos, dann Premium</div>
+      <span class="badge free" id="pp3b">▶ STARTEN</span>
+    </div>
+  </div>
+</section>
+
+<section style="padding:0 5% 30px;">
+<div class="pbox" id="pbox">
+  <div class="pbox-hdr">
+    <div class="pbox-ttl">📚 Übungsmodus / تمرین</div>
+    <button class="pbox-close" id="pCloseBtn" onclick="pClose()" style="display:none;">✕ Beenden</button>
+  </div>
+
+  <div id="pStart" style="text-align:center;padding:20px 0;">
+    <div style="font-size:40px;margin-bottom:12px;">📖</div>
+    <div style="font-size:15px;font-weight:700;color:#0f172a;margin-bottom:6px;">Übung starten</div>
+    <div style="font-size:12px;color:#6B7280;margin-bottom:18px;">Fragen — 10er Blöcke — Random</div>
+    <button onclick="pBegin()" style="background:#1B4FD8;color:#fff;border:none;border-radius:12px;padding:13px 32px;font-size:15px;font-weight:800;cursor:pointer;">▶ Jetzt starten</button>
+  </div>
+
+  <div id="pMain" style="display:none;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+      <span style="font-size:12px;color:#6B7280;" id="pCnt">1 / ?</span>
+      <div style="font-size:13px;font-weight:700;">
+        <span style="color:#16A34A;" id="pOk">✓ 0</span>&nbsp;
+        <span style="color:#DC2626;" id="pErr">✗ 0</span>
+      </div>
+    </div>
+    <div class="pbar" id="pBar"></div>
+    <div id="pMulti" style="display:none;background:#FEF9E7;border:1px solid #F59E0B;border-radius:8px;padding:6px 12px;font-size:11px;color:#92700A;margin-bottom:10px;">⚠️ Mehrere Antworten möglich!</div>
+    <img id="pImg" alt="" style="display:none;width:100%;max-height:200px;object-fit:contain;border-radius:12px;margin-bottom:14px;border:1px solid #E5E7EB;background:#F8FAFF;">
+    <div class="pq" id="pQ"></div>
+    <div id="pOpts"></div>
+    <div class="pfb" id="pFb"></div>
+    <button class="pbtn" id="pBtn" onclick="pWeiter()">Weiter →</button>
+  </div>
+
+  <div id="pBlock" style="display:none;border-radius:14px;padding:28px;text-align:center;">
+    <div style="font-size:48px;margin-bottom:10px;">🎯</div>
+    <div style="font-size:18px;font-weight:800;margin-bottom:6px;">Block <span id="pBN">1</span> abgeschlossen</div>
+    <div style="font-size:52px;font-weight:900;margin:10px 0;" id="pBP">80%</div>
+    <div style="font-size:13px;color:#6B7280;margin-bottom:20px;"><span id="pBO">8</span> von 10 richtig</div>
+    <button onclick="pCont()" style="background:#1B4FD8;color:#fff;border:none;border-radius:12px;padding:13px 32px;font-size:14px;font-weight:800;cursor:pointer;">Weiter →</button>
+  </div>
+
+  <div id="pPay" style="display:none;text-align:center;padding:28px 0;">
+    <div style="font-size:48px;margin-bottom:12px;">⭐</div>
+    <div style="font-size:20px;font-weight:800;margin-bottom:10px;">Premium erforderlich</div>
+    <div style="font-size:13px;color:#6B7280;margin-bottom:24px;">10 kostenlose Fragen genutzt.</div>
+    <button onclick="pPay()" style="background:#1B4FD8;color:#fff;border:none;border-radius:12px;padding:14px 32px;font-size:15px;font-weight:800;cursor:pointer;display:block;width:100%;">⭐ ${LANG==='fa'?'خرید پریمیوم':LANG==='az'?'Premium al':LANG==='en'?'Get Premium':'Premium kaufen'}</button>
+  </div>
+
+  <div id="pDone" style="display:none;text-align:center;padding:20px 0;">
+    <div style="font-size:52px;margin-bottom:10px;">🎓</div>
+    <div style="font-size:20px;font-weight:800;margin-bottom:20px;">Übung abgeschlossen!</div>
+    <div style="display:flex;gap:12px;justify-content:center;margin-bottom:24px;">
+      <div style="background:#F1F5F9;border-radius:12px;padding:14px 20px;text-align:center;"><div style="font-size:24px;font-weight:900;color:#1B4FD8;" id="pDT">0</div><div style="font-size:10px;color:#6B7280;">Gesamt</div></div>
+      <div style="background:#F1F5F9;border-radius:12px;padding:14px 20px;text-align:center;"><div style="font-size:24px;font-weight:900;color:#16A34A;" id="pDO">0</div><div style="font-size:10px;color:#6B7280;">Richtig</div></div>
+      <div style="background:#F1F5F9;border-radius:12px;padding:14px 20px;text-align:center;"><div style="font-size:24px;font-weight:900;color:#DC2626;" id="pDE">0</div><div style="font-size:10px;color:#6B7280;">Falsch</div></div>
+    </div>
+    <button onclick="pBegin()" style="background:#1B4FD8;color:#fff;border:none;border-radius:12px;padding:13px 28px;font-size:14px;font-weight:800;cursor:pointer;">🔁 Nochmal</button>
+  </div>
+</div>
+</section>
+
+
+<!-- FEATURES -->
+<section class="section gray">
+  <span class="sec-tag" id="ftag">WARUM FAHRREADY</span>
+  <h2 class="sec-h2" id="ftitle">Alles was du brauchst</h2>
+  <p class="sec-sub" id="fsub">Die kompletteste Vorbereitung für Migranten in der Schweiz</p>
+  <div class="adbar" onclick="adClick()" style="margin:0 0 20px 0;">
+    <span class="albl">WERBUNG</span>
+    <span id="admid">🏫 Fahrschule — Spezialangebot für Migranten! | مدرسه رانندگی — تخفیف ویژه</span>
+  </div>
+  <div class="feat-grid fadein">
+    <div class="feat-card"><div class="feat-icon">🎯</div><h3 class="feat-title" id="f1t">Echtes Prüfungsformat</h3><p class="feat-fa" id="f1f">فرمت واقعی آزمون رسمی سوئیس</p><p class="feat-desc" id="f1d">50 Fragen, 45 Min, 135/150 Punkte.</p></div>
+    <div class="feat-card"><div class="feat-icon">🌐</div><h3 class="feat-title" id="f2t">4 Sprachen</h3><p class="feat-fa" id="f2f">فارسی، آذربایجانی، آلمانی، انگلیسی</p><p class="feat-desc" id="f2d">Fragen auf Deutsch, Erklärungen in Ihrer Sprache.</p></div>
+    <div class="feat-card"><div class="feat-icon">📸</div><h3 class="feat-title" id="f3t">Echte Verkehrszeichen</h3><p class="feat-fa" id="f3f">تصاویر واقعی علائم ترافیکی</p><p class="feat-desc" id="f3d">Fragen mit echten Fotos von Verkehrsschildern.</p></div>
+    <div class="feat-card"><div class="feat-icon">🤖</div><h3 class="feat-title" id="f4t">KI-Fehleranalyse</h3><p class="feat-fa" id="f4f">هوش مصنوعی نقاط ضعف را پیدا می‌کند</p><p class="feat-desc" id="f4d">Nach jedem Test personalisierte Empfehlungen.</p></div>
+    <div class="feat-card"><div class="feat-icon">🔐</div><h3 class="feat-title" id="f5t">Sicheres Login</h3><p class="feat-fa" id="f5f">حساب منحصر به فرد — امنیت کامل</p><p class="feat-desc" id="f5d">Jedes Konto ist einzigartig. Kein Teilen möglich.</p></div>
+    <div class="feat-card"><div class="feat-icon">📱</div><h3 class="feat-title" id="f6t">App bald verfügbar</h3><p class="feat-fa" id="f6f">اپ Android و iOS به زودی</p><p class="feat-desc" id="f6d">Android & iPhone App — demnächst verfügbar.</p></div>
+  </div>
+</section>
+
+<!-- RULES -->
+<section class="section dark">
+  <span class="sec-tag dark" id="rtag">PRÜFUNGSREGELN</span>
+  <h2 class="sec-h2 white" id="rtitle">Offizielle Prüfungsregeln</h2>
+  <p class="sec-sub fa white" id="rsub">قوانین رسمی آزمون تئوری سوئیس</p>
+  <div class="rules-grid fadein">
+    <div class="rule-card"><div class="rule-n">50</div><div class="rule-u" id="ru1">Fragen</div><div class="rule-t" id="rt1">Gesamtfragen</div><div class="rule-fa" id="rf1">تعداد کل سوالات</div></div>
+    <div class="rule-card"><div class="rule-n">45</div><div class="rule-u" id="ru2">Minuten</div><div class="rule-t" id="rt2">Prüfungszeit</div><div class="rule-fa" id="rf2">مدت آزمون</div></div>
+    <div class="rule-card"><div class="rule-n">135</div><div class="rule-u" id="ru3">von 150 Pkt</div><div class="rule-t" id="rt3">Bestehenspunkte</div><div class="rule-fa" id="rf3">امتیاز قبولی</div></div>
+    <div class="rule-card"><div class="rule-n">15</div><div class="rule-u" id="ru4">max. Fehler</div><div class="rule-t" id="rt4">Fehlerpunkte</div><div class="rule-fa" id="rf4">حداکثر خطا</div></div>
+  </div>
+</section>
+
+<!-- NEWS -->
+<section class="section gray" id="news">
+  <span class="sec-tag" id="ntag">NEUIGKEITEN</span>
+  <h2 class="sec-h2" id="ntitle">Aktuelle Nachrichten</h2>
+  <p class="sec-sub fa" id="nsub">اطلاعات هفتگی درباره آزمون تئوری سوئیس</p>
+  <div class="news-grid fadein">
+    <div class="news-main">
+      <div class="news-img">🇨🇭</div>
+      <div class="news-body">
+        <span class="news-tag" id="nn1">⚡ NEU</span>
+        <h3 class="news-title" id="nn2">ASA 2025: Neue Fragen im Katalog</h3>
+        <p class="news-fa" id="nn3">کاتالوگ جدید سوالات ASA برای سال ۲۰۲۵ منتشر شد</p>
+        <p class="news-meta">📅 Juni 2025 · ASA Offiziell</p>
+      </div>
+    </div>
+    <div class="news-list">
+      <div class="news-card"><div class="news-card-icon">🚦</div><div><div class="news-card-title" id="nc1">Kreisverkehr: Neue Vorrangregel</div><div class="news-card-fa" id="nc1f">قانون اولویت میدان به‌روز شد</div><div class="news-card-date">Mai 2025</div></div></div>
+      <div class="news-card"><div class="news-card-icon">⚡</div><div><div class="news-card-title" id="nc2">E-Fahrzeuge: Neue Zeichen</div><div class="news-card-fa" id="nc2f">علائم جدید خودروهای برقی</div><div class="news-card-date">April 2025</div></div></div>
+      <div class="news-card"><div class="news-card-icon">🏙️</div><div><div class="news-card-title" id="nc3">30 km/h Zone Genf erweitert</div><div class="news-card-fa" id="nc3f">گسترش منطقه ۳۰ کمپ ژنو</div><div class="news-card-date">März 2025</div></div></div>
+      <div class="news-card"><div class="news-card-icon">📋</div><div><div class="news-card-title" id="nc4">Via Sicura: Strengere Strafen</div><div class="news-card-fa" id="nc4f">جریمه‌های سنگین‌تر ۲۰۲۵</div><div class="news-card-date">Januar 2025</div></div></div>
+    </div>
+  </div>
+  <div class="adbar" onclick="adClick()" style="margin:18px 0 0 0;">
+    <span class="albl">WERBUNG</span>
+    <span id="adnews">🚗 Autoversicherung — beste Preise für Neulenker! | بیمه خودرو — بهترین قیمت</span>
+  </div>
+</section>
+
+<!-- MEMBERS -->
+<section class="section gold" id="members">
+  <span class="sec-tag gold" id="mtag">ERFOLGE</span>
+  <h2 class="sec-h2" id="mtitle">Bestandene Mitglieder</h2>
+  <p class="sec-sub fa" id="msub">امروز ۳۴ عضو قبول شدند</p>
+  <div class="ticker-wrap">
+    <div class="ticker-track" id="tickerTrack"></div>
+  </div>
+  <div class="proof-grid fadein">
+    <div class="proof-card"><div class="proof-n" id="cnt1">0</div><div class="proof-l" id="pl1">Heute bestanden</div><div class="proof-fa" id="pf1">نفر امروز قبول شدند</div></div>
+    <div class="proof-card"><div class="proof-n" id="cnt2">0</div><div class="proof-l" id="pl2">Aktive Nutzer</div><div class="proof-fa" id="pf2">کاربر فعال این هفته</div></div>
+    <div class="proof-card"><div class="proof-n" id="cnt3">0</div><div class="proof-l" id="pl3">Abgesch. Prüfungen</div><div class="proof-fa" id="pf3">آزمون تکمیل‌شده</div></div>
+  </div>
+</section>
+
+<!-- REGISTER -->
+<section class="section blue-grad" id="reg">
+  <span class="sec-tag white" id="rgtag">KOSTENLOS</span>
+  <h2 class="sec-h2 white" id="rgtitle">Jetzt registrieren</h2>
+  <p class="sec-sub white fa" id="rgsub">رایگان شروع کنید — بدون کارت اعتباری</p>
+  <div class="reg-form fadein">
+    <label class="reg-label" id="rgl1">Vor- und Nachname</label>
+    <label class="reg-label fa" id="rgl1f">اسم کامل خود را وارد کنید</label>
+    <input class="reg-input" type="text" id="regName" placeholder="Ali Mohammadi">
+    <label class="reg-label">E-Mail</label>
+    <input class="reg-input" type="email" id="regEmail" placeholder="email@example.com">
+    <label class="reg-label" id="rgl2">Passwort</label>
+    <input class="reg-input" type="password" id="regPass" placeholder="••••••••">
+    <select class="reg-select" id="regLang">
+      <option value="fa">🇮🇷 فارسی (Persisch)</option>
+      <option value="az">🇦🇿 Azərbaycan dili</option>
+      <option value="de">🇩🇪 Deutsch</option>
+      <option value="en">🇬🇧 English</option>
+    </select>
+    <select class="reg-select" id="regKanton">
+      <option>Genf / Genève</option><option>Zürich</option><option>Bern</option>
+      <option>Basel</option><option>Luzern</option><option>Andere</option>
+    </select>
+    <div class="m-err" id="regErr"></div>
+    <div class="m-ok" id="regOk"></div>
+    <div class="m-spin" id="regSpin"><div class="spinner"></div></div>
+    <button class="btn-regsubmit" onclick="doRegister()" id="rgbtn">✦ Kostenlos starten</button>
+  </div>
+</section>
+
+<!-- EXAM -->
+<section class="section gray" id="exam">
+  <span class="sec-tag" id="etag">PRÜFUNGSSIMULATOR</span>
+  <h2 class="sec-h2" id="etitle">Theorieprüfung simulieren</h2>
+  <p class="sec-sub fa" id="esub">۵ سوال رایگان — بعد نیاز به اشتراک ویژه</p>
+
+  <div class="exam-wrap">
+
+    <!-- START SCREEN -->
+    <div class="screen" id="screenStart">
+      <div class="screen-icon">🇨🇭</div>
+      <h3 class="screen-title" id="sTitle">Schweizer Theorieprüfung</h3>
+      <p class="screen-fa" id="sFa">فرمت رسمی آزمون سوئیس — دقیقاً مثل آزمون واقعی</p>
+      <div class="rules-box">
+        <div class="rule-row"><div class="rule-dot"></div><span id="rr1">50 Fragen / 45 Minuten</span></div>
+        <div class="rule-row"><div class="rule-dot"></div><span id="rr2">3 Punkte pro Antwort — max. 150</span></div>
+        <div class="rule-row"><div class="rule-dot"></div><span id="rr3">Bestehen: mindestens 135 Punkte (90%)</span></div>
+        <div class="rule-row"><div class="rule-dot"></div><span id="rr4">Max. 15 Fehlerpunkte erlaubt</span></div>
+        <div class="rule-row"><div class="rule-dot"></div><span id="rr5" style="color:var(--rd);font-weight:600;">⚠️ Nur 5 Fragen kostenlos — dann Premium</span></div>
+      </div>
+      <button class="btn-startexam" onclick="startExam()">▶ <span id="sBtnTxt">Prüfung starten</span></button>
+    </div>
+
+    <!-- EXAM SCREEN -->
+    <div id="screenExam" style="display:none;">
+      <div class="ex-header">
+        <div class="ex-header-left">
+          <div class="ex-title">🇨🇭 FahrReady</div>
+          <div class="ex-title-fa" id="exHeaderFa">آزمون تئوری سوئیس</div>
+        </div>
+        <div class="ex-timer">
+          <div class="ex-timer-n" id="timerDisplay">45:00</div>
+          <div class="ex-timer-l" id="timerLbl">Verbleibende Zeit</div>
+        </div>
+      </div>
+      <div class="ex-progress"><div class="ex-progress-fill" id="progressBar" style="width:0%"></div></div>
+      <div class="ex-body">
+        <div class="ex-qnum" id="qNum">Frage 1 von 50</div>
+        <div class="ex-qtext" id="qText"></div>
+        <div class="ex-qsub" id="qSub"></div>
+        <img id="qImg" class="ex-qimg" style="display:none;" alt="Verkehrszeichen">
+        <div class="ex-options" id="optionsDiv"></div>
+      </div>
+      <div class="ex-footer">
+        <div class="ex-score">
+          <div class="ex-score-item"><div class="ex-score-n g" id="scoreCor">0</div><div class="ex-score-l">✓</div></div>
+          <div class="ex-score-item"><div class="ex-score-n r" id="scoreWrg">0</div><div class="ex-score-l">✗</div></div>
+          <div class="ex-score-item"><div class="ex-score-n" id="scorePts">0</div><div class="ex-score-l" id="ptsLbl">Pkt</div></div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <button class="btn-next" id="btnNext" onclick="nextQuestion()" disabled><span id="nextLbl">Weiter</span> →</button>
+          <button onclick="openAiAnalysis()" style="padding:9px 12px;background:#7C3AED;color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;" title="KI-Analyse">🤖</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAYWALL -->
+    <div id="screenPay" style="display:none;">
+      <div class="screen">
+        <div class="screen-icon">🔒</div>
+        <h3 class="screen-title" id="pwTitle">Premium erforderlich</h3>
+        <p class="screen-fa" id="pwFa">۵ سوال رایگان تمام شد — برای ادامه اشتراک بخرید</p>
+        <div class="plan-grid">
+          <div class="plan-card" onclick="selectPlan(this,'m')" data-plan="m">
+            <div class="plan-name" id="pln1">Monatlich</div>
+            <div class="plan-fa" id="plf1">اشتراک ماهانه</div>
+            <div class="plan-price">CHF 9</div>
+            <div class="plan-per" id="plp1">/Monat</div>
+            <div class="plan-feat" id="plft1">✓ 400 Fragen<br>✓ Unbegrenzte Prüfungen<br>✓ KI-Analyse</div>
+          </div>
+          <div class="plan-card featured on" onclick="selectPlan(this,'y')" data-plan="y">
+            <span class="plan-badge-lbl">⭐ BEST VALUE</span>
+            <div class="plan-name" id="pln2">Jährlich</div>
+            <div class="plan-fa" id="plf2">سالانه — ۵۰٪ تخفیف</div>
+            <div class="plan-price">CHF 29</div>
+            <div class="plan-per" id="plp2">/Jahr</div>
+            <div class="plan-feat" id="plft2">✓ Alles + KI-Plan<br>✓ Offline-Zugang<br>✓ PDF Downloads</div>
+          </div>
+        </div>
+        <button id="stripeBtn" onclick="stripeCheckout()" style="width:100%;padding:16px;background:#635BFF;color:#fff;border:none;border-radius:14px;font-size:16px;font-weight:800;cursor:pointer;margin-bottom:16px;display:flex;align-items:center;justify-content:center;gap:8px;">💳 Mit Kreditkarte bezahlen / پرداخت آنلاین</button>
+        <div style="text-align:center;font-size:12px;color:#6B7280;margin-bottom:12px;">— oder per Banküberweisung —</div>
+        <div class="iban-box">
+          <div class="iban-title" id="ibanTitle">💳 پرداخت از طریق IBAN / Wise</div>
+          <div class="iban-num" id="ibanNum">در حال بارگذاری... / Wird geladen...</div>
+          <div class="iban-note" id="ibanNote">لطفاً کد مرجع را در توضیحات پرداخت ذکر کنید</div>
+        </div>
+        <div class="ref-box">
+          <div class="ref-lbl" id="refLbl">Referenz / کد مرجع:</div>
+          <div class="ref-code" id="refCode">---</div>
+        </div>
+        <input class="conf-input" type="email" id="confEmail" placeholder="Ihre E-Mail / ایمیل شما">
+        <button class="btn-confirm" onclick="confirmPayment()"><span id="confBtn">✓ Zahlung bestätigen / تأیید پرداخت</span></button>
+        <button class="btn-back" onclick="backToStart()" id="backBtn">← Zurück / بازگشت</button>
+      </div>
+    </div>
+
+    <!-- RESULT -->
+    <div id="screenResult" style="display:none;">
+      <div class="screen">
+        <div class="screen-icon" id="resIcon"></div>
+        <h3 class="res-title" id="resTitle"></h3>
+        <p class="res-fa" id="resFa"></p>
+        <p id="resMsg" style="font-size:12px;color:var(--gr);margin-bottom:16px;"></p>
+        <div class="res-stats">
+          <div class="res-stat"><div class="res-stat-n" id="resPts"></div><div class="res-stat-l" id="resPtsL">Pkte/150</div></div>
+          <div class="res-stat"><div class="res-stat-n" id="resCor"></div><div class="res-stat-l" id="resCorL">Richtig</div></div>
+          <div class="res-stat"><div class="res-stat-n" id="resErr"></div><div class="res-stat-l" id="resErrL">Fehler</div></div>
+        </div>
+        <button class="btn-retry" onclick="backToStart()">🔄 <span id="retryBtn">Erneut versuchen</span></button>
+        <button class="btn-retry out" onclick="openModal('reg')">✦ <span id="upgradeBtn">Upgrade — 400 Fragen</span></button>
+      </div>
+    </div>
+
+  </div><!-- /exam-wrap -->
+
+  <div class="adbar" onclick="adClick()" style="max-width:740px;margin:16px auto 0;">
+    <span class="albl">WERBUNG</span>
+    <span id="adexam">📚 Fahrschule — Theoriekurs auf Persisch & Azerbaijani</span>
+  </div>
+</section>
+
+<!-- FOOTER AD -->
+<div style="padding:0 5%;max-width:820px;margin:28px auto;">
+  <div class="adbar" onclick="adClick()">
+    <span class="albl">WERBUNG / تبلیغات</span>
+    <span id="adfoot">🏢 Ihre Werbung hier — Kontakt: info@fahrready.ch | تبلیغات اینجا</span>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="ft-logo">Fahr<span>Ready</span></div>
+  <p class="ft-fa" id="ftfa">بهترین پلتفرم آمادگی برای آزمون رانندگی سوئیس — برای فارسی‌زبانان و آذربایجانی‌ها</p>
+  <div class="ft-links">
+    <a onclick="goto('home')" id="fla">Startseite</a>
+    <a onclick="goto('exam')" id="flb">Prüfung</a>
+    <a onclick="goto('news')" id="flc">Nachrichten</a>
+    <a onclick="goto('reg')" id="fld">Registrieren</a>
+    <a href="/privacy.html" id="fle">Datenschutz</a>
+    <a href="#" id="flf">Kontakt</a>
+  </div>
+  <div class="ft-apps" style="display:flex;gap:14px;justify-content:center;margin-top:24px;flex-wrap:wrap;">
+    <a href="https://play.google.com/store/apps/details?id=com.mahdi.mindflow" target="_blank" class="store-badge android-badge">
+      <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor"><path d="M17.6 9.48l1.84-3.18c.16-.31.04-.69-.26-.85-.29-.15-.65-.06-.83.22l-1.88 3.24c-1.43-.65-3.04-1.01-4.74-1.01-1.7 0-3.31.36-4.74 1.01L5.11 5.67c-.18-.28-.54-.37-.83-.22-.3.16-.42.54-.26.85L5.86 9.48C3.16 11.15 1.31 14.18 1 17.66h22c-.31-3.48-2.16-6.51-4.86-8.18zM7.5 15.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm9 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
+      <div class="store-text">
+        <span class="store-small">DOWNLOAD ON</span>
+        <span class="store-big">Google Play</span>
+      </div>
+    </a>
+    <a href="#" onclick="alert('iOS Version coming soon! / به‌زودی برای آیفون');return false;" class="store-badge ios-badge">
+      <svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.5 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.82M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+      <div class="store-text">
+        <span class="store-small">COMING SOON</span>
+        <span class="store-big">App Store</span>
+      </div>
+    </a>
+  </div>
+  <style>
+    .store-badge{display:flex;align-items:center;gap:10px;background:#0A0A1A;color:#fff;padding:10px 20px;border-radius:12px;text-decoration:none;border:1px solid #2D2D4E;transition:all .25s ease;position:relative;overflow:hidden;}
+    .store-badge::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent);transition:left .5s;}
+    .store-badge:hover::before{left:100%;}
+    .store-badge:hover{transform:translateY(-3px);box-shadow:0 8px 20px rgba(27,79,216,0.35);border-color:#1B4FD8;}
+    .store-badge svg{flex-shrink:0;}
+    .store-text{display:flex;flex-direction:column;line-height:1.2;text-align:left;}
+    .store-small{font-size:9px;opacity:0.7;letter-spacing:1px;}
+    .store-big{font-size:15px;font-weight:700;}
+    .ios-badge{opacity:0.6;cursor:not-allowed;}
+    .ios-badge:hover{transform:none;box-shadow:none;border-color:#2D2D4E;}
+    .ios-badge:hover::before{left:-100%;}
+    @media (prefers-reduced-motion: reduce){.store-badge{transition:none;}.store-badge::before{display:none;}}
+  </style>
+  <div class="ft-copy">© 2025 FahrReady.ch 🇨🇭 · <span id="ftcopy">Alle Rechte vorbehalten</span></div>
+</footer>
+
+<!-- MODAL -->
+<div class="modal-bg" id="modalBg" onclick="closeModal(event)">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal(true)">✕</button>
+    <div id="modalContent"></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toastEl"></div>
+
+<script>
+// ── CONFIG ──────────────────────────────────────────────
+const SBURL='https://npfvlfdjngzczxhghmyu.supabase.co';
+const SBKEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5wZnZsZmRqbmd6Y3p4aGdobXl1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkzMTI2NjgsImV4cCI6MjA5NDg4ODY2OH0.oqnB4FTnmj-wno7AEgTz-MAmunazqwpj5jEkvB5xN8s';
+// ⚠️ IBAN buraya eklenecek — önce Stripe/Wise onayı
+const IBAN_DISPLAY = 'Wird nach Ihrer Bestätigung bekannt gegeben / پس از تأیید اعلام می‌شود';
+
+// ── SUPABASE ─────────────────────────────────────────────
+async function sbReq(path,method,body){
+  const r=await fetch(SBURL+'/rest/v1/'+path,{method:method||'GET',headers:{'apikey':SBKEY,'Authorization':'Bearer '+SBKEY,'Content-Type':'application/json','Prefer':'return=representation'},body:body?JSON.stringify(body):undefined});
+  return{ok:r.ok,status:r.status,data:await r.json()};
+}
+async function hashPwd(p){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(p+'fahrready2025'));return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join('');}
+
+// ── STATE ─────────────────────────────────────────────────
+let LANG='de', USER=null, PLAN='y';
+let qIdx=0, score=0, errors=0, answered=false, timer=null, timeLeft=2700, examMode='exam';
+let selectedOpts=[], examResults=[];
+const FREE_LIMIT=5;
+
+// ── QUESTIONS (50 adet, ilk 10 fotoğraflı) ───────────────
+const QUESTIONS=[
+  {de:"Was bedeutet dieses Zeichen?",fa:"این علامت چه معنایی دارد؟",az:"Bu işarə nə deməkdir?",en:"What does this sign mean?",
+   img:"https://upload.wikimedia.org/wikipedia/commons/thumb/f/f9/Zeichen_206.svg/200px-Zeichen_206.svg.png",
+   opts:[{de:"Halt — Vorfahrt gewähren",fa:"ایست — حق تقدم بده",az:"Dur — üstünlük ver",en:"Stop — give way",ok:true},
+         {de:"Einfahrt verboten",fa:"ورود ممنوع",az:"Giriş qadağan",en:"No entry",ok:false},
+         {de:"Gefahr voraus",fa:"خطر پیش رو",az:"Qarşıda təhlükə",en:"Danger ahead",ok:false}]},
+  {de:"Was bedeutet dieses Zeichen?",fa:"این علامت چه معنایی دارد؟",az:"Bu işarə nə deməkdir?",en:"What does this sign mean?",
+   img:"https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/Zeichen_205.svg/200px-Zeichen_205.svg.png",
+   opts:[{de:"Vorfahrt gewähren",fa:"حق تقدم بده",az:"Üstünlük ver",en:"Give way",ok:true},
+         {de:"Einbahnstrasse",fa:"یک‌طرفه",az:"Birtərəfli",en:"One-way",ok:false},
+         {de:"Parkverbot",fa:"پارک ممنوع",az:"Park qadağan",en:"No parking",ok:false}]},
+  {de:"Was bedeutet dieses Zeichen?",fa:"این علامت چه معنایی دارد؟",az:"Bu işarə nə deməkdir?",en:"What does this sign mean?",
+   img:"https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/Zeichen_274-60.svg/200px-Zeichen_274-60.svg.png",
+   opts:[{de:"Höchstgeschwindigkeit 60 km/h",fa:"حداکثر سرعت ۶۰",az:"Maks. 60 km/saat",en:"Speed limit 60 km/h",ok:true},
+         {de:"Mindestgeschwindigkeit 60",fa:"حداقل سرعت ۶۰",az:"Min. 60",en:"Minimum speed 60",ok:false},
+         {de:"Strecke 60 km",fa:"مسافت ۶۰",az:"60 km məsafə",en:"Route 60 km",ok:false}]},
+  {de:"Was bedeutet dieses Zeichen?",fa:"این علامت چه معنایی دارد؟",az:"Bu işarə nə deməkdir?",en:"What does this sign mean?",
+   img:"https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Zeichen_276.svg/200px-Zeichen_276.svg.png",
+   opts:[{de:"Überholverbot für alle Fahrzeuge",fa:"سبقت برای همه ممنوع",az:"Bütün nəqliyyat üçün ötmə qadağan",en:"No overtaking",ok:true},
+         {de:"LKW-Überholverbot",fa:"سبقت کامیون ممنوع",az:"Yük maşını qadağası",en:"No overtaking trucks",ok:false},
+         {de:"Gegenverkehr",fa:"ترافیک مخالف",az:"Əks trafik",en:"Oncoming traffic",ok:false}]},
+  {de:"Was bedeutet dieses Zeichen?",fa:"این علامت چه معنایی دارد؟",az:"Bu işarə nə deməkdir?",en:"What does this sign mean?",
+   img:"https://upload.wikimedia.org/wikipedia/commons/thumb/9/9d/Zeichen_301.svg/200px-Zeichen_301.svg.png",
+   opts:[{de:"Vorfahrtstrasse",fa:"جاده با حق تقدم",az:"Üstünlük yolu",en:"Priority road",ok:true},
+         {de:"Autobahn",fa:"آزادراه",az:"Avtostrada",en:"Motorway",ok:false},
+         {de:"Einbahnstrasse",fa:"یک‌طرفه",az:"Birtərəfli",en:"One-way",ok:false}]},
+  {de:"Was bedeutet dieses Zeichen?",fa:"این علامت چه معنایی دارد؟",az:"Bu işarə nə deməkdir?",en:"What does this sign mean?",
+   img:"https://upload.wikimedia.org/wikipedia/commons/thumb/9/94/Zeichen_314.svg/200px-Zeichen_314.svg.png",
+   opts:[{de:"Parken erlaubt",fa:"پارک مجاز",az:"Park icazəli",en:"Parking allowed",ok:true},
+         {de:"Halten verboten",fa:"توقف ممنوع",az:"Dayanmaq qadağan",en:"No stopping",ok:false},
+         {de:"Polizei",fa:"پلیس",az:"Polis",en:"Police",ok:false}]},
+  {de:"Was bedeutet dieses Zeichen?",fa:"این علامت چه معنایی دارد؟",az:"Bu işarə nə deməkdir?",en:"What does this sign mean?",
+   img:"https://upload.wikimedia.org/wikipedia/commons/thumb/d/dc/Zeichen_283.svg/200px-Zeichen_283.svg.png",
+   opts:[{de:"Absolutes Haltverbot",fa:"توقف کاملاً ممنوع",az:"Mütləq dayanma qadağası",en:"Absolute no stopping",ok:true},
+         {de:"Parkverbot",fa:"پارک ممنوع",az:"Park qadağan",en:"No parking",ok:false},
+         {de:"Einfahrt verboten",fa:"ورود ممنوع",az:"Giriş qadağan",en:"No entry",ok:false}]},
+  {de:"Was bedeutet dieses Zeichen?",fa:"این علامت چه معنایی دارد؟",az:"Bu işarə nə deməkdir?",en:"What does this sign mean?",
+   img:"https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/Zeichen_250.svg/200px-Zeichen_250.svg.png",
+   opts:[{de:"Verbot für alle Fahrzeuge",fa:"ممنوع برای همه",az:"Hamı üçün qadağan",en:"No vehicles",ok:true},
+         {de:"Einbahnstrasse",fa:"یک‌طرفه",az:"Birtərəfli",en:"One-way",ok:false},
+         {de:"Fussgängerzone",fa:"منطقه پیاده",az:"Piyada zonası",en:"Pedestrian zone",ok:false}]},
+  {de:"Was bedeutet dieses Zeichen?",fa:"این علامت چه معنایی دارد؟",az:"Bu işarə nə deməkdir?",en:"What does this sign mean?",
+   img:"https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/Zeichen_265.svg/200px-Zeichen_265.svg.png",
+   opts:[{de:"Höchstdurchfahrtshöhe 3,5 m",fa:"حداکثر ارتفاع ۳.۵ متر",az:"Maks. hündürlük 3.5m",en:"Max height 3.5m",ok:true},
+         {de:"Höchstgeschwindigkeit 35",fa:"سرعت ۳۵",az:"35 sürət",en:"Speed 35",ok:false},
+         {de:"Brücke 3,5 t",fa:"وزن پل",az:"Körpü 3.5t",en:"Bridge 3.5t",ok:false}]},
+  {de:"Was bedeutet dieses Zeichen?",fa:"این علامت چه معنایی دارد؟",az:"Bu işarə nə deməkdir?",en:"What does this sign mean?",
+   img:"https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Zeichen_306.svg/200px-Zeichen_306.svg.png",
+   opts:[{de:"Ende der Vorfahrtstrasse",fa:"پایان جاده با حق تقدم",az:"Üstünlük yolunun sonu",en:"End of priority road",ok:true},
+         {de:"Kreuzung",fa:"تقاطع",az:"Kəsişmə",en:"Junction",ok:false},
+         {de:"Parkplatz",fa:"پارکینگ",az:"Dayanacaq",en:"Parking",ok:false}]},
+  // Sorular 11-50 (fotoğrafsız)
+  {de:"Höchstgeschwindigkeit innerorts?",fa:"حداکثر سرعت در شهر؟",az:"Şəhərdə maks. sürət?",en:"Max speed in town?",img:null,
+   opts:[{de:"50 km/h",fa:"۵۰",az:"50",en:"50",ok:true},{de:"60 km/h",fa:"۶۰",az:"60",en:"60",ok:false},{de:"80 km/h",fa:"۸۰",az:"80",en:"80",ok:false}]},
+  {de:"Höchstgeschwindigkeit Autobahn?",fa:"حداکثر سرعت آزادراه؟",az:"Avtostrada maks.?",en:"Max motorway speed?",img:null,
+   opts:[{de:"120 km/h",fa:"۱۲۰",az:"120",en:"120",ok:true},{de:"100",fa:"۱۰۰",az:"100",en:"100",ok:false},{de:"140",fa:"۱۴۰",az:"140",en:"140",ok:false}]},
+  {de:"Ausserorts Höchstgeschwindigkeit?",fa:"سرعت خارج شهر؟",az:"Şəhər xarici sürət?",en:"Outside town speed?",img:null,
+   opts:[{de:"80 km/h",fa:"۸۰",az:"80",en:"80",ok:true},{de:"100",fa:"۱۰۰",az:"100",en:"100",ok:false},{de:"60",fa:"۶۰",az:"60",en:"60",ok:false}]},
+  {de:"Wer hat im Kreisverkehr Vortritt?",fa:"در میدان چه کسی حق تقدم دارد؟",az:"Dairəvidə üstünlük?",en:"Priority in roundabout?",img:null,
+   opts:[{de:"Fahrzeuge im Kreisverkehr",fa:"خودروهای داخل میدان",az:"İçəridəkilər",en:"Vehicles inside",ok:true},{de:"Einfahrende",fa:"ورودی‌ها",az:"Girənlər",en:"Entering",ok:false},{de:"Fussgänger",fa:"عابران",az:"Piyadalar",en:"Pedestrians",ok:false}]},
+  {de:"Kreuzung ohne Signalisation — Vortritt?",fa:"تقاطع بی‌علامت — حق تقدم؟",az:"İşarəsiz kəsişmə?",en:"Unsignalised junction?",img:null,
+   opts:[{de:"Von rechts",fa:"از راست",az:"Sağdan",en:"From right",ok:true},{de:"Von links",fa:"از چپ",az:"Soldan",en:"From left",ok:false},{de:"Wer zuerst",fa:"اول رسد",az:"Əvvəl gələn",en:"First come",ok:false}]},
+  {de:"Alkohollimit Neulenker?",fa:"حد الکل رانندگان تازه‌کار؟",az:"Yeni sürücülər spirt?",en:"Alcohol new drivers?",img:null,
+   opts:[{de:"0.1 Promille",fa:"۰.۱",az:"0.1",en:"0.1‰",ok:true},{de:"0.5",fa:"۰.۵",az:"0.5",en:"0.5",ok:false},{de:"0.0",fa:"صفر",az:"0.0",en:"0.0",ok:false}]},
+  {de:"Promillegrenze für Autofahrer?",fa:"حد قانونی الکل رانندگان؟",az:"Sürücülər üçün spirt?",en:"Alcohol limit drivers?",img:null,
+   opts:[{de:"0.5 Promille",fa:"۰.۵",az:"0.5",en:"0.5‰",ok:true},{de:"0.8",fa:"۰.۸",az:"0.8",en:"0.8",ok:false},{de:"1.0",fa:"۱.۰",az:"1.0",en:"1.0",ok:false}]},
+  {de:"Mindestabstand Autobahn?",fa:"حداقل فاصله آزادراه؟",az:"Avtostrada min. məsafə?",en:"Min distance motorway?",img:null,
+   opts:[{de:"Halbe Tacho-Zahl in Metern",fa:"نیمی از سرعت‌سنج به متر",az:"Sayğacın yarısı metr ilə",en:"Half speedo in metres",ok:true},{de:"10 m",fa:"۱۰",az:"10",en:"10m",ok:false},{de:"50 m",fa:"۵۰",az:"50",en:"50m",ok:false}]},
+  {de:"Was ist bei Nebel Pflicht?",fa:"در مه چه الزامی است؟",az:"Dumanda nə lazım?",en:"Mandatory in fog?",img:null,
+   opts:[{de:"Licht + langsamer fahren",fa:"چراغ + کندتر",az:"İşıq + yavaş",en:"Lights + slow down",ok:true},{de:"Warnblinker",fa:"چراغ خطر",az:"Xəbərdarlıq",en:"Hazard lights",ok:false},{de:"Rechts bleiben",fa:"راست بمانید",az:"Sağda qalın",en:"Stay right",ok:false}]},
+  {de:"Telefonieren beim Fahren?",fa:"تلفن هنگام رانندگی؟",az:"Sürərkən telefon?",en:"Phone while driving?",img:null,
+   opts:[{de:"Nur mit Freisprechanlage",fa:"فقط هندزفری",az:"Yalnız danışıqsız",en:"Hands-free only",ok:true},{de:"Langsam fahren",fa:"آرام",az:"Yavaş",en:"Slowly",ok:false},{de:"Nie",fa:"هرگز",az:"Heç vaxt",en:"Never",ok:false}]},
+  {de:"Schulbus mit Blinkern — was tun?",fa:"اتوبوس مدرسه با چراغ؟",az:"Məktəb avtobusu?",en:"School bus flashing?",img:null,
+   opts:[{de:"Anhalten, Kinder passieren lassen",fa:"توقف — کودکان رد شوند",az:"Dur, uşaqlar keçsin",en:"Stop, let children pass",ok:true},{de:"Langsam vorbei",fa:"آرام رد شو",az:"Yavaş keç",en:"Pass slowly",ok:false},{de:"Hupen",fa:"بوق",az:"Siqnal",en:"Honk",ok:false}]},
+  {de:"Gelbe Ampel — was tun?",fa:"چراغ زرد — چه کار؟",az:"Sarı işıq?",en:"Yellow light?",img:null,
+   opts:[{de:"Anhalten wenn möglich",fa:"توقف در صورت امکان",az:"Mümkünsə dur",en:"Stop if possible",ok:true},{de:"Beschleunigen",fa:"شتاب",az:"Sürəti artır",en:"Accelerate",ok:false},{de:"Normal weiter",fa:"عادی",az:"Normal",en:"Continue",ok:false}]},
+  {de:"Panne auf Autobahn — was tun?",fa:"خرابی در آزادراه؟",az:"Avtostradada nasazlıq?",en:"Breakdown on motorway?",img:null,
+   opts:[{de:"Pannenstreifen + Warndreieck",fa:"شانه راه + مثلث خطر",az:"Çiyin + üçbucaq",en:"Hard shoulder + triangle",ok:true},{de:"Auf Fahrbahn bleiben",fa:"در جاده بمانید",az:"Yolda qalın",en:"Stay on road",ok:false},{de:"Warnblinker reicht",fa:"چراغ خطر",az:"Siqnal kifayət",en:"Hazards enough",ok:false}]},
+  {de:"Unfall — was zuerst tun?",fa:"تصادف — اول چه؟",az:"Qəza — əvvəlcə?",en:"Accident — first action?",img:null,
+   opts:[{de:"Sichern + helfen + melden",fa:"ایمن + کمک + گزارش",az:"Təhlükəsizlik + kömək + bildiriş",en:"Secure + help + report",ok:true},{de:"Wegfahren",fa:"فرار",az:"Qaç",en:"Drive away",ok:false},{de:"Nur Polizei anrufen",fa:"فقط پلیس",az:"Yalnız polis",en:"Police only",ok:false}]},
+  {de:"Spurwechsel — Regel?",fa:"تغییر خط؟",az:"Zolaq dəyişmə?",en:"Lane change?",img:null,
+   opts:[{de:"Blinker setzen + Spiegel prüfen",fa:"راهنما + آینه بررسی کنید",az:"Siqnal + güzgü",en:"Signal + check mirror",ok:true},{de:"Einfach wechseln",fa:"فقط تغییر",az:"Sadəcə",en:"Just change",ok:false},{de:"Hupen dann wechseln",fa:"بوق بزن بعد تغییر",az:"Siqnal sonra",en:"Honk then change",ok:false}]},
+  {de:"Bergstrassen — wer hat Vortritt?",fa:"جاده کوه — حق تقدم؟",az:"Dağ yolu üstünlük?",en:"Mountain road priority?",img:null,
+   opts:[{de:"Bergauffahrende",fa:"رو به بالا",az:"Yuxarı qalxan",en:"Uphill vehicle",ok:true},{de:"Bergabfahrende",fa:"رو به پایین",az:"Aşağı enən",en:"Downhill",ok:false},{de:"Schwerere Fahrzeuge",fa:"سنگین‌تر",az:"Ağır nəqliyyat",en:"Heavier vehicles",ok:false}]},
+  {de:"Einsatzfahrzeug mit Blaulicht?",fa:"خودرو اورژانس با چراغ آبی؟",az:"Mavi işıqlı xidmət avtomobili?",en:"Emergency vehicle blue light?",img:null,
+   opts:[{de:"Sofort Platz machen + anhalten",fa:"فوراً راه باز + توقف",az:"Dərhal yol aç + dur",en:"Make way + stop immediately",ok:true},{de:"Normal weiterfahren",fa:"عادی ادامه",az:"Normal davam",en:"Continue normally",ok:false},{de:"Hupen",fa:"بوق",az:"Siqnal",en:"Honk",ok:false}]},
+  {de:"Probezeit Führerausweis?",fa:"دوره آزمایشی گواهینامه؟",az:"Sınaq müddəti?",en:"Driving licence probation?",img:null,
+   opts:[{de:"3 Jahre",fa:"۳ سال",az:"3 il",en:"3 years",ok:true},{de:"1 Jahr",fa:"۱ سال",az:"1 il",en:"1 year",ok:false},{de:"5 Jahre",fa:"۵ سال",az:"5 il",en:"5 years",ok:false}]},
+  {de:"Fahren ohne Führerausweis?",fa:"رانندگی بدون گواهینامه؟",az:"Vəsiqəsiz sürüş?",en:"Driving without licence?",img:null,
+   opts:[{de:"Busse + Strafanzeige",fa:"جریمه + گزارش کیفری",az:"Cərimə + şikayət",en:"Fine + criminal report",ok:true},{de:"Nur Verwarnung",fa:"فقط اخطار",az:"Xəbərdarlıq",en:"Warning only",ok:false},{de:"Keine Strafe",fa:"بدون مجازات",az:"Cəzasız",en:"No penalty",ok:false}]},
+  {de:"Kinder unter 12 — Kindersitz?",fa:"کودک زیر ۱۲ — صندلی کودک؟",az:"12 yaşdan aşağı — uşaq oturacağı?",en:"Children under 12 — child seat?",img:null,
+   opts:[{de:"Ja, bis 150 cm Körpergrösse",fa:"بله، تا قد ۱۵۰ سانتی",az:"Bəli, 150 sm-ə qədər",en:"Yes, up to 150 cm",ok:true},{de:"Nur unter 6 Jahren",fa:"زیر ۶ سال",az:"6 yaşdan aşağı",en:"Under 6 only",ok:false},{de:"Gurt reicht",fa:"کمربند کافی",az:"Kəmər kifayət",en:"Seatbelt enough",ok:false}]},
+  {de:"Anhalteweg bei 50 km/h?",fa:"مسافت توقف در ۵۰ کمپ؟",az:"50 km/saatda dayınma?",en:"Stopping distance at 50?",img:null,
+   opts:[{de:"Ca. 25 Meter",fa:"حدود ۲۵ متر",az:"~25 metr",en:"About 25m",ok:true},{de:"10 Meter",fa:"۱۰",az:"10m",en:"10m",ok:false},{de:"50 Meter",fa:"۵۰",az:"50m",en:"50m",ok:false}]},
+  {de:"Doppelte Geschwindigkeit — Bremsweg?",fa:"دو برابر سرعت — مسافت ترمز؟",az:"İki dəfə sürət — dayınma məsafəsi?",en:"Double speed — braking distance?",img:null,
+   opts:[{de:"Viermal länger",fa:"چهار برابر",az:"Dörd dəfə",en:"Four times longer",ok:true},{de:"Doppelt",fa:"دو برابر",az:"İki dəfə",en:"Double",ok:false},{de:"Dreifach",fa:"سه برابر",az:"Üç dəfə",en:"Triple",ok:false}]},
+  {de:"Überholen — wann verboten?",fa:"سبقت — کِی ممنوع؟",az:"Ötmə — nə vaxt qadağan?",en:"Overtaking — when forbidden?",img:null,
+   opts:[{de:"Unklare Sicht + Gegenverkehr",fa:"دید ضعیف + ترافیک مخالف",az:"Zəif görünüş + qarşı trafik",en:"Poor visibility + oncoming traffic",ok:true},{de:"Nur wenn Schild",fa:"فقط با علامت",az:"Yalnız işarə",en:"Only with sign",ok:false},{de:"Nie auf Hauptstrassen",fa:"هرگز جاده اصلی",az:"Ana yolda heç vaxt",en:"Never on main roads",ok:false}]},
+  {de:"Pannenstreifen Autobahn?",fa:"شانه اضطراری آزادراه؟",az:"Avtostrada çiyni?",en:"Motorway hard shoulder?",img:null,
+   opts:[{de:"Nur im Notfall benutzen",fa:"فقط در موارد اضطراری",az:"Yalnız təcili hallarda",en:"Emergency only",ok:true},{de:"Als Kriechspur",fa:"خط آرام",az:"Sürünmə zolağı",en:"As slow lane",ok:false},{de:"Zum Telefonieren",fa:"برای تلفن",az:"Telefon üçün",en:"For phoning",ok:false}]},
+  {de:"Bahnübergang — Schranke schliesst?",fa:"دروازه راه‌آهن بسته می‌شود؟",az:"Dəmiryol keçidi bağlanır?",en:"Level crossing closing?",img:null,
+   opts:[{de:"Warten bis Schranke offen",fa:"توقف تا باز شدن",az:"Açılanadək gözlə",en:"Wait until open",ok:true},{de:"Schnell durchfahren",fa:"سریع رد شو",az:"Sürətlə keç",en:"Drive through fast",ok:false},{de:"Nur wenn Zug sichtbar",fa:"فقط اگر قطار باشد",az:"Yalnız qatar görünürsə",en:"Only if train visible",ok:false}]},
+  {de:"Via Sicura?",fa:"Via Sicura چیست؟",az:"Via Sicura nədir?",en:"What is Via Sicura?",img:null,
+   opts:[{de:"Verkehrssicherheitsprogramm der Schweiz",fa:"برنامه ایمنی ترافیک سوئیس",az:"İsveçrə yol təhlükəsizliyi proqramı",en:"Swiss road safety programme",ok:true},{de:"Schnellstrasse",fa:"بزرگراه",az:"Sürət yolu",en:"Expressway",ok:false},{de:"Grüne Welle",fa:"موج سبز",az:"Yaşıl dalğa",en:"Green wave",ok:false}]},
+  {de:"Glatteis — was tun?",fa:"یخ‌زدگی جاده — چه کار کنید؟",az:"Buz — nə etməli?",en:"Black ice — what to do?",img:null,
+   opts:[{de:"Tempo reduzieren + mehr Abstand",fa:"سرعت کم + فاصله بیشتر",az:"Sürəti azalt + məsafəni artır",en:"Reduce speed + more distance",ok:true},{de:"Winterreifen reicht",fa:"لاستیک زمستانی",az:"Qış təkəri",en:"Winter tyres enough",ok:false},{de:"Normal fahren",fa:"عادی",az:"Normal",en:"Normal",ok:false}]},
+  {de:"Motorradhelm — Pflicht für wen?",fa:"کلاه ایمنی موتور — الزامی برای چه کسی؟",az:"Motosiklet dəbilqəsi — kim üçün?",en:"Motorcycle helmet — mandatory for?",img:null,
+   opts:[{de:"Fahrer und Beifahrer",fa:"راننده و سرنشین",az:"Sürücü və sərniş",en:"Rider and passenger",ok:true},{de:"Nur Fahrer",fa:"فقط راننده",az:"Yalnız sürücü",en:"Rider only",ok:false},{de:"Nur Empfehlung",fa:"فقط توصیه",az:"Yalnız tövsiyə",en:"Recommendation only",ok:false}]},
+  {de:"Overholspur — wann benutzen?",fa:"خط سبقت — کی استفاده کنید؟",az:"Ötmə zolağı — nə vaxt?",en:"Overtaking lane — when?",img:null,
+   opts:[{de:"Nur beim aktiven Überholen",fa:"فقط هنگام سبقت فعال",az:"Yalnız aktiv ötmə zamanı",en:"Only when actively overtaking",ok:true},{de:"Immer wenn schnell",fa:"همیشه وقتی سریعم",az:"Həmişə sürətli olduqda",en:"Whenever driving fast",ok:false},{de:"Wenn rechts gesperrt",fa:"وقتی راست بسته",az:"Sağ zolaq bağlı",en:"When right lane blocked",ok:false}]},
+  {de:"Pflichtdokumente im Auto?",fa:"مدارک الزامی در خودرو؟",az:"Avtomobilda məcburi sənədlər?",en:"Mandatory documents in car?",img:null,
+   opts:[{de:"Führerausweis + Fahrzeugausweis",fa:"گواهینامه + مدارک خودرو",az:"Sürücülük + nəqliyyat vəsiqəsi",en:"Driving licence + vehicle doc",ok:true},{de:"Nur Führerausweis",fa:"فقط گواهینامه",az:"Yalnız sürücülük",en:"Licence only",ok:false},{de:"Keine Pflicht",fa:"الزامی نیست",az:"Məcburi deyil",en:"Not required",ok:false}]},
+  {de:"Fussgänger im Fussgängerstreifen?",fa:"عابر در خط عابر؟",az:"Piyada keçidindəki piyada?",en:"Pedestrian at crossing?",img:null,
+   opts:[{de:"Anhalten + passieren lassen",fa:"توقف + اجازه عبور",az:"Dur + keçməyə icazə ver",en:"Stop + let cross",ok:true},{de:"Hupen + weiterfahren",fa:"بوق + ادامه",az:"Siqnal + davam et",en:"Honk + continue",ok:false},{de:"Nur wenn Ampel rot",fa:"فقط وقتی قرمز",az:"Yalnız qırmızıda",en:"Only if light red",ok:false}]},
+  {de:"Theorieprüfung — wie oft wiederholen?",fa:"آزمون تئوری — چند بار؟",az:"Nəzəriyyə imtahanı — neçə dəfə?",en:"Theory exam — how many retakes?",img:null,
+   opts:[{de:"Unbegrenzt (2 Wochen Wartezeit)",fa:"نامحدود — ۲ هفته انتظار",az:"Limitsiz — 2 həftə",en:"Unlimited (2 week wait)",ok:true},{de:"Maximal 3 Mal",fa:"حداکثر ۳ بار",az:"Maks. 3 dəfə",en:"Max 3 times",ok:false},{de:"Nur 1 Wiederholung",fa:"فقط ۱ بار",az:"Yalnız 1 dəfə",en:"Only once",ok:false}]},
+  {de:"Reifendruck zu niedrig?",fa:"فشار لاستیک پایین؟",az:"Şin təzyiqi aşağı?",en:"Tyre pressure too low?",img:null,
+   opts:[{de:"Schlechteres Handling + mehr Verbrauch",fa:"کنترل ضعیف‌تر + مصرف بیشتر",az:"Pis idarəetmə + çox sərfiyyat",en:"Worse handling + higher consumption",ok:true},{de:"Bessere Haftung",fa:"چسبندگی بهتر",az:"Daha yaxşı yapışma",en:"Better grip",ok:false},{de:"Kein Effekt",fa:"تأثیری ندارد",az:"Heç bir təsir",en:"No effect",ok:false}]},
+  {de:"Begegnungszone in der Schweiz?",fa:"منطقه تلاقی در سوئیس؟",az:"İsveçrədə görüşmə zonası?",en:"Meeting zone in Switzerland?",img:null,
+   opts:[{de:"Fussgänger + Velo + Auto geteilt — max 20 km/h",fa:"مشترک — حداکثر ۲۰ کمپ",az:"Birgə — maks 20 km/saat",en:"Shared — max 20 km/h",ok:true},{de:"Fussgängerzone ohne Autos",fa:"فقط پیاده",az:"Yalnız piyada",en:"Pedestrians only",ok:false},{de:"Nur für Fahrräder",fa:"فقط دوچرخه",az:"Yalnız velosiped",en:"Bikes only",ok:false}]},
+  {de:"Parken auf dem Trottoir?",fa:"پارک روی پیاده‌رو؟",az:"Səkidə park?",en:"Parking on pavement?",img:null,
+   opts:[{de:"Nur wenn Signalisation erlaubt",fa:"فقط اگر علامت اجازه دهد",az:"Yalnız işarə icazə versə",en:"Only if sign allows",ok:true},{de:"Immer kurz erlaubt",fa:"همیشه کوتاه مجاز",az:"Həmişə qısaca",en:"Always briefly ok",ok:false},{de:"Nur nachts",fa:"فقط شب",az:"Yalnız gecə",en:"Only at night",ok:false}]},
+  {de:"Schneeflocken-Schild bedeutet?",fa:"علامت دانه برف؟",az:"Qar lopası işarəsi?",en:"Snowflake sign?",img:null,
+   opts:[{de:"Winterreifen empfohlen oder obligatorisch",fa:"لاستیک زمستانی توصیه‌شده یا الزامی",az:"Qış təkərləri tövsiyə/məcburi",en:"Winter tyres recommended or mandatory",ok:true},{de:"Strasse gesperrt",fa:"جاده بسته",az:"Yol bağlıdır",en:"Road closed",ok:false},{de:"Skilift in der Nähe",fa:"تله‌کابی",az:"Ski lifti",en:"Ski lift nearby",ok:false}]},
+  {de:"Rückwärtsfahren — wie weit erlaubt?",fa:"دنده عقب — تا کجا مجاز؟",az:"Geri getmək — nə qədər?",en:"Reversing — how far allowed?",img:null,
+   opts:[{de:"Nur so weit wie nötig und sicher",fa:"فقط به اندازه ضروری و ایمن",az:"Yalnız lazım olan qədər",en:"Only as far as necessary and safe",ok:true},{de:"Maximal 50 Meter",fa:"حداکثر ۵۰ متر",az:"Maks. 50 metr",en:"Maximum 50 metres",ok:false},{de:"Auch auf Autobahn erlaubt",fa:"در آزادراه هم مجاز",az:"Avtostradada da",en:"Also on motorway",ok:false}]},
+  {de:"Abblendlicht — wann einschalten?",fa:"چراغ کوتاه — چه وقت روشن کنید؟",az:"Yaxın işıq — nə vaxt yandırmaq?",en:"Low beam — when to use?",img:null,
+   opts:[{de:"Bei schlechter Sicht und nachts",fa:"دید ضعیف و شب",az:"Zəif görünüş və gecə",en:"Poor visibility and at night",ok:true},{de:"Nur nachts",fa:"فقط شب",az:"Yalnız gecə",en:"Night only",ok:false},{de:"Nur im Tunnel",fa:"فقط تونل",az:"Yalnız tuneldə",en:"Tunnel only",ok:false}]}
+];
+
+// ── TRANSLATIONS ──────────────────────────────────────────
+const TX={
+  de:{nb1:'Anmelden',nb2:'Registrieren',hbadge:'Offizielle Schweizer Theorieprüfung',htitle:'Bestehe deine<br><span class="blue">Fahrprüfung</span>',herofa:'Bereite dich auf die Schweizer Theorieprüfung vor',herosub:'Persisch · Aserbaidschanisch · Deutsch · Englisch',hbtn1:'▶ Prüfung starten',hbtn2:'✦ Kostenlos registrieren',st1:'Fragen',st2:'Minuten',st3:'Punkte zum Bestehen',st4:'Sprachen',nl1:'Prüfung',nl2:'Vorbereitung',nl3:'Nachrichten',nl4:'Registrieren',ptag:'LERNMODUS',ptitle:'Vorbereitung & Übung',psub:'50 kostenlose Fragen — 400 Premium',pp1t:'Kostenlose Übung',pp1f:'Ohne Anmeldung',pp1s:'Fragen kostenlos',pp1b:'✓ GRATIS',pp2t:'Premium Übung',pp2f:'Komplette Datenbank',pp2s:'Fragen + KI',pp2b:'⭐ PREMIUM',pp3t:'Prüfungssimulation',pp3f:'Wie echte Prüfung',pp3s:'5 kostenlos dann Premium',pp3b:'▶ STARTEN',ftag:'WARUM FAHRREADY',ftitle:'Alles was du brauchst',fsub:'Kompletteste Vorbereitung für Migranten',f1t:'Echtes Format',f1f:'50 Fragen, 45 Min',f1d:'Genau wie die offizielle Prüfung.',f2t:'4 Sprachen',f2f:'DE/FA/AZ/EN',f2d:'Fragen Deutsch, Erklärungen in Ihrer Sprache.',f3t:'Echte Verkehrszeichen',f3f:'Fotos von echten Schildern',f3d:'Fragen mit echten Verkehrszeichen-Fotos.',f4t:'KI-Analyse',f4f:'KI erkennt Schwächen',f4d:'Personalisierte Empfehlungen nach jedem Test.',f5t:'Sicheres Login',f5f:'Einzigartiges Konto',f5d:'Kein Teilen möglich.',f6t:'App bald',f6f:'Android & iOS',f6d:'Demnächst verfügbar.',rtag:'PRÜFUNGSREGELN',rtitle:'Offizielle Prüfungsregeln',rsub:'قوانین رسمی آزمون تئوری سوئیس',ru1:'Fragen',rt1:'Gesamtfragen',rf1:'تعداد کل سوالات',ru2:'Minuten',rt2:'Prüfungszeit',rf2:'مدت آزمون',ru3:'von 150 Pkt',rt3:'Bestehenspunkte',rf3:'امتیاز قبولی',ru4:'max. Fehler',rt4:'Fehlerpunkte',rf4:'حداکثر خطا',ntag:'NEUIGKEITEN',ntitle:'Aktuelle Nachrichten',nsub:'اطلاعات هفتگی آزمون سوئیس',nn1:'⚡ NEU',nn2:'ASA 2025: Neue Fragen im Katalog',nn3:'کاتالوگ جدید ASA 2025',nc1:'Kreisverkehr: Neue Vorrangregel',nc1f:'قانون اولویت میدان',nc2:'E-Fahrzeuge: Neue Zeichen',nc2f:'علائم خودروهای برقی',nc3:'30 km/h Zone Genf',nc3f:'گسترش منطقه ژنو',nc4:'Via Sicura: Strengere Strafen',nc4f:'جریمه‌های سنگین‌تر',mtag:'ERFOLGE',mtitle:'Bestandene Mitglieder',msub:'امروز ۳۴ عضو قبول شدند',pl1:'Heute bestanden',pf1:'نفر امروز قبول شدند',pl2:'Aktive Nutzer',pf2:'کاربر فعال',pl3:'Abgesch. Prüfungen',pf3:'آزمون تکمیل‌شده',rgtag:'KOSTENLOS',rgtitle:'Jetzt registrieren',rgsub:'رایگان شروع کنید — بدون کارت اعتباری',rgl1:'Vor- und Nachname',rgl1f:'اسم کامل خود را وارد کنید',rgl2:'Passwort',rgbtn:'✦ Kostenlos starten',etag:'PRÜFUNGSSIMULATOR',etitle:'Theorieprüfung simulieren',esub:'۵ سوال رایگان — بعد نیاز به اشتراک',sTitle:'Schweizer Theorieprüfung',sFa:'Offizielles Format — genau wie die echte Prüfung',rr1:'50 Fragen / 45 Minuten',rr2:'3 Punkte pro Antwort — max. 150',rr3:'Bestehen: mindestens 135 Punkte',rr4:'Max. 15 Fehlerpunkte erlaubt',rr5:'⚠️ Nur 5 Fragen kostenlos — dann Premium',sBtnTxt:'Prüfung starten',exHeaderFa:'Schweizer Theorieprüfung',timerLbl:'Verbleibende Zeit',ptsLbl:'Pkt',nextLbl:'Weiter',pwTitle:'Premium erforderlich',pwFa:'5 kostenlose Fragen genutzt — Upgrade nötig',pln1:'Monatlich',plf1:'Monatsabo',plp1:'/Monat',plft1:'✓ 400 Fragen<br>✓ Unbegrenzte Prüfungen<br>✓ KI-Analyse',pln2:'Jährlich',plf2:'50% Rabatt',plp2:'/Jahr',plft2:'✓ Alles + KI-Plan<br>✓ Offline-Zugang<br>✓ PDF Downloads',ibanTitle:'💳 Zahlung per IBAN / Wise',ibanNote:'Bitte Referenzcode in der Zahlungsbeschreibung angeben',refLbl:'Referenz / كد مرجع:',confBtn:'✓ Zahlung bestätigen',backBtn:'← Zurück',resPtsL:'Pkte/150',resCorL:'Richtig',resErrL:'Fehler',retryBtn:'Erneut versuchen',upgradeBtn:'Upgrade — 400 Fragen',ftfa:'Die beste Theorieprüfungs-Plattform für Migranten in der Schweiz',ftcopy:'Alle Rechte vorbehalten',fla:'Startseite',flb:'Prüfung',flc:'Nachrichten',fld:'Registrieren',fle:'Datenschutz',flf:'Kontakt',adtop:'📢 Ihre Werbung hier — Fahrschulen willkommen! | info@fahrready.ch',admid:'🏫 Fahrschule — Spezialangebot für Migranten!',adnews:'🚗 Autoversicherung — beste Preise!',adexam:'📚 Fahrschule — Theoriekurs auf Persisch & Azerbaijani',adfoot:'🏢 Werbung hier — info@fahrready.ch',PASS:'BESTANDEN! 🎉',FAIL:'NICHT BESTANDEN',PASSMSG:'Wenn das die echte Prüfung wäre — Sie hätten bestanden!',FAILMSG:'Nicht entmutigen — nach 2 Wochen erneut antreten.',logout:'Abgemeldet',welcome:'Willkommen',fillAll:'Bitte alle Felder ausfüllen',passShort:'Passwort min. 6 Zeichen',emailExists:'E-Mail bereits registriert',regFail:'Fehler — SQL-Tabellen in Supabase Panel erstellen!',loginFail:'E-Mail oder Passwort falsch',payOk:'✅ Eingereicht — wird nach Bankbestätigung aktiviert',enterEmail:'Bitte E-Mail eingeben',qof:'von'},
+  fa:{nb1:'ورود',nb2:'ثبت نام',hbadge:'آزمون تئوری رسمی سوئیس',htitle:'آزمون رانندگی<br><span class="blue">سوئیس</span> را قبول شو',herofa:'با اطمینان کامل آزمون تئوری سوئیس را قبول کنید',herosub:'فارسی · آذربایجانی · آلمانی · انگلیسی',hbtn1:'▶ شروع آزمون',hbtn2:'✦ ثبت نام رایگان',st1:'سوال',st2:'دقیقه',st3:'امتیاز قبولی',st4:'زبان',nl1:'آزمون',nl2:'آمادگی',nl3:'اخبار',nl4:'ثبت نام',ptag:'حالت یادگیری',ptitle:'آمادگی و تمرین',psub:'۵۰ سوال تمرینی رایگان — ۴۰۰ سوال با اشتراک',pp1t:'تمرین رایگان',pp1f:'بدون ثبت‌نام',pp1s:'سوال رایگان',pp1b:'✓ رایگان',pp2t:'تمرین ویژه',pp2f:'بانک کامل سوالات',pp2s:'سوال + AI',pp2b:'⭐ ویژه',pp3t:'شبیه‌ساز آزمون',pp3f:'دقیقاً مثل آزمون واقعی',pp3s:'۵ سوال رایگان',pp3b:'▶ شروع',ftag:'چرا فارردی',ftitle:'همه چیزی که نیاز دارید',fsub:'کامل‌ترین آمادگی برای مهاجران در سوئیس',f1t:'فرمت واقعی آزمون',f1f:'۵۰ سوال، ۴۵ دقیقه',f1d:'دقیقاً مثل آزمون رسمی سوئیس.',f2t:'۴ زبان',f2f:'FA/AZ/DE/EN',f2d:'سوالات آلمانی با توضیح فارسی.',f3t:'تصاویر علائم ترافیکی',f3f:'عکس‌های واقعی علائم',f3d:'سوالات با تصاویر واقعی علائم ترافیکی.',f4t:'تحلیل هوش مصنوعی',f4f:'AI نقاط ضعف را پیدا می‌کند',f4d:'توصیه‌های شخصی بعد از هر آزمون.',f5t:'ورود امن',f5f:'حساب منحصر به فرد',f5d:'هر حساب یکتا و امن — به اشتراک گذاشتن ممنوع.',f6t:'اپ به زودی',f6f:'Android و iOS',f6d:'اپ به زودی منتشر می‌شود.',rtag:'قوانین آزمون',rtitle:'قوانین رسمی آزمون تئوری سوئیس',rsub:'آزمون تئوری سوئیس این‌گونه کار می‌کند',ru1:'سوال',rt1:'کل سوالات',rf1:'تعداد کل سوالات',ru2:'دقیقه',rt2:'مدت آزمون',rf2:'زمان کل آزمون',ru3:'از ۱۵۰ امتیاز',rt3:'امتیاز قبولی',rf3:'حداقل امتیاز برای قبولی',ru4:'حداکثر خطا',rt4:'خطاهای مجاز',rf4:'حداکثر خطای مجاز',ntag:'اخبار',ntitle:'آخرین اخبار',nsub:'اطلاعات هفتگی درباره آزمون تئوری سوئیس',nn1:'⚡ جدید',nn2:'ASA 2025: سوالات جدید در کاتالوگ',nn3:'کاتالوگ جدید سوالات ASA برای سال ۲۰۲۵',nc1:'میدان: قانون اولویت جدید',nc1f:'قانون اولویت در میدان‌های ترافیکی به‌روز شد',nc2:'خودروی برقی: علائم جدید',nc2f:'علائم ترافیکی جدید برای خودروهای برقی',nc3:'منطقه ۳۰ کمپ ژنو گسترش یافت',nc3f:'گسترش محدوده ۳۰ کیلومتر در ژنو',nc4:'Via Sicura: جریمه‌های سنگین‌تر',nc4f:'جریمه‌های سنگین‌تر برای تخلفات رانندگی',mtag:'موفقیت‌ها',mtitle:'اعضای موفق',msub:'امروز ۳۴ عضو آزمون را گذراندند',pl1:'امروز قبول شدند',pf1:'نفر امروز آزمون را گذراندند',pl2:'کاربران فعال',pf2:'کاربر فعال این هفته',pl3:'آزمون‌های تکمیل شده',pf3:'آزمون تاکنون انجام شده',rgtag:'رایگان',rgtitle:'همین الان ثبت نام کنید',rgsub:'رایگان شروع کنید — بدون کارت اعتباری',rgl1:'نام و نام خانوادگی',rgl1f:'اسم کامل خود را وارد کنید',rgl2:'رمز عبور',rgbtn:'✦ شروع رایگان',etag:'شبیه‌ساز آزمون',etitle:'شبیه‌ساز آزمون تئوری سوئیس',esub:'۵ سوال رایگان — بعد نیاز به اشتراک ویژه',sTitle:'آزمون تئوری رانندگی سوئیس',sFa:'فرمت رسمی آزمون سوئیس — دقیقاً مثل آزمون واقعی',rr1:'۵۰ سوال / ۴۵ دقیقه',rr2:'۳ امتیاز برای هر جواب صحیح — حداکثر ۱۵۰',rr3:'قبولی: حداقل ۱۳۵ امتیاز (۹۰٪)',rr4:'حداکثر ۱۵ خطا مجاز است',rr5:'⚠️ فقط ۵ سوال رایگان — بعد نیاز به اشتراک',sBtnTxt:'شروع آزمون',exHeaderFa:'آزمون تئوری رسمی سوئیس',timerLbl:'زمان باقی‌مانده',ptsLbl:'امتیاز',nextLbl:'بعدی',pwTitle:'نیاز به اشتراک ویژه',pwFa:'۵ سوال رایگان شما تمام شد — برای ادامه اشتراک بخرید',pln1:'ماهانه',plf1:'اشتراک یک ماهه',plp1:'/ماه',plft1:'✓ ۴۰۰ سوال تمرینی<br>✓ آزمون نامحدود<br>✓ تحلیل هوش مصنوعی',pln2:'سالانه',plf2:'اشتراک سالانه — ۵۰٪ تخفیف',plp2:'/سال',plft2:'✓ همه موارد + برنامه AI<br>✓ دسترسی آفلاین<br>✓ دانلود PDF',ibanTitle:'💳 پرداخت از طریق IBAN / Wise',ibanNote:'لطفاً کد مرجع را در توضیحات پرداخت حتماً ذکر کنید',refLbl:'کد مرجع پرداخت:',confBtn:'✓ تأیید پرداخت',backBtn:'← بازگشت',resPtsL:'امتیاز / ۱۵۰',resCorL:'صحیح',resErrL:'خطا',retryBtn:'دوباره امتحان کن',upgradeBtn:'اشتراک ویژه — ۴۰۰ سوال',ftfa:'بهترین پلتفرم آمادگی برای آزمون رانندگی سوئیس برای فارسی‌زبانان',ftcopy:'تمام حقوق محفوظ است',fla:'خانه',flb:'آزمون',flc:'اخبار',fld:'ثبت نام',fle:'حریم خصوصی',flf:'تماس',adtop:'📢 اینجا جای تبلیغ شماست — مدارس رانندگی خوشامدید | info@fahrready.ch',admid:'🏫 مدرسه رانندگی — تخفیف ویژه مهاجران',adnews:'🚗 بیمه خودرو — بهترین قیمت برای رانندگان تازه‌کار',adexam:'📚 مدرسه رانندگی لوزرن — دوره تئوری به فارسی',adfoot:'🏢 تبلیغات شما اینجا — info@fahrready.ch',PASS:'قبول شدید! 🎉',FAIL:'مردود شدید',PASSMSG:'اگر این آزمون واقعی بود، شما قبول می‌شدید! 🇨🇭',FAILMSG:'نگران نباشید — می‌توانید بعد از ۲ هفته دوباره امتحان دهید.',logout:'خروج از حساب',welcome:'خوش آمدید',fillAll:'همه موارد را پر کنید',passShort:'رمز عبور حداقل ۶ کاراکتر',emailExists:'این ایمیل قبلاً ثبت شده است',regFail:'خطا — جداول SQL را در پنل Supabase بسازید!',loginFail:'ایمیل یا رمز عبور اشتباه است',payOk:'✅ درخواست ثبت شد — بعد از تأیید بانکی حساب فعال می‌شود',enterEmail:'ایمیل خود را وارد کنید',qof:'از'},
+  az:{nb1:'Giriş',nb2:'Qeydiyyat',hbadge:'Rəsmi İsveçrə Nəzəriyyə İmtahanı',htitle:'İsveçrə Sürücülük<br><span class="blue">İmtahanı</span>nı keç',herofa:'İsveçrə nəzəriyyə imtahanına azərbaycan dilində hazırlaşın',herosub:'Azərbaycan · Farsca · Alman · İngilis',hbtn1:'▶ İmtahana başla',hbtn2:'✦ Pulsuz qeydiyyat',st1:'Sual',st2:'Dəqiqə',st3:'Keçid balı',st4:'Dil',nl1:'İmtahan',nl2:'Hazırlıq',nl3:'Xəbərlər',nl4:'Qeydiyyat',ptag:'ÖYRƏNMƏ',ptitle:'Hazırlıq və Məşq',psub:'50 pulsuz sual — 400 sual Premium ilə',pp1t:'Pulsuz Məşq',pp1f:'Qeydiyyatsız başla',pp1s:'sual pulsuz',pp1b:'✓ PULSUZ',pp2t:'Premium Məşq',pp2f:'Tam sual bankı',pp2s:'sual + AI',pp2b:'⭐ PREMİUM',pp3t:'Simulyator',pp3f:'Həqiqi imtahan kimi',pp3s:'5 pulsuz sonra Premium',pp3b:'▶ BAŞLA',ftag:'NİYƏ FAHRREADY',ftitle:'Sizə lazım olan hər şey',fsub:'İsveçrədəki miqrantlar üçün ən tam hazırlıq',f1t:'Həqiqi Format',f1f:'50 sual, 45 dəq',f1d:'Rəsmi imtahan kimi.',f2t:'4 Dil',f2f:'AZ/FA/DE/EN',f2d:'Alman dilində suallar, öz dilinizdə izahlar.',f3t:'Yol Nişanı Şəkilləri',f3f:'Həqiqi nişan şəkilləri',f3d:'Həqiqi nişan şəkilləri ilə suallar.',f4t:'AI Analizi',f4f:'AI zəif nöqtələri tapır',f4d:'Hər testdən sonra fərdi tövsiyələr.',f5t:'Təhlükəsiz Giriş',f5f:'Unikal hesab',f5d:'Paylaşmaq mümkün deyil.',f6t:'Tətbiq tezliklə',f6f:'Android & iOS',f6d:'Tezliklə.',rtag:'İMTAHAN QAYDALARI',rtitle:'Rəsmi İmtahan Qaydaları',rsub:'İsveçrə Nəzəriyyə İmtahanı belə işləyir',ru1:'Sual',rt1:'Ümumi Suallar',rf1:'Sual sayı',ru2:'Dəqiqə',rt2:'Müddət',rf2:'Ümumi vaxt',ru3:'150-dən bal',rt3:'Keçid balı',rf3:'Minimum bal',ru4:'max xəta',rt4:'Xəta balı',rf4:'Maks. icazəli xəta',ntag:'XƏBƏRLƏR',ntitle:'Son Xəbərlər',nsub:'Həftəlik yenilənən İsveçrə imtahan məlumatları',nn1:'⚡ YENİ',nn2:'ASA 2025: Kataloqda yeni suallar',nn3:'ASA 2025 sual kataloqu yayımlandı',nc1:'Dairəvi: Yeni üstünlük qaydası',nc1f:'Dairəvi hərəkət qaydası yeniləndi',nc2:'Elektrik avtomobili: Yeni nişanlar',nc2f:'EV üçün yeni yol nişanları',nc3:'30 km/saat zona — Cenevrə',nc3f:'Cenevrədə zonanın genişləndirilməsi',nc4:'Via Sicura: Sərtləşdirilmiş cəzalar',nc4f:'2025-ci ildə daha ağır cəzalar',mtag:'UĞURLAR',mtitle:'Müvəffəq Üzvlər',msub:'Bu gün 34 üzv imtahanı keçdi',pl1:'Bu gün keçdi',pf1:'nəfər bu gün keçdi',pl2:'Aktiv İstifadəçilər',pf2:'bu həftə aktiv',pl3:'Tamamlanmış İmtahanlar',pf3:'ümumiyyətlə tamamlandı',rgtag:'PULSUZ',rgtitle:'İndi qeydiyyatdan keçin',rgsub:'Pulsuz başlayın — kredit kartı lazım deyil',rgl1:'Ad və Soyad',rgl1f:'Tam adınızı daxil edin',rgl2:'Şifrə',rgbtn:'✦ Pulsuz başla',etag:'SİMULYATOR',etitle:'Nəzəriyyə İmtahanı Simulyatoru',esub:'5 sual pulsuz — sonra Premium',sTitle:'İsveçrə Nəzəriyyə İmtahanı',sFa:'Rəsmi format — həqiqi imtahan kimi',rr1:'50 sual / 45 dəqiqə',rr2:'Hər düzgün cavab 3 bal — maks. 150',rr3:'Keçmək: ən azı 135 bal (90%)',rr4:'Maks. 15 xəta balına icazə verilir',rr5:'⚠️ Yalnız 5 sual pulsuz — sonra Premium',sBtnTxt:'İmtahana başla',exHeaderFa:'İsveçrə Nəzəriyyə İmtahanı',timerLbl:'Qalan vaxt',ptsLbl:'Bal',nextLbl:'Növbəti',pwTitle:'Premium tələb olunur',pwFa:'5 pulsuz sualınız bitdi — davam etmək üçün yüksəldin',pln1:'Aylıq',plf1:'Aylıq abunə',plp1:'/ay',plft1:'✓ 400 məşq sualı<br>✓ Limitsiz imtahan<br>✓ AI analizi',pln2:'İllik',plf2:'İllik abunə — 50% endirim',plp2:'/il',plft2:'✓ Hər şey + AI plan<br>✓ Offline giriş<br>✓ PDF yükləmələr',ibanTitle:'💳 IBAN / Wise ilə ödəniş',ibanNote:'İzahatda istinad kodunu mütləq yazın',refLbl:'İstinad kodu:',confBtn:'✓ Ödənişi təsdiq et',backBtn:'← Geri',resPtsL:'Bal/150',resCorL:'Düzgün',resErrL:'Xəta',retryBtn:'Yenidən cəhd et',upgradeBtn:'Premium — 400 sual',ftfa:'İsveçrədəki azərbaycanlılar üçün ən yaxşı nəzəriyyə imtahanı platformu',ftcopy:'Bütün hüquqlar qorunur',fla:'Ana Səhifə',flb:'İmtahan',flc:'Xəbərlər',fld:'Qeydiyyat',fle:'Məxfilik',flf:'Əlaqə',adtop:'📢 Reklam yeriniz — info@fahrready.ch',admid:'🏫 Sürücülük məktəbi — Xüsusi təklif',adnews:'🚗 Avtomobil sığortası — ən yaxşı qiymətlər',adexam:'📚 Nəzəriyyə kursu — Azərbaycan dilində',adfoot:'🏢 Reklam yeriniz — info@fahrready.ch',PASS:'KEÇDİNİZ! 🎉',FAIL:'KEÇMƏDİNİZ',PASSMSG:'Bu həqiqi imtahan olsaydı — keçərdiniz! 🇨🇭',FAILMSG:'Narahat olmayın — 2 həftə sonra yenidən cəhd edə bilərsiniz.',logout:'Hesabdan çıxış',welcome:'Xoş gəldiniz',fillAll:'Bütün sahələri doldurun',passShort:'Şifrə min. 6 simvol',emailExists:'Bu e-poçt artıq qeydiyyatdan keçib',regFail:'Xəta — Supabase panelində SQL cədvəllərini yaradın!',loginFail:'E-poçt və ya şifrə yanlışdır',payOk:'✅ Göndərildi — bank təsdiqindən sonra aktiv olacaq',enterEmail:'E-poçtunuzu daxil edin',qof:'of'},
+  en:{nb1:'Login',nb2:'Register',hbadge:'Official Swiss Theory Exam',htitle:'Pass your Swiss<br><span class="blue">Fahrprüfung</span>',herofa:'Prepare for the Swiss theory exam with full confidence',herosub:'Persian · Azerbaijani · German · English',hbtn1:'▶ Start Exam',hbtn2:'✦ Register Free',st1:'Questions',st2:'Minutes',st3:'Pass Score',st4:'Languages',nl1:'Exam',nl2:'Prep',nl3:'News',nl4:'Register',ptag:'STUDY MODE',ptitle:'Preparation & Practice',psub:'50 free questions — 400 Premium',pp1t:'Free Practice',pp1f:'No registration needed',pp1s:'questions free',pp1b:'✓ FREE',pp2t:'Premium Practice',pp2f:'Complete question bank',pp2s:'questions + AI',pp2b:'⭐ PREMIUM',pp3t:'Exam Simulator',pp3f:'Like the real exam',pp3s:'5 free then Premium',pp3b:'▶ START',ftag:'WHY FAHRREADY',ftitle:'Everything you need',fsub:'Most complete preparation for migrants in Switzerland',f1t:'Real Exam Format',f1f:'50 questions, 45 min',f1d:'Exactly like the official exam.',f2t:'4 Languages',f2f:'FA/AZ/DE/EN',f2d:'Questions in German, explanations in your language.',f3t:'Real Traffic Signs',f3f:'Photos of real signs',f3d:'Questions with real traffic sign photos.',f4t:'AI Analysis',f4f:'AI detects weaknesses',f4d:'Personalised recommendations after each test.',f5t:'Secure Login',f5f:'Unique account',f5d:'No sharing possible.',f6t:'App coming soon',f6f:'Android & iOS',f6d:'Coming soon.',rtag:'EXAM RULES',rtitle:'Official Exam Rules',rsub:'How the Swiss Theory Exam works',ru1:'Questions',rt1:'Total Questions',rf1:'Total exam questions',ru2:'Minutes',rt2:'Exam Duration',rf2:'Total exam time',ru3:'of 150 pts',rt3:'Pass Score',rf3:'Minimum score to pass',ru4:'max errors',rt4:'Error Points',rf4:'Maximum allowed errors',ntag:'NEWS',ntitle:'Latest News',nsub:'Weekly updated Swiss theory exam info',nn1:'⚡ NEW',nn2:'ASA 2025: New Questions in Catalog',nn3:'New ASA 2025 question catalog released',nc1:'Roundabout: New Priority Rule',nc1f:'Roundabout priority rule updated',nc2:'EV: New Traffic Signs',nc2f:'New signs for electric vehicles',nc3:'30 km/h Zone Geneva expanded',nc3f:'30 km/h zone expansion in Geneva',nc4:'Via Sicura: Stricter Penalties',nc4f:'Stricter fines for driving violations',mtag:'SUCCESSES',mtitle:'Members Who Passed',msub:'34 members passed today',pl1:'Passed today',pf1:'people passed today',pl2:'Active Users',pf2:'active users this week',pl3:'Completed Exams',pf3:'exams completed total',rgtag:'FREE',rgtitle:'Register Now',rgsub:'Start free — no credit card needed',rgl1:'Full Name',rgl1f:'Enter your full name',rgl2:'Password',rgbtn:'✦ Start Free',etag:'EXAM SIMULATOR',etitle:'Theory Exam Simulator',esub:'5 questions free — then Premium required',sTitle:'Swiss Theory Exam',sFa:'Official format — exactly like the real exam',rr1:'50 questions / 45 minutes',rr2:'3 points per correct answer — max 150',rr3:'Pass: minimum 135 points (90%)',rr4:'Max. 15 error points allowed',rr5:'⚠️ Only 5 questions free — then Premium',sBtnTxt:'Start Exam',exHeaderFa:'Swiss Theory Exam',timerLbl:'Time Remaining',ptsLbl:'Pts',nextLbl:'Next',pwTitle:'Premium Required',pwFa:'5 free questions used — upgrade for full access',pln1:'Monthly',plf1:'Monthly subscription',plp1:'/month',plft1:'✓ 400 practice questions<br>✓ Unlimited exams<br>✓ AI analysis',pln2:'Yearly',plf2:'Yearly — 50% off',plp2:'/year',plft2:'✓ All + AI study plan<br>✓ Offline access<br>✓ PDF downloads',ibanTitle:'💳 Payment via IBAN / Wise',ibanNote:'Include reference code in payment description',refLbl:'Reference code:',confBtn:'✓ Confirm Payment',backBtn:'← Back',resPtsL:'Points/150',resCorL:'Correct',resErrL:'Errors',retryBtn:'Try Again',upgradeBtn:'Upgrade — 400 Questions',ftfa:'Best theory exam platform for migrants in Switzerland',ftcopy:'All rights reserved',fla:'Home',flb:'Exam',flc:'News',fld:'Register',fle:'Privacy',flf:'Contact',adtop:'📢 Your ad here — Driving schools welcome! | info@fahrready.ch',admid:'🏫 Driving school — Special offer for migrants!',adnews:'🚗 Car insurance — best prices for new drivers!',adexam:'📚 Driving school — Theory course in Persian & Azerbaijani',adfoot:'🏢 Advertise here — info@fahrready.ch',PASS:'PASSED! 🎉',FAIL:'NOT PASSED',PASSMSG:'If this was the real exam today — you would PASS! 🇨🇭',FAILMSG:"Don't give up — you can retry after 2 weeks.",logout:'Logged out',welcome:'Welcome',fillAll:'Please fill all fields',passShort:'Password minimum 6 characters',emailExists:'This email is already registered',regFail:'Error — create SQL tables in Supabase panel!',loginFail:'Email or password incorrect',payOk:'✅ Submitted — account activated after bank confirmation',enterEmail:'Please enter your email',qof:'of'}
+};
+
+// ── LANGUAGE ──────────────────────────────────────────────
+function setL(l){
+  LANG=l;
+  document.querySelectorAll('.lang-btn').forEach(b=>b.classList.toggle('on',b.textContent===l.toUpperCase()));
+  const t=TX[l];
+  const isRTL=(l==='fa'||l==='az');
+  Object.entries(t).forEach(([k,v])=>{if(typeof v!=='string')return;const el=document.getElementById(k);if(el)el.innerHTML=v;});
+  // RTL için hero-fa
+  const hfa=document.getElementById('herofa');
+  if(hfa){hfa.style.direction=isRTL?'rtl':'ltr';hfa.style.textAlign=isRTL?'right':'left';hfa.style.fontFamily=isRTL?"'Vazirmatn',sans-serif":'';}
+  // FA class elementleri
+  document.querySelectorAll('.sec-sub.fa,.screen-fa,.ex-title-fa,.feat-fa,.rule-fa,.news-fa,.news-card-fa,.proof-fa,.reg-label.fa,.modal-sub.fa,.res-fa,.plan-fa,.iban-title,.iban-note,.ft-fa').forEach(el=>{
+    el.style.direction=isRTL?'rtl':'ltr';
+    el.style.textAlign=isRTL?'right':'left';
+    if(isRTL)el.style.fontFamily="'Vazirmatn',sans-serif";
+  });
+  updateNavUser();
+}
+
+// ── NAVIGATION ────────────────────────────────────────────
+function goto(id){const el=document.getElementById(id);if(el)el.scrollIntoView({behavior:'smooth'});}
+
+// ── AUTH ──────────────────────────────────────────────────
+function loadUser(){try{const u=localStorage.getItem('fr_user');if(u){USER=JSON.parse(u);updateNavUser();}}catch(e){}}
+function saveUser(u){USER=u;localStorage.setItem('fr_user',JSON.stringify(u));updateNavUser();}
+function updateNavUser(){
+  const area=document.getElementById('navUser');if(!area)return;
+  const t=TX[LANG];
+  if(USER){area.innerHTML=`<div class="user-pill" onclick="openModal('profile')">👤 ${USER.full_name.split(' ')[0]}${USER.is_premium?' ⭐':''}</div>`;}
+  else{area.innerHTML=`<button class="btn-in" onclick="openModal('login')" id="nb1">${t.nb1}</button><button class="btn-reg" onclick="openModal('reg')" id="nb2">${t.nb2}</button>`;}
+}
+
+// ── REGISTER ──────────────────────────────────────────────
+async function doRegister(){
+  const name=ge('regName').value.trim(),email=ge('regEmail').value.trim(),pass=ge('regPass').value,lang=ge('regLang').value,kanton=ge('regKanton').value;
+  const t=TX[LANG];
+  if(!name||!email||!pass){showErr('regErr',t.fillAll);return;}
+  if(pass.length<6){showErr('regErr',t.passShort);return;}
+  showSpin('regSpin',true);hideEl('regErr');hideEl('regOk');
+  const ph=await hashPwd(pass);
+  const res=await sbReq('users','POST',{email,full_name:name,language:lang,kanton,password_hash:ph,is_premium:false,created_at:new Date().toISOString()});
+  showSpin('regSpin',false);
+  if(res.ok&&res.data&&res.data[0]){showSucc('regOk',t.welcome+' '+name+'! ✓');saveUser(res.data[0]);setL(lang);setTimeout(()=>goto('exam'),1500);}
+  else if(res.data?.code==='23505'){showErr('regErr',t.emailExists);}
+  else{showErr('regErr',t.regFail);}
+}
+
+// ── EXAM ENGINE ───────────────────────────────────────────
+function startPractice(type){
+  if(type==='premium'){showScreen('screenPay');goto('exam');return;}
+  examMode='practice';qIdx=0;score=0;errors=0;timeLeft=2700;answered=false;
+  goto('exam');setTimeout(()=>beginExam(),400);
+}
+function startExam(){examMode='exam';qIdx=0;score=0;errors=0;timeLeft=2700;answered=false;beginExam();}
+function beginExam(){
+  showScreen('screenExam');
+  shuffleQs();startTimer();loadQuestion();
+}
+function shuffleQs(){for(let i=QUESTIONS.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[QUESTIONS[i],QUESTIONS[j]]=[QUESTIONS[j],QUESTIONS[i]];}}
+function startTimer(){
+  clearInterval(timer);
+  timer=setInterval(()=>{
+    timeLeft--;
+    ge('timerDisplay').textContent=pad(Math.floor(timeLeft/60))+':'+pad(timeLeft%60);
+    if(timeLeft<=300)ge('timerDisplay').style.color='#DC2626';
+    if(timeLeft<=0){clearInterval(timer);showResult();}
+  },1000);
+}
+function loadQuestion(){
+  if(qIdx>=50){showResult();return;}
+  if(examMode==='exam'&&qIdx>=FREE_LIMIT){clearInterval(timer);showPaywall();return;}
+  const q=QUESTIONS[qIdx];answered=false;selectedOpts=[];
+  const t=TX[LANG];
+  const isRTL=(LANG==='fa'||LANG==='az');
+  ge('qNum').textContent=(LANG==='fa'?'سوال':LANG==='az'?'Sual':LANG==='en'?'Question':'Frage')+' '+(qIdx+1)+' '+t.qof+' 50';
+  ge('qText').textContent=q.de;
+  const sub=q[LANG]||q.fa;
+  const qsub=ge('qSub');qsub.textContent=sub;
+  qsub.style.direction=isRTL?'rtl':'ltr';qsub.style.textAlign=isRTL?'right':'left';
+  if(isRTL)qsub.style.fontFamily="'Vazirmatn',sans-serif";
+  const qimg=ge('qImg');
+  if(q.img){qimg.src=q.img;qimg.style.display='block';}else{qimg.style.display='none';}
+  ge('progressBar').style.width=((qIdx/50)*100)+'%';
+  ge('btnNext').disabled=true;
+  ge('btnNext').textContent='';
+  const opts=ge('optionsDiv');opts.innerHTML='';
+  q.opts.forEach((o,i)=>{
+    const d=document.createElement('div');d.className='ex-opt';
+    const osub=o[LANG]||o.fa;
+    d.innerHTML=`<div class="ex-opt-letter">${['A','B','C'][i]}</div><div><div>${o.de}</div><div class="ex-opt-sub" style="${isRTL?'font-family:\'Vazirmatn\',sans-serif;direction:rtl;':''}">${osub}</div></div>`;
+    d.onclick=()=>toggleAnswer(d,i,q);
+    opts.appendChild(d);
+  });
+  // Confirm button
+  let confirmBtn = ge('confirmBtn');
+  if(!confirmBtn){
+    confirmBtn = document.createElement('button');
+    confirmBtn.id='confirmBtn';
+    confirmBtn.style.cssText='width:100%;padding:12px;background:var(--bl);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;margin-top:10px;display:none;';
+    confirmBtn.onclick=submitAnswer;
+    opts.parentElement.insertBefore(confirmBtn, opts.nextSibling);
+  }
+  confirmBtn.textContent=`✓ ${LANG==='fa'?'تأیید':LANG==='az'?'Təsdiq':LANG==='en'?'Confirm':'Bestätigen'}`;
+  confirmBtn.style.display='none';
+  updateScore();
+}
+
+function toggleAnswer(el, idx, q){
+  if(answered)return;
+  if(selectedOpts.includes(idx)){
+    selectedOpts=selectedOpts.filter(i=>i!==idx);
+    el.classList.remove('selected');
+  }else{
+    selectedOpts.push(idx);
+    el.classList.add('selected');
+  }
+  const confirmBtn=ge('confirmBtn');
+  confirmBtn.style.display=selectedOpts.length>0?'block':'none';
+}
+
+function submitAnswer(){
+  if(answered||selectedOpts.length===0)return;
+  answered=true;
+  const q=QUESTIONS[qIdx];
+  const correctIdxs=q.opts.map((o,i)=>o.ok?i:-1).filter(i=>i>=0);
+  const isCorrect = correctIdxs.length===selectedOpts.length && correctIdxs.every(i=>selectedOpts.includes(i));
+  document.querySelectorAll('.ex-opt').forEach((o,i)=>{
+    o.classList.remove('selected');
+    if(q.opts[i].ok)o.classList.add('correct');
+    else if(selectedOpts.includes(i))o.classList.add('wrong');
+  });
+  if(isCorrect)score+=3;else errors++;
+  examResults.push({q, correct:isCorrect});
+  ge('confirmBtn').style.display='none';
+  ge('btnNext').disabled=false;
+  updateScore();
+}
+
+function pickAnswer(el,idx,correct,q){
+  // Legacy - kept for compatibility
+  toggleAnswer(el, idx, q);
+}
+function nextQuestion(){if(!answered)return;qIdx++;loadQuestion();}
+function updateScore(){ge('scoreCor').textContent=Math.floor(score/3);ge('scoreWrg').textContent=errors;ge('scorePts').textContent=score;}
+function openAiAnalysis(){
+  if(!USER?.is_premium){openModal('login');toast('Premium erforderlich für KI-Analyse','err');return;}
+  const wrong = examResults ? examResults.filter(r=>!r.correct) : [];
+  if(wrong.length===0){toast('Keine Fehler — perfekt!','ok');return;}
+  
+  const modal = document.getElementById('modalContent');
+  document.getElementById('modalBg').style.display='flex';
+  modal.innerHTML = `
+    <h3 style="font-size:18px;font-weight:800;margin-bottom:16px;">🤖 KI-Analyse</h3>
+    <div id="aiResult" style="min-height:100px;background:#f8faff;border-radius:10px;padding:16px;font-size:13px;line-height:1.7;color:#374151;">
+      <div style="text-align:center;padding:20px;">⏳ Analysiert...</div>
+    </div>
+  `;
+  
+  const wrongTopics = wrong.slice(0,6).map(r=>r.q?.de||r.q?.text_de||'').join('; ');
+  const prompt = 'Analysiere diese Schweizer Fahrprüfung auf Deutsch und Persisch. Richtig: '+(examResults.filter(r=>r.correct).length)+'/'+examResults.length+'. Falsch: '+wrongTopics+'. Gib Lernempfehlungen. Max 150 Wörter pro Sprache.';
+  
+  fetch('https://npfvlfdjngzczxhghmyu.supabase.co/functions/v1/ai-analysis',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5wZnZsZmRqbmd6Y3p4aGdobXl1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkzMTI2NjgsImV4cCI6MjA5NDg4ODY2OH0.oqnB4FTnmj-wno7AEgTz-MAmunazqwpj5jEkvB5xN8s','apikey':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5wZnZsZmRqbmd6Y3p4aGdobXl1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkzMTI2NjgsImV4cCI6MjA5NDg4ODY2OH0.oqnB4FTnmj-wno7AEgTz-MAmunazqwpj5jEkvB5xN8s'},
+    body:JSON.stringify({prompt})
+  }).then(r=>r.json()).then(d=>{
+    document.getElementById('aiResult').innerHTML = '<p style="white-space:pre-wrap;">'+(d.text||d.error||'Fehler')+'</p>';
+  }).catch(()=>{
+    document.getElementById('aiResult').innerHTML = 'Verbindungsfehler';
+  });
+}
+
+function showPaywall(){
+  showScreen('screenPay');
+  ge('ibanNum').textContent=IBAN_DISPLAY;
+  const ref='FR-'+Date.now().toString(36).toUpperCase()+'-'+Math.random().toString(36).substr(2,4).toUpperCase();
+  ge('refCode').textContent=ref;
+}
+function showResult(){
+  clearInterval(timer);showScreen('screenResult');
+  const passed=score>=135,t=TX[LANG];
+  ge('resIcon').textContent=passed?'🎉':'📚';
+  ge('resTitle').textContent=passed?t.PASS:t.FAIL;
+  ge('resTitle').className='res-title '+(passed?'pass':'fail');
+  ge('resFa').textContent=passed?t.PASSMSG:t.FAILMSG;
+  ge('resMsg').textContent=passed?'✅ Glückwunsch! / تبریک! / Təbriklər!':'📖 Mehr üben / بیشتر تمرین کنید';
+  ge('resPts').textContent=score+'/150';ge('resCor').textContent=Math.floor(score/3);ge('resErr').textContent=errors;
+  if(USER){sbReq('exam_results','POST',{user_id:USER.id,score,errors,passed,mode:examMode,created_at:new Date().toISOString()});}
+}
+function backToStart(){clearInterval(timer);examMode='exam';showScreen('screenStart');}
+function selectPlan(el,p){document.querySelectorAll('.plan-card').forEach(x=>x.classList.remove('on'));el.classList.add('on');PLAN=p;}
+async function confirmPayment(){
+  const email=ge('confEmail').value.trim();
+  if(!email){toast(TX[LANG].enterEmail,'err');return;}
+  const ref=ge('refCode').textContent,amt=PLAN==='y'?29:9;
+  const r=await sbReq('payments','POST',{amount:amt,plan:PLAN,status:'pending',reference:ref,created_at:new Date().toISOString()});
+  toast(r.ok?TX[LANG].payOk:'Error','ok');
+  if(r.ok)ge('confEmail').value='';
+}
+function showScreen(id){
+  ['screenStart','screenExam','screenPay','screenResult'].forEach(s=>{const el=ge(s);if(el)el.style.display='none';});
+  const target=ge(id);if(target)target.style.display='block';
+}
+
+// ── MEMBERS TICKER ────────────────────────────────────────
+const MEMBERS=[
+  {n:'Ali Mohammadi',f:'🇮🇷',c:'Genf',r:'pass',l:'Bestanden!'},
+  {n:'Leyla Həsənova',f:'🇦🇿',c:'Zürich',r:'study',l:'Lernt...'},
+  {n:'Reza Karimi',f:'🇮🇷',c:'Basel',r:'pass',l:'Bestanden!'},
+  {n:'Tural Mammadov',f:'🇦🇿',c:'Bern',r:'pass',l:'Bestanden!'},
+  {n:'Sara Ahmadi',f:'🇮🇷',c:'Genf',r:'study',l:'Lernt...'},
+  {n:'Nigar Aliyeva',f:'🇦🇿',c:'Luzern',r:'pass',l:'Bestanden!'},
+  {n:'Mehdi Hosseini',f:'🇮🇷',c:'Zürich',r:'pass',l:'Bestanden!'},
+  {n:'Günay Quliyeva',f:'🇦🇿',c:'Genf',r:'study',l:'Lernt...'},
+  {n:'Farhad Nazari',f:'🇮🇷',c:'Basel',r:'pass',l:'Bestanden!'},
+  {n:'Elvin Babayev',f:'🇦🇿',c:'Bern',r:'pass',l:'Bestanden!'},
+];
+const COLORS=['#1B4FD8','#1239A0','#0f2d8a','#16A34A','#D97706'];
+const track=document.getElementById('tickerTrack');
+[...MEMBERS,...MEMBERS].forEach((m,i)=>{
+  const d=document.createElement('div');d.className='mbr-pill';
+  d.innerHTML=`<div class="mbr-flag" style="background:${COLORS[i%5]}">${m.f}</div><div><div class="mbr-name">${m.n}</div><div class="mbr-city">${m.c}</div></div><div class="mbr-badge ${m.r}">${m.l}</div>`;
+  track.appendChild(d);
+});
+
+// ── COUNTERS ──────────────────────────────────────────────
+function animCount(id,target){let n=0;const aEl=ge(id);const step=Math.ceil(target/60);const t=setInterval(()=>{n=Math.min(n+step,target);aEl.textContent=n.toLocaleString();if(n>=target)clearInterval(t);},25);}
+const cntObs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){animCount('cnt1',34);animCount('cnt2',1247);animCount('cnt3',8934);cntObs.disconnect();}});});
+if(ge('cnt1'))cntObs.observe(ge('cnt1'));
+
+// ── FADE IN ───────────────────────────────────────────────
+const fadeObs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('vis');});},{threshold:.1});
+document.querySelectorAll('.fadein').forEach(el=>fadeObs.observe(el));
+
+// ── MODAL ─────────────────────────────────────────────────
+function openModal(type){
+  const t=TX[LANG];let html='';
+  if(type==='login'){
+    html=`<h3 class="modal-h">${t.nb1}</h3>
+    <div style="display:flex;gap:6px;background:#f1f5f9;border-radius:10px;padding:4px;margin-bottom:16px;">
+      <button onclick="setLoginMode('email')" id="lmEmail" style="flex:1;padding:8px;border:none;border-radius:8px;background:#1B4FD8;color:#fff;font-weight:700;cursor:pointer;font-size:13px;">📧 E-Mail</button>
+      <button onclick="setLoginMode('phone')" id="lmPhone" style="flex:1;padding:8px;border:none;border-radius:8px;background:transparent;color:#6B7280;font-weight:700;cursor:pointer;font-size:13px;">📱 Telefon</button>
+    </div>
+    <div class="m-err" id="loginErr"></div>
+    <div id="emailSection">
+      <input class="m-input" type="email" id="loginEmail" placeholder="E-Mail">
+      <div style="position:relative;">
+        <input class="m-input" type="password" id="loginPass" placeholder="Passwort" style="padding-right:44px;">
+        <button onclick="togglePass('loginPass',this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:16px;">🙈</button>
+      </div>
+      <button class="btn-msubmit" onclick="doLogin()">${t.nb1}</button>
+    </div>
+    <div id="phoneSection" style="display:none;">
+      <div id="phoneSendDiv">
+        <input class="m-input" type="tel" id="loginPhone" placeholder="+41 79 123 45 67">
+        <button class="btn-msubmit" onclick="sendSmsCode()">📱 ${LANG==='fa'?'ارسال کد':LANG==='az'?'SMS kod göndər':LANG==='en'?'Send SMS Code':'SMS Code senden'}</button>
+      </div>
+      <div id="phoneVerifyDiv" style="display:none;">
+        <p style="text-align:center;color:#6B7280;font-size:13px;margin-bottom:10px;">${LANG==='fa'?'کد ارسال شد':LANG==='az'?'Kod göndərildi':LANG==='en'?'Code sent':'Code wurde gesendet'}</p>
+        <input class="m-input" type="number" id="loginOtp" placeholder="000000" style="text-align:center;font-size:22px;letter-spacing:8px;">
+        <button class="btn-msubmit" onclick="verifyOtpWeb()">✓ ${LANG==='fa'?'تأیید':LANG==='az'?'Təsdiq':LANG==='en'?'Confirm':'Bestätigen'}</button>
+        <button onclick="document.getElementById('phoneSendDiv').style.display='';document.getElementById('phoneVerifyDiv').style.display='none';" style="width:100%;padding:10px;background:none;border:none;color:#6B7280;cursor:pointer;font-size:13px;">← ${LANG==='fa'?'تغییر شماره':LANG==='az'?'Nömrəni dəyiş':LANG==='en'?'Change number':'Nummer ändern'}</button>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:12px;">
+      <button onclick="guestLogin()" style="background:none;border:1px solid #e5e7eb;border-radius:8px;padding:10px 20px;color:#6B7280;cursor:pointer;font-size:13px;width:100%;">👤 ${LANG==='fa'?'ادامه به عنوان مهمان':LANG==='az'?'Qonaq kimi davam et':LANG==='en'?'Continue as Guest':'Als Gast fortfahren'}</button>
+    </div>
+    <div class="m-link" style="margin-top:10px;">${LANG==='fa'?'حساب ندارید؟':LANG==='az'?'Hesabınız yox?':LANG==='en'?'No account?':'Kein Konto?'} <a onclick="openModal('reg')">${t.nb2}</a></div>
+    <div style="text-align:center;margin-top:8px;"><a href="/privacy.html" style="color:#9CA3AF;font-size:11px;">🔒 ${LANG==='fa'?'حریم خصوصی':LANG==='az'?'Məxfilik':LANG==='en'?'Privacy':'Datenschutz'}</a></div>
+    `;
+  }else if(type==='reg'){
+    html=`<h3 class="modal-h">${t.rgtitle}</h3><p class="modal-sub fa">${t.rgsub}</p>
+    <div class="m-err" id="mregErr"></div><div class="m-ok" id="mregOk"></div><div class="m-spin" id="mregSpin"><div class="spinner"></div></div>
+    <input class="m-input" type="text" id="mregName" placeholder="${t.rgl1}">
+    <input class="m-input" type="email" id="mregEmail" placeholder="E-Mail">
+    <input class="m-input" type="password" id="mregPass" placeholder="${t.rgl2}">
+    <select class="m-select" id="mregLang"><option value="fa">🇮🇷 فارسی</option><option value="az">🇦🇿 Azərbaycan</option><option value="de">🇩🇪 Deutsch</option><option value="en">🇬🇧 English</option></select>
+    <button class="btn-msubmit" onclick="doModalRegister()">${t.rgbtn}</button>
+    <div class="m-link">${LANG==='fa'?'حساب دارید؟':LANG==='az'?'Hesabınız var?':LANG==='en'?'Have account?':'Schon Konto?'} <a onclick="openModal('login')">${t.nb1}</a></div>`;
+  }else if(type==='profile'&&USER){
+    html=`<h3 class="modal-h">👤 ${USER.full_name||'Benutzer'}</h3>
+    <p style="color:var(--gr);font-size:12px;margin-bottom:10px;">${USER.isGuest?'Gast / مهمان':USER.email}</p>
+    <div style="background:var(--grl);border-radius:9px;padding:10px;margin-bottom:14px;display:flex;justify-content:space-between;">
+      <span>${LANG==='fa'?'وضعیت':LANG==='az'?'Status':LANG==='en'?'Status':'Status'}:</span><strong style="color:${USER.is_premium?'#16A34A':'var(--bl)'}">${USER.is_premium?'⭐ Premium':'🔵 Free'}</strong>
+    </div>
+    ${!USER.isGuest?`<div style="margin-bottom:14px;">
+      <label style="font-size:11px;color:var(--gr);font-weight:600;">✏️ ${LANG==='fa'?'تغییر نام':LANG==='az'?'Adı dəyiş':LANG==='en'?'Change Name':'Name ändern'}</label>
+      <input id="editNameInp" class="m-input" type="text" value="${USER.full_name||''}" placeholder="Name" style="margin-top:6px;">
+      <button onclick="saveProfileName()" style="width:100%;padding:9px;background:var(--bl);color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;margin-top:6px;">💾 ${LANG==='fa'?'ذخیره':LANG==='az'?'Yadda saxla':LANG==='en'?'Save':'Speichern'}</button>
+    </div>`:''}
+    ${!USER.is_premium?`<button onclick="closeModal(true);goto('exam');" style="width:100%;padding:11px;background:var(--bl);color:#fff;border:none;border-radius:10px;cursor:pointer;font-size:13px;font-weight:700;margin-bottom:8px;">⭐ ${LANG==='fa'?'خرید پریمیوم':LANG==='az'?'Premium al':LANG==='en'?'Get Premium':'Premium kaufen'}</button>`:''}
+    <button onclick="confirmLogout()" style="width:100%;padding:12px;background:#FEF3C7;color:#92400E;border:1px solid #F59E0B;border-radius:10px;cursor:pointer;font-size:14px;font-weight:700;margin-bottom:8px;">🚪 ${LANG==='fa'?'خروج از حساب':LANG==='az'?'Hesabdan çıx':LANG==='en'?'Sign Out':'Abmelden'}</button>
+    ${!USER.isGuest?`<button onclick="confirmDeleteAccount()" style="width:100%;padding:12px;background:#FEF2F2;color:#DC2626;border:1px solid #DC2626;border-radius:10px;cursor:pointer;font-size:14px;font-weight:700;">🗑️ ${LANG==='fa'?'حذف حساب':LANG==='az'?'Hesabı sil':LANG==='en'?'Delete Account':'Konto löschen'}</button>`:''}
+    `;
+  }
+  ge('modalContent').innerHTML=html;ge('modalBg').classList.add('open');
+}
+async function setLoginMode(mode){
+  if(mode==='email'){
+    document.getElementById('emailSection').style.display='';
+    document.getElementById('phoneSection').style.display='none';
+    document.getElementById('lmEmail').style.background='#1B4FD8';
+    document.getElementById('lmEmail').style.color='#fff';
+    document.getElementById('lmPhone').style.background='transparent';
+    document.getElementById('lmPhone').style.color='#6B7280';
+  } else {
+    document.getElementById('emailSection').style.display='none';
+    document.getElementById('phoneSection').style.display='';
+    document.getElementById('lmPhone').style.background='#1B4FD8';
+    document.getElementById('lmPhone').style.color='#fff';
+    document.getElementById('lmEmail').style.background='transparent';
+    document.getElementById('lmEmail').style.color='#6B7280';
+  }
+}
+
+function togglePass(id, btn){
+  const el = document.getElementById(id);
+  if(el.type==='password'){el.type='text';btn.textContent='👁️';}
+  else{el.type='password';btn.textContent='🙈';}
+}
+
+function guestLogin(){
+  USER = {id:'guest',email:'',full_name:'Gast',is_premium:false,isGuest:true};
+  closeModal(true);
+  toast('Als Gast angemeldet','ok');
+  document.getElementById('nb1').style.display='none';
+  document.getElementById('nb2').style.display='none';
+}
+
+async function sendSmsCode(){
+  const phone = document.getElementById('loginPhone').value.trim();
+  const T = {
+    enterPhone: {de:'Telefonnummer eingeben',fa:'شماره تلفن را وارد کنید',az:'Telefon nömrəsi daxil edin',en:'Enter phone number'}[LANG],
+    smsSent: {de:'SMS gesendet!',fa:'پیامک ارسال شد!',az:'SMS göndərildi!',en:'SMS sent!'}[LANG],
+    error: {de:'Fehler',fa:'خطا',az:'Xəta',en:'Error'}[LANG],
+    connError: {de:'Verbindungsfehler',fa:'خطای اتصال',az:'Bağlantı xətası',en:'Connection error'}[LANG],
+  };
+  if(!phone){toast(T.enterPhone,'err');return;}
+  try {
+    const r = await fetch(SBURL+'/auth/v1/otp',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','apikey':SBKEY},
+      body:JSON.stringify({phone,channel:'sms'})
+    });
+    if(r.ok){
+      document.getElementById('phoneSendDiv').style.display='none';
+      document.getElementById('phoneVerifyDiv').style.display='';
+      toast(T.smsSent,'ok');
+    } else {
+      const e=await r.json();
+      toast(e.msg||T.error,'err');
+    }
+  }catch(e){toast(T.connError,'err');}
+}
+
+async function verifyOtpWeb(){
+  const phone = document.getElementById('loginPhone').value.trim();
+  const token = document.getElementById('loginOtp').value.trim();
+  const T = {
+    enterCode: {de:'Code eingeben',fa:'کد را وارد کنید',az:'Kodu daxil edin',en:'Enter code'}[LANG],
+    welcome: {de:'Willkommen',fa:'خوش آمدید',az:'Xoş gəldiniz',en:'Welcome'}[LANG],
+    wrongCode: {de:'Falscher Code',fa:'کد اشتباه',az:'Yanlış kod',en:'Wrong code'}[LANG],
+    connError: {de:'Verbindungsfehler',fa:'خطای اتصال',az:'Bağlantı xətası',en:'Connection error'}[LANG],
+    user: {de:'Benutzer',fa:'کاربر',az:'İstifadəçi',en:'User'}[LANG],
+  };
+  if(!token){toast(T.enterCode,'err');return;}
+  try {
+    const r = await fetch(SBURL+'/auth/v1/verify',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','apikey':SBKEY},
+      body:JSON.stringify({phone,token,type:'sms'})
+    });
+    const data = await r.json();
+    if(r.ok && data.user){
+      const ur = await sbReq('users?email=eq.'+encodeURIComponent(phone));
+      let user = Array.isArray(ur) && ur[0];
+      if(!user){
+        const cr = await sbReq('users','POST',{email:phone,full_name:T.user+' '+phone.slice(-4),language:LANG,is_premium:false,created_at:new Date().toISOString()});
+        user = Array.isArray(cr) && cr[0];
+      }
+      if(user){USER=user;closeModal(true);afterLogin();toast(T.welcome+' '+user.full_name+'!','ok');}
+    } else {
+      toast(data.msg||T.wrongCode,'err');
+    }
+  }catch(e){toast(T.connError,'err');}
+}
+
+async function doLogin(){
+  const email=ge('loginEmail')?.value?.trim(),pass=ge('loginPass')?.value;
+  if(!email||!pass){showErr('loginErr',TX[LANG].fillAll);return;}
+  showSpin('loginSpin',true);
+  const ph=await hashPwd(pass);
+  const res=await sbReq(`users?email=eq.${encodeURIComponent(email)}&password_hash=eq.${ph}&select=*`);
+  showSpin('loginSpin',false);
+  if(res.ok&&res.data&&res.data.length>0){
+    saveUser(res.data[0]);
+    await sbReq(`users?id=eq.${res.data[0].id}`,'PATCH',{last_login:new Date().toISOString()});
+    closeModal(true);toast(`🎉 ${TX[LANG].welcome} ${res.data[0].full_name.split(' ')[0]}!`,'ok');setL(res.data[0].language||'de');
+  }else{showErr('loginErr',TX[LANG].loginFail);}
+}
+async function doModalRegister(){
+  const name=ge('mregName')?.value?.trim(),email=ge('mregEmail')?.value?.trim(),pass=ge('mregPass')?.value,lang=ge('mregLang')?.value||'de';
+  const t=TX[LANG];
+  if(!name||!email||!pass){showErr('mregErr',t.fillAll);return;}
+  if(pass.length<6){showErr('mregErr',t.passShort);return;}
+  showSpin('mregSpin',true);hideEl('mregErr');
+  const ph=await hashPwd(pass);
+  const res=await sbReq('users','POST',{email,full_name:name,language:lang,password_hash:ph,is_premium:false,created_at:new Date().toISOString()});
+  showSpin('mregSpin',false);
+  if(res.ok&&res.data&&res.data[0]){showSucc('mregOk',t.welcome+' '+name+'!');saveUser(res.data[0]);closeModal(true);setL(lang);}
+  else if(res.data?.code==='23505'){showErr('mregErr',t.emailExists);}
+  else{showErr('mregErr',t.regFail);}
+}
+function doLogout(){USER=null;localStorage.removeItem('fr_user');updateNavUser();closeModal(true);toast(TX[LANG].logout);}
+function closeModal(force){if(force===true||force.target===ge('modalBg'))ge('modalBg').classList.remove('open');}
+
+// ── HELPERS ───────────────────────────────────────────────
+function ge(id){return document.getElementById(id);}
+function pad(n){return String(n).padStart(2,'0');}
+function showErr(id,msg){const eEl=ge(id);if(eEl){eEl.textContent=msg;eEl.style.display='block';}}
+function showSucc(id,msg){const eEl=ge(id);if(eEl){eEl.textContent=msg;eEl.style.display='block';}}
+function hideEl(id){const eEl=ge(id);if(eEl)eEl.style.display='none';}
+function showSpin(id,v){const eEl=ge(id);if(eEl)eEl.style.display=v?'block':'none';}
+function adClick(){toast({fa:'📢 تبلیغات: info@fahrready.ch',az:'📢 Reklam: info@fahrready.ch',de:'📢 Werbung: info@fahrready.ch',en:'📢 Advertising: info@fahrready.ch'}[LANG]);}
+function toast(msg,type=''){
+  const el=ge('toastEl');el.textContent=msg;el.className='toast '+(type||'');
+  setTimeout(()=>el.classList.add('show'),10);
+  setTimeout(()=>el.classList.remove('show'),3800);
+}
+
+function saveProfileName(){
+  const name = document.getElementById('editNameInp')?.value?.trim();
+  const T = {
+    enterName: {de:'Name eingeben',fa:'نام را وارد کنید',az:'Ad daxil edin',en:'Enter name'}[LANG],
+    saved: {de:'Gespeichert!',fa:'ذخیره شد!',az:'Yadda saxlanıldı!',en:'Saved!'}[LANG],
+  };
+  if(!name){toast(T.enterName,'err');return;}
+  sbReq('users?id=eq.'+USER.id,'PATCH',{full_name:name}).then(r=>{
+    if(r){USER.full_name=name;localStorage.setItem('fr_user',JSON.stringify(USER));updateNavUser();toast(T.saved,'ok');}
+  });
+}
+
+function confirmLogout(){
+  const msg1={de:'Wirklich abmelden?',fa:'واقعاً خارج می‌شوید؟',az:'Həqiqətən çıxmaq istəyirsiniz?',en:'Really sign out?'}[LANG]||'Wirklich abmelden?';
+  const msg2={de:'Abmeldung bestätigen?',fa:'خروج را تأیید می‌کنید؟',az:'Çıxışı təsdiqləyin?',en:'Confirm sign out?'}[LANG]||'Abmeldung bestätigen?';
+  if(confirm(msg1)){
+    if(confirm(msg2)){doLogout();}
+  }
+}
+
+function confirmDeleteAccount(){
+  const msg1={de:'Konto wirklich löschen? Alle Daten werden gelöscht!',fa:'حساب کاربری حذف شود؟ تمام اطلاعات پاک خواهد شد!',az:'Hesab silinsin? Bütün məlumatlar silinəcək!',en:'Really delete account? All data will be deleted!'}[LANG]||'Konto wirklich löschen?';
+  const msg2={de:'LETZTE WARNUNG: Endgültig löschen?',fa:'هشدار آخر: برای همیشه حذف شود؟',az:'SON XƏBƏRDARLIQ: Həmişəlik silinsin?',en:'FINAL WARNING: Delete permanently?'}[LANG]||'LETZTE WARNUNG: Endgültig löschen?';
+  const msgOk={de:'Konto gelöscht',fa:'حساب حذف شد',az:'Hesab silindi',en:'Account deleted'}[LANG]||'Konto gelöscht';
+  if(confirm(msg1)){
+    if(confirm(msg2)){
+      sbReq('users?id=eq.'+USER.id,'DELETE').then(()=>{
+        doLogout();
+        toast(msgOk,'ok');
+      });
+    }
+  }
+}
+
+
+
+// ── INIT ──────────────────────────────────────────────────
+loadUser();
+loadAppLink();
+
+async function loadAppLink(){
+  try{
+    const r = await sbReq('settings?key=eq.android_store_url');
+    if(Array.isArray(r)&&r[0]?.value){
+      const link = document.getElementById('androidStoreLink');
+      if(link) link.href = r[0].value;
+    }
+  }catch(e){}
+}
+setL('de');
+
+// ── SUPABASE QUESTION LOADER ───────────────────────
+async function loadSbQ(){
+  try{
+    const qr=await sbReq('questions?is_active=eq.true&order=id.asc&limit=500');
+    if(!qr.ok||!Array.isArray(qr.data)||qr.data.length===0)return;
+    const ar=await sbReq('answers?order=question_id.asc,id.asc&limit=2000');
+    if(!ar.ok||!Array.isArray(ar.data))return;
+    const sbQ=qr.data.map(q=>({
+      de:q.text_de||'', fa:q.text_fa||'', az:q.text_az||'', en:q.text_en||'',
+      img:q.img_url||'', multi:q.is_multi||false,
+      opts:ar.data.filter(a=>a.question_id===q.id).slice(0,4).map(a=>({
+        de:a.text_de||'', fa:a.text_fa||'', az:a.text_az||'', en:a.text_en||'',
+        ok:a.is_correct||false
+      }))
+    })).filter(q=>q.de&&q.opts.length>=2);
+    if(sbQ.length>0){
+      // Merge: use Supabase data but keep local translations/img if Supabase is empty
+      const merged = sbQ.map(function(sq){
+        const local = QUESTIONS.find(function(lq){ return lq.de===sq.de && lq.img===sq.img; });
+        return {
+          de: sq.de,
+          fa: sq.fa || (local&&local.fa) || '',
+          az: sq.az || (local&&local.az) || '',
+          en: sq.en || (local&&local.en) || '',
+          img: sq.img || (local&&local.img) || '',
+          multi: sq.multi || (local&&local.multi) || false,
+          opts: sq.opts.map(function(so){
+            const lo = local && local.opts.find(function(lo){ return lo.de===so.de; });
+            return {
+              de: so.de,
+              fa: so.fa || (lo&&lo.fa) || '',
+              az: so.az || (lo&&lo.az) || '',
+              en: so.en || (lo&&lo.en) || '',
+              ok: so.ok
+            };
+          })
+        };
+      });
+      QUESTIONS.splice(0,QUESTIONS.length,...merged);
+      console.log('Yüklendi:',merged.length,'soru');
+    }
+  }catch(e){console.log('Local sorular kullanılıyor');}
+}
+
+// ── PRACTICE MODE ──────────────────────────────────
+var PQ=[],PI=0,POK=0,PERR=0,PSEL=[],PREV=false,PRES=[];
+
+function pShow(id){
+  ['pStart','pMain','pBlock','pPay','pDone'].forEach(function(s){
+    var el=document.getElementById(s);if(el)el.style.display='none';
+  });
+  var el=document.getElementById(id);if(el)el.style.display='block';
+}
+
+function pBegin(){
+  PQ=[...QUESTIONS].sort(function(){return Math.random()-0.5;}).map(function(q){
+    return Object.assign({},q,{opts:[...q.opts].sort(function(){return Math.random()-0.5;})});
+  });
+  PI=0;POK=0;PERR=0;PSEL=[];PREV=false;PRES=[];
+  document.getElementById('pCloseBtn').style.display='block';
+  document.getElementById('pBar').innerHTML='';
+  pShow('pMain');
+  pLoad();
+}
+
+function pClose(){
+  PI=0;POK=0;PERR=0;PSEL=[];PREV=false;PRES=[];
+  document.getElementById('pCloseBtn').style.display='none';
+  document.getElementById('pBar').innerHTML='';
+  pShow('pStart');
+}
+
+function pPay(){
+  var examSec=document.getElementById('exam');
+  if(examSec)examSec.scrollIntoView({behavior:'smooth'});
+  setTimeout(function(){showPaywall();},400);
+}
+
+function pLoad(){
+  if(!USER?.is_premium&&PI>=10){pShow('pPay');return;}
+  if(PI>=PQ.length){
+    document.getElementById('pDT').textContent=PI;
+    document.getElementById('pDO').textContent=POK;
+    document.getElementById('pDE').textContent=PERR;
+    pShow('pDone');return;
+  }
+  PSEL=[];PREV=false;
+  var q=PQ[PI];
+  document.getElementById('pCnt').textContent=(PI+1)+' / '+PQ.length;
+  document.getElementById('pOk').textContent='✓ '+POK;
+  document.getElementById('pErr').textContent='✗ '+PERR;
+  document.getElementById('pMulti').style.display=q.multi?'block':'none';
+  pBarDraw();
+  var img=document.getElementById('pImg');
+  if(q.img&&q.img.length>5){img.src=q.img;img.style.display='block';img.style.visibility='visible';}else{img.style.display='none';}
+  var qEl=document.getElementById('pQ');
+  qEl.innerHTML='';
+  var d1=document.createElement('div');d1.textContent=q.de;qEl.appendChild(d1);
+  if(LANG!=='de'&&q[LANG]){
+    var d2=document.createElement('div');
+    d2.className='pq-sub';
+    d2.style.direction=(LANG==='fa'||LANG==='az')?'rtl':'ltr';
+    d2.textContent=q[LANG];
+    qEl.appendChild(d2);
+  }
+  var optsEl=document.getElementById('pOpts');
+  optsEl.innerHTML='';
+  q.opts.forEach(function(o,i){
+    var d=document.createElement('div');
+    d.className='popt';
+    d.setAttribute('data-i',i);
+    var letter=['A','B','C','D'][i]||'';
+    var subTxt=(LANG!=='de'&&o[LANG])?'<div style="font-size:11px;color:#6B7280;margin-top:2px;direction:'+(LANG==='fa'||LANG==='az'?'rtl':'ltr')+'">'+o[LANG]+'</div>':'';
+    d.innerHTML='<div class="pltr">'+letter+'</div><div style="font-size:13px;color:#0f172a;font-weight:500;">'+o.de+subTxt+'</div>';
+    d.onclick=function(){pSel(d,i);};
+    optsEl.appendChild(d);
+  });
+  document.getElementById('pFb').style.display='none';
+  var btn=document.getElementById('pBtn');
+  btn.textContent='Weiter →';
+  btn.className='pbtn';
+  btn.onclick=pWeiter;
+}
+
+function pSel(el,i){
+  if(PREV)return;
+  if(PSEL.includes(i)){
+    PSEL=PSEL.filter(function(x){return x!==i;});
+    el.classList.remove('sel');
+  }else{
+    PSEL.push(i);
+    el.classList.add('sel');
+  }
+  document.getElementById('pBtn').className=PSEL.length>0?'pbtn on':'pbtn';
+}
+
+function pWeiter(){
+  if(PREV){
+    PI++;PSEL=[];PREV=false;
+    document.getElementById('pFb').style.display='none';
+    var btn=document.getElementById('pBtn');
+    btn.textContent='Weiter →';btn.className='pbtn';btn.onclick=pWeiter;
+    if(PI>0&&PI%10===0&&PI<PQ.length){
+      var bs=PI-10;
+      var ok=PRES.slice(bs,PI).filter(Boolean).length;
+      var pct=Math.round(ok/10*100);
+      document.getElementById('pBN').textContent=Math.ceil(PI/10);
+      document.getElementById('pBP').textContent=pct+'%';
+      document.getElementById('pBO').textContent=ok;
+      document.getElementById('pBlock').style.background=pct>=70?'#DCFCE7':'#FEF9E7';
+      pShow('pBlock');
+    }else{pLoad();}
+    return;
+  }
+  if(PSEL.length===0){
+    var fb=document.getElementById('pFb');
+    fb.style.display='block';fb.style.background='#FEF9E7';fb.style.color='#92700A';
+    fb.textContent='⚠️ Bitte zuerst eine Antwort wählen!';
+    return;
+  }
+  PREV=true;
+  var q=PQ[PI];var opts=q.opts;
+  var ci=opts.map(function(o,i){return o.ok?i:-1;}).filter(function(i){return i>=0;});
+  var aok=ci.every(function(i){return PSEL.includes(i);});
+  var nw=PSEL.every(function(i){return opts[i].ok;});
+  var correct=aok&&nw;
+  PRES[PI]=correct;
+  if(correct)POK++;else PERR++;
+  pBarDraw();
+  document.getElementById('pOk').textContent='✓ '+POK;
+  document.getElementById('pErr').textContent='✗ '+PERR;
+  document.querySelectorAll('.popt').forEach(function(d,i){
+    d.onclick=null;d.style.cursor='default';
+    if(opts[i].ok){d.classList.add('ok');}
+    else if(PSEL.includes(i)){d.classList.add('no');}
+  });
+  var fb=document.getElementById('pFb');
+  fb.style.display='block';
+  fb.style.background=correct?'#DCFCE7':'#FEF2F2';
+  fb.style.color=correct?'#16A34A':'#DC2626';
+  fb.textContent=correct?'✓ Richtig!':'✗ Falsch! Richtig: '+opts.filter(function(o){return o.ok;}).map(function(o){return o.de;}).join(' + ');
+  var btn=document.getElementById('pBtn');
+  btn.textContent='Nächste Frage →';btn.className='pbtn on';
+}
+
+function pCont(){
+  pShow('pMain');
+  PSEL=[];PREV=false;
+  document.getElementById('pFb').style.display='none';
+  var btn=document.getElementById('pBtn');
+  btn.textContent='Weiter →';btn.className='pbtn';btn.onclick=pWeiter;
+  pLoad();
+}
+
+function pBarDraw(){
+  var bar=document.getElementById('pBar');if(!bar)return;
+  var bs=Math.floor(PI/10)*10;var html='';
+  for(var i=0;i<10;i++){
+    var ai=bs+i;var col='#E5E7EB';
+    if(ai<PI&&PRES[ai]!==undefined)col=PRES[ai]?'#16A34A':'#DC2626';
+    else if(ai===PI)col='#1B4FD8';
+    html+='<span style="background:'+col+';"></span>';
+  }
+  bar.innerHTML=html;
+}
+
+
+// ── STRIPE CHECKOUT ────────────────────────────────────
+const STRIPE_MONTHLY = 'price_1TgMzP0VonCoGUqlWZ6pYNOK';
+const STRIPE_YEARLY  = 'price_1TgMzy0VonCoGUqlOfHZ5xR5';
+const SB_CHECKOUT_URL = 'https://npfvlfdjngzczxhghmyu.supabase.co/functions/v1/create-checkout';
+const SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5wZnZsZmRqbmd6Y3p4aGdobXl1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkzMTI2NjgsImV4cCI6MjA5NDg4ODY2OH0.oqnB4FTnmj-wno7AEgTz-MAmunazqwpj5jEkvB5xN8s';
+
+async function stripeCheckout(){
+  const email = ge('confEmail')?.value?.trim() || USER?.email || '';
+  if(!email){ alert('Bitte E-Mail eingeben / لطفاً ایمیل وارد کنید'); return; }
+  
+  const plan = document.querySelector('.plan-card.on')?.dataset?.plan || 'y';
+  const priceId = plan === 'm' ? STRIPE_MONTHLY : STRIPE_YEARLY;
+  
+  const btn = ge('stripeBtn');
+  if(btn){ btn.textContent = '⏳ Wird geladen...'; btn.disabled = true; }
+  
+  try {
+    const r = await fetch(SB_CHECKOUT_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + SB_ANON,
+        'apikey': SB_ANON
+      },
+      body: JSON.stringify({ priceId, email })
+    });
+    const data = await r.json();
+    if(data.url){ window.location.href = data.url; }
+    else { alert('Fehler / خطا: ' + JSON.stringify(data)); }
+  } catch(e) {
+    alert('Verbindungsfehler / خطای اتصال');
+  }
+  if(btn){ btn.textContent = '💳 Mit Kreditkarte bezahlen'; btn.disabled = false; }
+}
+
+</script>
+<div style="text-align:center;padding:20px;border-top:1px solid #E5E7EB;margin-top:20px;">
+  <a href="/privacy.html" style="color:#6B7280;font-size:13px;text-decoration:none;">🔒 ${LANG==='fa'?'حریم خصوصی':LANG==='az'?'Məxfilik':LANG==='en'?'Privacy':'Datenschutz'} / حریم خصوصی / Gizlilik</a>
+  &nbsp;·&nbsp;
+  <span style="color:#6B7280;font-size:13px;">© 2026 FahrReady</span>
+</div>
+</body>
+</html>
