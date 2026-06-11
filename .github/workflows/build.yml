@@ -77,14 +77,30 @@ jobs:
         run: |
           cat > /tmp/patch_gradle.py << 'PATCHEOF'
           import re
+          
           with open('android/app/build.gradle') as f:
               g = f.read()
           
-          # Remove any existing (possibly broken) signingConfigs block entirely
-          g = re.sub(r'\n\s*signingConfigs\s*\{[^}]*(\{[^}]*\}[^}]*)*\}', '', g, flags=re.DOTALL)
+          def find_block(text, start_idx):
+              # start_idx points to '{', return index after matching '}'
+              depth = 0
+              for i in range(start_idx, len(text)):
+                  if text[i] == '{':
+                      depth += 1
+                  elif text[i] == '}':
+                      depth -= 1
+                      if depth == 0:
+                          return i
+              return -1
           
-          release_sc = """
-              signingConfigs {
+          # Remove existing signingConfigs block if present
+          m = re.search(r'signingConfigs\s*\{', g)
+          if m:
+              end = find_block(g, g.index('{', m.start()))
+              g = g[:m.start()] + g[end+1:]
+          
+          # Build new signingConfigs block
+          new_sc = """signingConfigs {
                   debug {
                       storeFile file('debug.keystore')
                       storePassword 'android'
@@ -98,31 +114,29 @@ jobs:
                       keyPassword 'FahrReady2026'
                   }
               }
-          """
+              """
           
           # Insert before buildTypes
-          g = re.sub(r'(\n\s*buildTypes\s*\{)', release_sc + r'\1', g, count=1)
+          m2 = re.search(r'buildTypes\s*\{', g)
+          g = g[:m2.start()] + new_sc + g[m2.start():]
           
-          # Point release buildType signingConfig to release
-          g = re.sub(r'signingConfig\s+signingConfigs\.\w+', 'signingConfig signingConfigs.release', g)
+          # Now fix signingConfig references inside buildTypes
+          m3 = re.search(r'buildTypes\s*\{', g)
+          bt_start = g.index('{', m3.start())
+          bt_end = find_block(g, bt_start)
+          bt_content = g[bt_start:bt_end+1]
           
-          # But debug buildType (if any) should keep debug signing - fix: only change inside release {...}
-          # Re-extract buildTypes block and fix per-buildtype
-          def fix_buildtypes(m):
-              bt = m.group(0)
-              # within debug{...}, set debug signing
-              bt = re.sub(r'(debug\s*\{[^}]*?)signingConfig\s+signingConfigs\.\w+', r'\1signingConfig signingConfigs.debug', bt, flags=re.DOTALL)
-              bt = re.sub(r'(release\s*\{[^}]*?)signingConfig\s+signingConfigs\.\w+', r'\1signingConfig signingConfigs.release', bt, flags=re.DOTALL)
-              return bt
+          bt_content = re.sub(r'(debug\s*\{[^{}]*?)signingConfig\s+signingConfigs\.\w+', r'\1signingConfig signingConfigs.debug', bt_content, flags=re.DOTALL)
+          bt_content = re.sub(r'(release\s*\{[^{}]*?)signingConfig\s+signingConfigs\.\w+', r'\1signingConfig signingConfigs.release', bt_content, flags=re.DOTALL)
           
-          g = re.sub(r'buildTypes\s*\{.*?\n    \}', fix_buildtypes, g, flags=re.DOTALL, count=1)
+          g = g[:bt_start] + bt_content + g[bt_end+1:]
           
           with open('android/app/build.gradle','w') as f:
               f.write(g)
-          print("build.gradle patched (v2)")
+          print("build.gradle patched (v3)")
           PATCHEOF
           python3 /tmp/patch_gradle.py
-          grep -A 20 'signingConfigs {' android/app/build.gradle
+          grep -A 18 'signingConfigs {' android/app/build.gradle
 
       - name: Build APK
         run: |
