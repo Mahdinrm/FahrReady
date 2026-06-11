@@ -1,10 +1,8 @@
 name: Build FahrReady APK
-
 on:
   push:
     branches: [main]
   workflow_dispatch:
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -12,27 +10,21 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
-
       - name: Install dependencies
         run: npm install
-
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
-
       - name: Create bundle directory
         run: mkdir -p android/app/src/main/assets
-
       - name: Bundle JavaScript
         run: |
           npx react-native bundle \
@@ -41,24 +33,90 @@ jobs:
             --entry-file index.js \
             --bundle-output android/app/src/main/assets/index.android.bundle \
             --assets-dest android/app/src/main/res
+      - name: Setup signing keystore
+        run: |
+          mkdir -p android/app
+          echo "MIIKugIBAzCCCmQGCSqGSIb3DQEHAaCCClUEggpRMIIKTTCCBbQGCSqGSIb3DQEHAaCCBaUEggWhMIIFnTCCBZkGCyqGSIb3DQEMCgECoIIFQDCCBTwwZgYJKoZIhvcNAQUNMFkwOAYJKoZIhvcNAQUMMCsEFGmlYx61orvmHWZrUhBt5IuwzVdsAgInEAIBIDAMBggqhkiG9w0CCQUAMB0GCWCGSAFlAwQBKgQQa82SDOqp/DkgewQ1464GfwSCBND8LzL14uenifqcTFWK4Wddj57g6pCuDIzkDL/c0rJIAQfutDsdFN37vVTHhC2XYcdtsL46LquVrPQeVUQZirwzxvJyg6o/0Xghx/beSHAINZzN6d830yReKFhP6YXrU18ik9FKdi8IkHqOpjMk9C+Soyiv4uoeCn5e2BUOhb1zgalqj5S8r6QFbROjV4yq5DskhtE8B42X7We6LlT5SUxpiV31Q1U1ti8jTb+BaSHYacztdzZnb7ezvRSV1XHtp3TcMFpcrultDyYW8cvus945xbt5RbSChsCuMleUZETiR9uJNx7jUc6q0bBZPGpx+dvlN7BN7B+RcizIaP8UydUUZxGKIVZxGlnS6MvDXflIItzuyfoV3L+ZdqrDVLobwIERed7lwjja0lhOoFgaH/lXND+BXCybtJw3OQ++zB2SLJ0eZwTPjZmMtb7pYL8MX9hfkip1/R9l2voIz6bLrqP6Zfna4hMAVXJC02UFUxYQkWm5UZHNMlHc61260UE4JeJtsrTvI25FWDfsUecb7aEVrjgnFloh4eq077DmO2Jp8E/ACeXEB3NDYXFH7Vu6FUvp3OfnXk7qbXCdzi9qsJvDVNWEL6SnzkgH8j5VPdMfREI7y35OVNdWY1i2GuJeOsESFDsei5MomWKBNxSnfT6bNCJCs25e4c5WiwQ3Ykp5WhnMDv5ZAKdoaqgYy3Iylf17AoCgYW9G2jGUF4e9gv9ZlaCcDExqCLYmYuGHQQeGQiJW0+p0GQC5bLDz4e/6s4pLLkqfaPdTORyzUxbVrmXghHlduAuSWFDKY/uxYNpcp3yNVO4DSniJOHHhVAHQmLdX2apjP4skSWo72y6YvK/8ck/ZCmQP5POfHs6eu7NwlVTNzSFOFUxKI+KWKBDysyfGWIFzx2QTYqrDanlr6DkrSoM3TN9sM85Q8oq4/fSeQTRxjocOY8uVENiEkj31CyuP7fcIyb/MGRQ/8GhT7QkD+Sz+Z0S3RNA/Qu052rnLaYHJBLHHC+wlYpMPTxZ5WTR+Z+6Em5lQrZzQHmfMiRtAhGqeqrrfwYbrxfxJTbSPDz9hIxd+FIBmB1DCtS9utiauH3PlhqUpGWILrd5FVvLP94dhBmvvUdjBCm9KFW13BYu6MDndIb74dYXmli4pUP3v5UBN0JQYsCxQMIbTe+5S3sbjE2XJylCCJvm7MmIOnzFV26CcKGYY+ZJefOK7ZSvYumtmhWaJYGQF4UrSR++2+kbJ5eE6dG9aZzmpnbensw6shyCr6nDhbnaQzh5h7s2O8s0CuGdj1yhWMGf8Voh9YEzrc/OL5/qUphkK9stRMH7bpNoCjx+MCP/amYX9WU0G69yY5VwI4eAX5p7fH3tYZ8cKbGt0AtztQzzIMz53DIRP+gRKR1tekrZ7EugGDq2yTLSxetzYlOJeef2Z0zKl8RLrKqDT1IfiI4Lv9sst5TKWtReH2sRBwVfpW04N1xNnFBTWOXIjBqVg8Xvaws2dhwc3Tapv1g9EXk678ZhJZBV9mFER5QAwEcYQ9W5aMNs+dkOnn+uw7yJ41PqVgeJm+xkEwXXqn7uhdd3t789A0JwLiEmFXh9+RPumiJ84OXLYfdMY4LjtMrKKRxvVTyZNhliBOzrrLMocs3Z4LhNoATFGMCEGCSqGSIb3DQEJFDEUHhIAZgBhAGgAcgByAGUAYQBkAHkwIQYJKoZIhvcNAQkVMRQEElRpbWUgMTc4MTEzNTI2MTg2MDCCBJEGCSqGSIb3DQEHBqCCBIIwggR+AgEAMIIEdwYJKoZIhvcNAQcBMGYGCSqGSIb3DQEFDTBZMDgGCSqGSIb3DQEFDDArBBQJn8rwzUKWBF/EWMYHlUJHoOnS6gICJxACASAwDAYIKoZIhvcNAgkFADAdBglghkgBZQMEASoEEGJu0XMdfXWbCDXudlYVbDCAggQAv31uxKMTFUPI1HQWRDYJkBCm/MLqJYa5t6fKg32wZYEXJKZxzUzObvYyX8Sq1pgyDEVHlUcMsj7LLNKKFs3dTzVtr7MHPmPwr6CnIWz2Gj/+F7Z0NJ1NM1YoOF6dCz7tNPXE4yXDIv7qXLTqDjzn1noQNxxXypadCGi5V9bKpaTi105ZcZ4D0jyuGQCgJINF+vRK5O3yx1aoKmpVbUkQqQNiKk08gek/iGdMia1rVMv+P67+vKJPbh8eQi6OxfV9rAE/6XBPdb5vEhjVPA3Y00FRETeIa3dDVYhOKQxP7jSWTJCJqC16w748+E42GuvbUWfywjvzEaiwv/Zpszn9zNqmAN+sYxO1LJTf3gzsRmM4ohrWug4dO7im2nKHQDLmxe2fRULBMjepOPXAZT1hAy+F8vmZmYFSFEbYioPvnoxVTG0cGR9lAlKTegagwPmFNu/zTcleGOJLwZKjpcNrq7EEBdCbvz/BX0Rfa0s3bQyVIfGvwaYsZvCuv7VhPeaxkcPE6VbqDlWyDvvDCV6/dcGuYiO7sbn/0aNOQKQtWVZw88l0+c6u3VopH6s+UDR/ZVUik+6JJvE24SGkWEbb9Zq2fJrpImnEu+3tSK2jB8eTvxjxKEvl6u3S0a6siAMMCN2vepXsx45ydVApDB69aLyEcO6IKTLMacymOeapfR7S0VR7J317nxKXxv5p8CKKu110CPFnPdA/hWzltXj7BfrYEg5M2geP9UrcbVnm3qWz46Vcs9JQz08DA3PRROLfrt2QplkzgyLPTi03GZQfJnSLom9tkyJ3wsNKh68qmD17ey+psxThj9JmCpgmmbT47T9MtbjVw4eQBPFoWzvsB+7wbFvWobDyneZnMJhbFqiqrd/B7D5sFWG7tnyJEj6P/bGUn9TVOhoKOftX4F0TE6mPXDR9s2OBvvk8BKA+CNET1LwbAdxLd1Zf7dDSD6KTgTJXk2kDu5jg3R9j1NIJ86mWF4mb+UUpRMy6TWtm+Ft8RJsXyIwd3Av8BeD01SBVyY2wLQeXfb6FC+DKAafOoEHIDo+yGE46lEqeLTeB0TMia6TEJC7/n3TdB8uRIgODmz/CdqMUpoRk8apNNHXSeAf3TD+wF9hXqUyekXr/q7fS+nGowrZWKMsa92RxaI6d86nwtFujhBi8jsIbJAdNwAJuEfRlIs9CnnJneW0C0A5mp9U09ZAcGvofvOlY+fTZI7iO+BWomX7eLFvnGKGBaze+lKdUu36rFVX77U7Ag+wwgJcUXVvrR85QwLh0Z4h3S7rr0/4l45vn3r/OW+77F8JG5x7pJQZdIOUBXEgtuRf/Kj9P9BLlZLVoVAAZ6KZCjgo7qnqKi7xJiA1SSn+TXTBNMDEwDQYJYIZIAWUDBAIBBQAEIEDfxb7NKWELNBWlcl4+bNXiT3Uf0yNojpSC8jJaZhSkBBRbccCP2hqZ9UJ3Dzmgq9rancyTTgICJxA=" | base64 -d > android/app/fahrready-release.keystore
+
+      - name: Configure release signing
+        run: |
+          cat > /tmp/patch_gradle.py << 'PATCHEOF'
+          import re
+          
+          with open('android/app/build.gradle') as f:
+              g = f.read()
+          
+          def find_block(text, start_idx):
+              # start_idx points to '{', return index after matching '}'
+              depth = 0
+              for i in range(start_idx, len(text)):
+                  if text[i] == '{':
+                      depth += 1
+                  elif text[i] == '}':
+                      depth -= 1
+                      if depth == 0:
+                          return i
+              return -1
+          
+          # Remove existing signingConfigs block if present
+          m = re.search(r'signingConfigs\s*\{', g)
+          if m:
+              end = find_block(g, g.index('{', m.start()))
+              g = g[:m.start()] + g[end+1:]
+          
+          # Build new signingConfigs block
+          new_sc = """signingConfigs {
+                  debug {
+                      storeFile file('debug.keystore')
+                      storePassword 'android'
+                      keyAlias 'androiddebugkey'
+                      keyPassword 'android'
+                  }
+                  release {
+                      storeFile file('fahrready-release.keystore')
+                      storePassword 'FahrReady2026'
+                      keyAlias 'fahrready'
+                      keyPassword 'FahrReady2026'
+                  }
+              }
+              """
+          
+          # Insert before buildTypes
+          m2 = re.search(r'buildTypes\s*\{', g)
+          g = g[:m2.start()] + new_sc + g[m2.start():]
+          
+          # Now fix signingConfig references inside buildTypes
+          m3 = re.search(r'buildTypes\s*\{', g)
+          bt_start = g.index('{', m3.start())
+          bt_end = find_block(g, bt_start)
+          bt_content = g[bt_start:bt_end+1]
+          
+          bt_content = re.sub(r'(debug\s*\{[^{}]*?)signingConfig\s+signingConfigs\.\w+', r'\1signingConfig signingConfigs.debug', bt_content, flags=re.DOTALL)
+          bt_content = re.sub(r'(release\s*\{[^{}]*?)signingConfig\s+signingConfigs\.\w+', r'\1signingConfig signingConfigs.release', bt_content, flags=re.DOTALL)
+          
+          g = g[:bt_start] + bt_content + g[bt_end+1:]
+          
+          with open('android/app/build.gradle','w') as f:
+              f.write(g)
+          print("build.gradle patched (v3)")
+          PATCHEOF
+          python3 /tmp/patch_gradle.py
+          grep -A 18 'signingConfigs {' android/app/build.gradle
 
       - name: Build APK
         run: |
           cd android
           chmod +x gradlew
           ./gradlew assembleRelease --no-daemon
-
       - name: Build AAB
         run: |
           cd android
           ./gradlew bundleRelease --no-daemon
-
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: FahrReady-release-apk
           path: android/app/build/outputs/apk/release/*.apk
-
       - name: Upload AAB
         uses: actions/upload-artifact@v4
         with:
