@@ -1297,10 +1297,10 @@ async function verifyOtpWeb(){
     const data = await r.json();
     if(r.ok && data.user){
       const ur = await sbReq('users?email=eq.'+encodeURIComponent(phone));
-      let user = Array.isArray(ur) && ur[0];
+      let user = (ur.ok && Array.isArray(ur.data) && ur.data[0]) || null;
       if(!user){
         const cr = await sbReq('users','POST',{email:phone,full_name:T.user+' '+phone.slice(-4),language:LANG,is_premium:false,created_at:new Date().toISOString()});
-        user = Array.isArray(cr) && cr[0];
+        user = (cr.ok && Array.isArray(cr.data) && cr.data[0]) || null;
       }
       if(user){USER=user;closeModal(true);afterLogin();toast(T.welcome+' '+user.full_name+'!','ok');}
     } else {
