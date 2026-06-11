@@ -1251,8 +1251,14 @@ function guestLogin(){
   document.getElementById('nb2').style.display='none';
 }
 
+function normalizePhone(p){
+  p = p.trim().replace(/[\s\-()]/g,'');
+  if(!p.startsWith('+')) p = '+'+p;
+  return p;
+}
+
 async function sendSmsCode(){
-  const phone = document.getElementById('loginPhone').value.trim();
+  const phone = normalizePhone(document.getElementById('loginPhone').value);
   const T = {
     enterPhone: {de:'Telefonnummer eingeben',fa:'شماره تلفن را وارد کنید',az:'Telefon nömrəsi daxil edin',en:'Enter phone number'}[LANG],
     smsSent: {de:'SMS gesendet!',fa:'پیامک ارسال شد!',az:'SMS göndərildi!',en:'SMS sent!'}[LANG],
@@ -1278,7 +1284,7 @@ async function sendSmsCode(){
 }
 
 async function verifyOtpWeb(){
-  const phone = document.getElementById('loginPhone').value.trim();
+  const phone = normalizePhone(document.getElementById('loginPhone').value);
   const token = document.getElementById('loginOtp').value.trim();
   const T = {
     enterCode: {de:'Code eingeben',fa:'کد را وارد کنید',az:'Kodu daxil edin',en:'Enter code'}[LANG],
