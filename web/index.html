@@ -712,7 +712,7 @@ footer{background:#060616;color:rgba(255,255,255,.5);padding:38px 5%;text-align:
     <a href="#" id="flf">Kontakt</a>
   </div>
   <div class="ft-apps" style="display:flex;gap:14px;justify-content:center;margin-top:24px;flex-wrap:wrap;">
-    <a href="https://play.google.com/store/apps/details?id=com.mahdi.mindflow" target="_blank" class="store-badge android-badge">
+    <a href="https://play.google.com/apps/internaltest/4701252520678373485" target="_blank" class="store-badge android-badge" id="androidStoreLink">
       <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor"><path d="M17.6 9.48l1.84-3.18c.16-.31.04-.69-.26-.85-.29-.15-.65-.06-.83.22l-1.88 3.24c-1.43-.65-3.04-1.01-4.74-1.01-1.7 0-3.31.36-4.74 1.01L5.11 5.67c-.18-.28-.54-.37-.83-.22-.3.16-.42.54-.26.85L5.86 9.48C3.16 11.15 1.31 14.18 1 17.66h22c-.31-3.48-2.16-6.51-4.86-8.18zM7.5 15.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm9 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
       <div class="store-text">
         <span class="store-small">DOWNLOAD ON</span>
@@ -1638,10 +1638,12 @@ async function stripeCheckout(){
 }
 
 
-loadAppLink();
+window.addEventListener('load', function(){
+  setTimeout(loadAppLink, 500);
+});
 </script>
 <div style="text-align:center;padding:20px;border-top:1px solid #E5E7EB;margin-top:20px;">
-  <a href="/privacy.html" style="color:#6B7280;font-size:13px;text-decoration:none;">🔒 ${LANG==='fa'?'حریم خصوصی':LANG==='az'?'Məxfilik':LANG==='en'?'Privacy':'Datenschutz'} / حریم خصوصی / Gizlilik</a>
+  <a href="/privacy.html" style="color:#6B7280;font-size:13px;text-decoration:none;">🔒 Datenschutz / حریم خصوصی / Gizlilik</a>
   &nbsp;·&nbsp;
   <span style="color:#6B7280;font-size:13px;">© 2026 FahrReady</span>
 </div>
