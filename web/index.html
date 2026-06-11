@@ -1387,11 +1387,12 @@ loadAppLink();
 async function loadAppLink(){
   try{
     const r = await sbReq('settings?key=eq.android_store_url');
-    if(Array.isArray(r)&&r[0]?.value){
+    const data = r?.data || r;
+    if(Array.isArray(data)&&data[0]?.value){
       const link = document.getElementById('androidStoreLink');
-      if(link) link.href = r[0].value;
+      if(link) link.href = data[0].value;
     }
-  }catch(e){}
+  }catch(e){console.log('loadAppLink error',e);}
 }
 setL('de');
 
