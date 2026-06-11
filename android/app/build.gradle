@@ -76,7 +76,7 @@ android {
 
     namespace "com.fahrready"
     defaultConfig {
-        applicationId "com.fahrready"
+        applicationId "com.fahrready.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
