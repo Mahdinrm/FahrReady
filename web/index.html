@@ -8,7 +8,65 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:'DM Sans',sans-serif;background:#fff;color:#111;overflow-x:hidden;}
-:root{--bl:#1B4FD8;--bld:#1239A0;--bll:#EEF2FF;--gr:#6B7280;--grl:#F3F4F6;--grb:#E5E7EB;--gn:#16A34A;--gnl:#DCFCE7;--rd:#DC2626;--rdl:#FEF2F2;--gd:#D4AC0D;}
+:root{--bl:#1B4FD8;--bld:#1239A0;--bll:#EEF2FF;--gr:#6B7280;--grl:#F3F4F6;--grb:#E5E7EB;--gn:#16A34A;--gnl:#DCFCE7;--rd:#DC2626;--rdl:#FEF2F2;--gd:#D4AC0D;--bg:#fff;--txt:#111;--card:#fff;--navbg:rgba(255,255,255,.97);}
+[data-theme="dark"]{--bl:#3B6EFF;--bld:#1239A0;--bll:#1a2547;--gr:#94A3B8;--grl:#1E293B;--grb:#334155;--gn:#22C55E;--gnl:#14301f;--rd:#F87171;--rdl:#3a1e1e;--gd:#FACC15;--bg:#0B1120;--txt:#E2E8F0;--card:#161E2E;--navbg:rgba(15,23,42,.95);}
+[data-theme="dark"] body{background:var(--bg);color:var(--txt);}
+[data-theme="dark"] nav{background:var(--navbg)!important;}
+[data-theme="dark"] .modal-box,[data-theme="dark"] .plan-card,[data-theme="dark"] .ex-opt,[data-theme="dark"] .news-card,[data-theme="dark"] .pbox{background:var(--card)!important;color:var(--txt);}
+[data-theme="dark"] .m-input{background:var(--grl)!important;color:var(--txt)!important;border-color:var(--grb)!important;}
+[data-theme="dark"] .section.gray{background:var(--grl)!important;}
+[data-theme="dark"] .section.gold{background:#2a2410!important;}
+[data-theme="dark"] h1,[data-theme="dark"] h2,[data-theme="dark"] h3,[data-theme="dark"] .ptitle{color:var(--txt)!important;}
+.theme-toggle{background:var(--grl);border:1px solid var(--grb);border-radius:50%;width:38px;height:38px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;transition:transform .3s;}
+.theme-toggle:hover{transform:rotate(20deg) scale(1.1);}
+[data-theme="dark"] .theme-toggle{background:var(--card);border-color:var(--grb);}
+/* ── DARK MODE: COMPREHENSIVE OVERRIDES ─────────────── */
+[data-theme="dark"] .section.gray,
+[data-theme="dark"] .section{background:var(--bg)!important;}
+[data-theme="dark"] .section.gray{background:#0F1A33!important;}
+[data-theme="dark"] .section.gold{background:#241E08!important;}
+[data-theme="dark"] .hero-h1,[data-theme="dark"] .sec-h2,[data-theme="dark"] .ex-qtext,
+[data-theme="dark"] .news-title,[data-theme="dark"] .news-card-title,[data-theme="dark"] .feat-title,
+[data-theme="dark"] .plan-name,[data-theme="dark"] .pq,[data-theme="dark"] .modal-h,
+[data-theme="dark"] .pbox-ttl,[data-theme="dark"] .reg-h,[data-theme="dark"] .res-title,
+[data-theme="dark"] .ex-header,[data-theme="dark"] h1,[data-theme="dark"] h2,[data-theme="dark"] h3,[data-theme="dark"] h4{
+  color:var(--txt)!important;
+}
+[data-theme="dark"] .feat-card,[data-theme="dark"] .news-card,[data-theme="dark"] .news-main,
+[data-theme="dark"] .plan-card,[data-theme="dark"] .pbox,[data-theme="dark"] .modal-box,
+[data-theme="dark"] .ex-opt,[data-theme="dark"] .iban-num,[data-theme="dark"] .exam-wrap,
+[data-theme="dark"] .pimg,[data-theme="dark"] .mbr-pill{
+  background:var(--card)!important;
+  border-color:var(--grb)!important;
+  color:var(--txt)!important;
+}
+[data-theme="dark"] .ex-opt-letter{background:var(--grl)!important;color:var(--bl)!important;}
+[data-theme="dark"] .ex-opt.correct{background:var(--gnl)!important;border-color:var(--gn)!important;}
+[data-theme="dark"] .ex-opt.wrong{background:var(--rdl)!important;border-color:var(--rd)!important;}
+[data-theme="dark"] .ex-opt.selected{background:var(--bll)!important;border-color:var(--bl)!important;}
+[data-theme="dark"] .btn-secondary{background:var(--grl)!important;color:var(--txt)!important;border-color:var(--grb)!important;}
+[data-theme="dark"] .btn-retry{background:var(--grl)!important;color:var(--txt)!important;}
+[data-theme="dark"] .pbtn,[data-theme="dark"] .popt{background:var(--card)!important;color:var(--txt)!important;border-color:var(--grb)!important;}
+[data-theme="dark"] .pbox-close{background:var(--grl)!important;color:var(--txt)!important;border-color:var(--grb)!important;}
+[data-theme="dark"] .blue-grad{background:linear-gradient(135deg,var(--bld) 0%,#0a1530 100%)!important;}
+[data-theme="dark"] .ex-score-n{color:var(--txt)!important;}
+[data-theme="dark"] .ex-score-n.g{color:var(--gn)!important;}
+[data-theme="dark"] .ex-score-n.r{color:var(--rd)!important;}
+[data-theme="dark"] .reg-label,[data-theme="dark"] .news-fa,[data-theme="dark"] .modal-sub,
+[data-theme="dark"] .pq-sub,[data-theme="dark"] .feat-fa,[data-theme="dark"] p{color:var(--gr)!important;}
+[data-theme="dark"] .lang-btn{color:var(--gr)!important;border-color:var(--grb)!important;}
+[data-theme="dark"] .lang-btn.on{background:var(--bl)!important;color:#fff!important;}
+[data-theme="dark"] .btn-in{border-color:var(--bl)!important;color:var(--bl)!important;}
+[data-theme="dark"] .m-link,[data-theme="dark"] .m-link a{color:var(--gr)!important;}
+[data-theme="dark"] .news-card-sub,[data-theme="dark"] .albl{color:var(--gr)!important;}
+[data-theme="dark"] .toast{background:var(--card)!important;color:var(--txt)!important;border-color:var(--grb)!important;}
+[data-theme="dark"] .adbar{background:var(--grl)!important;color:var(--txt)!important;}
+[data-theme="dark"] .mbr-name{color:var(--txt)!important;}
+[data-theme="dark"] input,[data-theme="dark"] select,[data-theme="dark"] textarea{
+  background:var(--grl)!important;color:var(--txt)!important;border-color:var(--grb)!important;
+}
+[data-theme="dark"] ::placeholder{color:var(--gr)!important;opacity:0.7;}
+
 ::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-thumb{background:var(--bl);border-radius:3px;}
 
 /* NAV */
@@ -366,6 +424,7 @@ footer::before{
     <li><a onclick="goto('reg')" id="nl4">Registrieren</a></li>
   </ul>
   <div class="n-right">
+    <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Theme">🌙</button>
     <div class="lang-wrap">
       <button class="lang-btn" onclick="setL('fa')">FA</button>
       <button class="lang-btn" onclick="setL('az')">AZ</button>
@@ -1042,6 +1101,24 @@ const TX={
 };
 
 // ── LANGUAGE ──────────────────────────────────────────────
+function toggleTheme(){
+  const cur = document.documentElement.getAttribute('data-theme');
+  const next = cur==='dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  document.getElementById('themeToggle').textContent = next==='dark' ? '☀️' : '🌙';
+  localStorage.setItem('fr_theme', next);
+}
+(function(){
+  const saved = localStorage.getItem('fr_theme');
+  if(saved==='dark'){
+    document.documentElement.setAttribute('data-theme','dark');
+    window.addEventListener('DOMContentLoaded',()=>{
+      const btn=document.getElementById('themeToggle');
+      if(btn)btn.textContent='☀️';
+    });
+  }
+})();
+
 function setL(l){
   LANG=l;
   document.querySelectorAll('.lang-btn').forEach(b=>b.classList.toggle('on',b.textContent===l.toUpperCase()));
