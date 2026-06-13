@@ -41,12 +41,17 @@ body{font-family:'DM Sans',sans-serif;background:#fff;color:#111;overflow-x:hidd
   color:var(--txt)!important;
 }
 [data-theme="dark"] .ex-opt-letter{background:var(--grl)!important;color:var(--bl)!important;}
+[data-theme="dark"] .pltr{background:var(--grl)!important;color:var(--bl)!important;}
 [data-theme="dark"] .ex-opt.correct{background:var(--gnl)!important;border-color:var(--gn)!important;}
 [data-theme="dark"] .ex-opt.wrong{background:var(--rdl)!important;border-color:var(--rd)!important;}
 [data-theme="dark"] .ex-opt.selected{background:var(--bll)!important;border-color:var(--bl)!important;}
 [data-theme="dark"] .btn-secondary{background:var(--grl)!important;color:var(--txt)!important;border-color:var(--grb)!important;}
 [data-theme="dark"] .btn-retry{background:var(--grl)!important;color:var(--txt)!important;}
-[data-theme="dark"] .pbtn,[data-theme="dark"] .popt{background:var(--card)!important;color:var(--txt)!important;border-color:var(--grb)!important;}
+[data-theme="dark"] .popt{background:var(--card)!important;color:var(--txt)!important;border-color:var(--grb)!important;}
+[data-theme="dark"] .popt.sel{background:rgba(59,110,255,0.25)!important;border:2px solid var(--bl)!important;box-shadow:0 0 0 1px var(--bl);}
+[data-theme="dark"] .popt.ok{background:var(--gnl)!important;border-color:var(--gn)!important;}
+[data-theme="dark"] .popt.no{background:var(--rdl)!important;border-color:var(--rd)!important;}
+[data-theme="dark"] .pbtn{background:var(--bl)!important;color:#fff!important;}
 [data-theme="dark"] .pbox-close{background:var(--grl)!important;color:var(--txt)!important;border-color:var(--grb)!important;}
 [data-theme="dark"] .blue-grad{background:linear-gradient(135deg,var(--bld) 0%,#0a1530 100%)!important;}
 [data-theme="dark"] .ex-score-n{color:var(--txt)!important;}
@@ -417,7 +422,8 @@ footer::before{
 .popt.no{background:#FEF2F2!important;border-color:#DC2626!important;}
 .pltr{width:28px;height:28px;border-radius:50%;background:#F1F5F9;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;}
 .pfb{border-radius:10px;padding:12px;margin:10px 0;text-align:center;font-size:14px;font-weight:800;display:none;}
-.pbtn{width:100%;padding:14px;background:#94A3B8;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:800;cursor:pointer;margin-top:8px;}
+.pbtn{width:100%;padding:14px;background:var(--bl);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:800;cursor:pointer;margin-top:8px;transition:opacity .2s;}
+.pbtn:hover{opacity:.9;}
 .pbtn.on{background:#1B4FD8;}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
@@ -522,8 +528,8 @@ footer::before{
 
   <div id="pStart" style="text-align:center;padding:20px 0;">
     <div style="font-size:40px;margin-bottom:12px;">📖</div>
-    <div style="font-size:15px;font-weight:700;color:#0f172a;margin-bottom:6px;">Übung starten</div>
-    <div style="font-size:12px;color:#6B7280;margin-bottom:18px;">Fragen — 10er Blöcke — Random</div>
+    <div id="pStartTitle" style="font-size:15px;font-weight:700;color:var(--txt);margin-bottom:6px;">Übung starten</div>
+    <div id="pStartSub" style="font-size:12px;color:var(--gr);margin-bottom:18px;">Fragen — 10er Blöcke — Random</div>
     <button onclick="pBegin()" style="background:#1B4FD8;color:#fff;border:none;border-radius:12px;padding:13px 32px;font-size:15px;font-weight:800;cursor:pointer;">▶ Jetzt starten</button>
   </div>
 
@@ -610,22 +616,11 @@ footer::before{
   <span class="sec-tag" id="ntag">NEUIGKEITEN</span>
   <h2 class="sec-h2" id="ntitle">Aktuelle Nachrichten</h2>
   <p class="sec-sub fa" id="nsub">اطلاعات هفتگی درباره آزمون تئوری سوئیس</p>
-  <div class="news-grid fadein">
-    <div class="news-main">
-      <div class="news-img">🇨🇭</div>
-      <div class="news-body">
-        <span class="news-tag" id="nn1">⚡ NEU</span>
-        <h3 class="news-title" id="nn2">ASA 2025: Neue Fragen im Katalog</h3>
-        <p class="news-fa" id="nn3">کاتالوگ جدید سوالات ASA برای سال ۲۰۲۵ منتشر شد</p>
-        <p class="news-meta">📅 Juni 2025 · ASA Offiziell</p>
-      </div>
-    </div>
-    <div class="news-list">
-      <div class="news-card"><div class="news-card-icon">🚦</div><div><div class="news-card-title" id="nc1">Kreisverkehr: Neue Vorrangregel</div><div class="news-card-fa" id="nc1f">قانون اولویت میدان به‌روز شد</div><div class="news-card-date">Mai 2025</div></div></div>
-      <div class="news-card"><div class="news-card-icon">⚡</div><div><div class="news-card-title" id="nc2">E-Fahrzeuge: Neue Zeichen</div><div class="news-card-fa" id="nc2f">علائم جدید خودروهای برقی</div><div class="news-card-date">April 2025</div></div></div>
-      <div class="news-card"><div class="news-card-icon">🏙️</div><div><div class="news-card-title" id="nc3">30 km/h Zone Genf erweitert</div><div class="news-card-fa" id="nc3f">گسترش منطقه ۳۰ کمپ ژنو</div><div class="news-card-date">März 2025</div></div></div>
-      <div class="news-card"><div class="news-card-icon">📋</div><div><div class="news-card-title" id="nc4">Via Sicura: Strengere Strafen</div><div class="news-card-fa" id="nc4f">جریمه‌های سنگین‌تر ۲۰۲۵</div><div class="news-card-date">Januar 2025</div></div></div>
-    </div>
+  <div class="news-grid fadein" id="newsGrid">
+    <div style="text-align:center;padding:40px;color:var(--gr);grid-column:1/-1;">⏳</div>
+  </div>
+  <div style="text-align:center;margin-top:24px;">
+    <button onclick="openAllNews()" style="background:none;border:1.5px solid var(--bl);color:var(--bl);padding:10px 24px;border-radius:10px;font-weight:700;cursor:pointer;font-size:13px;">📰 Alle Nachrichten anzeigen</button>
   </div>
   <div class="adbar" onclick="adClick()" style="margin:18px 0 0 0;">
     <span class="albl">WERBUNG</span>
@@ -1136,6 +1131,11 @@ function toggleTheme(){
 
 function setL(l){
   LANG=l;
+  const pst=document.getElementById('pStartTitle'), pss=document.getElementById('pStartSub');
+  if(pst) pst.textContent = {de:'Übung starten',fa:'شروع تمرین',az:'Məşqə başla',en:'Start practice'}[l]||'Übung starten';
+  if(pss) pss.textContent = {de:'Fragen — 10er Blöcke — Random',fa:'سوالات — بلوک‌های ۱۰تایی — تصادفی',az:'Suallar — 10-luq bloklar — Təsadüfi',en:'Questions — blocks of 10 — random'}[l]||'';
+  if(typeof renderNewsGrid==='function') renderNewsGrid();
+  if(typeof pLoad==='function' && typeof PQ!=='undefined' && PQ && PQ.length && document.getElementById('pMain') && document.getElementById('pMain').style.display!=='none'){ pLoad(); }
   document.querySelectorAll('.lang-btn').forEach(b=>b.classList.toggle('on',b.textContent===l.toUpperCase()));
   const t=TX[l];
   const isRTL=(l==='fa'||l==='az');
@@ -1615,6 +1615,86 @@ function confirmDeleteAccount(){
 
 // ── INIT ──────────────────────────────────────────────────
 loadUser();
+loadDynamicNews();
+
+let ALL_NEWS = [];
+
+async function loadDynamicNews(){
+  try{
+    const r = await sbReq('news?is_active=eq.true&order=created_at.desc&limit=20');
+    if(!r.ok || !Array.isArray(r.data)) return;
+    ALL_NEWS = r.data;
+    renderNewsGrid();
+  }catch(e){console.log('news load error',e);}
+}
+
+function newsTitle(n){ return n['title_'+LANG] || n.title_de || ''; }
+function newsContent(n){ return n['content_'+LANG] || n.content_de || ''; }
+
+function renderNewsGrid(){
+  const grid = document.getElementById('newsGrid');
+  if(!grid) return;
+  if(ALL_NEWS.length===0){
+    grid.innerHTML = '<div style="text-align:center;padding:40px;color:var(--gr);grid-column:1/-1;">Keine Nachrichten</div>';
+    return;
+  }
+  const main = ALL_NEWS.find(n=>n.is_main) || ALL_NEWS[0];
+  const rest = ALL_NEWS.filter(n=>n.id!==main.id).slice(0,4);
+  const dateStr = (d)=> d ? new Date(d).toLocaleDateString(LANG==='de'?'de-CH':LANG==='fa'?'fa-IR':LANG==='az'?'az-AZ':'en-US',{year:'numeric',month:'long'}) : '';
+
+  let html = `<div class="news-main" style="cursor:pointer;" onclick="openNewsDetail(${ALL_NEWS.indexOf(main)})">
+    ${main.image_url?`<img src="${main.image_url}" class="news-img" style="object-fit:cover;width:100%;height:100%;">`:`<div class="news-img">${main.icon||'🇨🇭'}</div>`}
+    <div class="news-body">
+      <span class="news-tag">${main.tag||'NEU'}</span>
+      <h3 class="news-title">${newsTitle(main)}</h3>
+      <p class="news-meta">📅 ${dateStr(main.created_at)}</p>
+    </div>
+  </div>
+  <div class="news-list">`;
+
+  rest.forEach(n=>{
+    html += `<div class="news-card" style="cursor:pointer;" onclick="openNewsDetail(${ALL_NEWS.indexOf(n)})">
+      <div class="news-card-icon">${n.icon||'📰'}</div>
+      <div>
+        <div class="news-card-title">${newsTitle(n)}</div>
+        <div class="news-card-date">${dateStr(n.created_at)}</div>
+      </div>
+    </div>`;
+  });
+  html += '</div>';
+  grid.innerHTML = html;
+}
+
+function openNewsDetail(idx){
+  const n = ALL_NEWS[idx];
+  if(!n) return;
+  const dateStr = n.created_at ? new Date(n.created_at).toLocaleDateString(LANG==='de'?'de-CH':LANG==='fa'?'fa-IR':LANG==='az'?'az-AZ':'en-US',{year:'numeric',month:'long',day:'numeric'}) : '';
+  document.getElementById('modalContent').innerHTML = `
+    <h3 class="modal-h">${n.icon||'📰'} ${newsTitle(n)}</h3>
+    <p style="color:var(--gr);font-size:12px;margin-bottom:14px;">📅 ${dateStr}</p>
+    ${n.image_url?`<img src="${n.image_url}" style="width:100%;border-radius:12px;margin-bottom:14px;">`:''}
+    <p style="font-size:14px;line-height:1.7;color:var(--txt);white-space:pre-wrap;">${newsContent(n)||'—'}</p>
+  `;
+  document.getElementById('modalBg').classList.add('open');
+}
+
+function openAllNews(){
+  if(ALL_NEWS.length===0){toast('Keine Nachrichten','err');return;}
+  const dateStr = (d)=> d ? new Date(d).toLocaleDateString(LANG==='de'?'de-CH':LANG==='fa'?'fa-IR':LANG==='az'?'az-AZ':'en-US',{year:'numeric',month:'long',day:'numeric'}) : '';
+  let html = '<h3 class="modal-h">📰 Alle Nachrichten</h3><div style="display:flex;flex-direction:column;gap:10px;max-height:60vh;overflow-y:auto;">';
+  ALL_NEWS.forEach((n,i)=>{
+    html += `<div onclick="openNewsDetail(${i})" style="cursor:pointer;padding:12px 14px;background:var(--grl);border-radius:10px;display:flex;align-items:center;gap:12px;">
+      <span style="font-size:22px;">${n.icon||'📰'}</span>
+      <div style="flex:1;">
+        <div style="font-weight:700;font-size:13px;color:var(--txt);">${newsTitle(n)}</div>
+        <div style="font-size:11px;color:var(--gr);">${dateStr(n.created_at)}</div>
+      </div>
+    </div>`;
+  });
+  html += '</div>';
+  document.getElementById('modalContent').innerHTML = html;
+  document.getElementById('modalBg').classList.add('open');
+}
 
 async function loadAppLink(){
   try{
@@ -1627,6 +1707,7 @@ async function loadAppLink(){
   }catch(e){console.log('loadAppLink error',e);}
 }
 setL('de');
+loadSbQ();
 
 // ── SUPABASE QUESTION LOADER ───────────────────────
 async function loadSbQ(){

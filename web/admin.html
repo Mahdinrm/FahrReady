@@ -1007,10 +1007,28 @@ function buildNewsModal(n, editId=null){
       <div><label class="mlabel">İkon (emoji)</label><input class="minp" id="nicon" value="${n?n.icon||'📰':'📰'}"></div>
       <div><label class="mlabel">Tag</label><input class="minp" id="ntag" value="${n?n.tag||'NEU':'NEU'}"></div>
     </div>
-    <label class="mlabel">Başlık — Almanca *</label><input class="minp" id="nde" value="${n?n.title_de||'':''}">
+    <div style="position:relative;">
+      <label class="mlabel">Başlık — Almanca *</label>
+      <input class="minp" id="nde" value="${n?n.title_de||'':''}">
+      <button class="trans-btn" onclick="autoTranslateNews()" title="4 dile çevir" style="position:absolute;right:8px;top:30px;background:none;border:none;font-size:18px;cursor:pointer;">🌐</button>
+    </div>
     <label class="mlabel">Başlık — Farsça</label><input class="minp" id="nfa" value="${n?n.title_fa||'':''}">
     <label class="mlabel">Başlık — Azerbaycanca</label><input class="minp" id="naz" value="${n?n.title_az||'':''}">
     <label class="mlabel">Başlık — İngilizce</label><input class="minp" id="nen" value="${n?n.title_en||'':''}">
+
+    <div class="msec">
+      <div style="position:relative;">
+        <label class="mlabel">İçerik (Devamı) — Almanca</label>
+        <textarea class="mta" id="ncde" rows="4">${n?n.content_de||'':''}</textarea>
+        <button class="trans-btn" onclick="autoTranslateNewsContent()" title="İçeriği 4 dile çevir" style="position:absolute;right:8px;top:30px;background:none;border:none;font-size:18px;cursor:pointer;">🌐</button>
+      </div>
+      <label class="mlabel">İçerik — Farsça</label>
+      <textarea class="mta" id="ncfa" rows="4">${n?n.content_fa||'':''}</textarea>
+      <label class="mlabel">İçerik — Azerbaycanca</label>
+      <textarea class="mta" id="ncaz" rows="4">${n?n.content_az||'':''}</textarea>
+      <label class="mlabel">İçerik — İngilizce</label>
+      <textarea class="mta" id="ncen" rows="4">${n?n.content_en||'':''}</textarea>
+    </div>
     <div class="msec">
       <label class="mlabel">📷 Haber Fotoğrafı</label>
       ${n&&n.image_url?`<div style="margin-bottom:8px;"><img src="${n.image_url}" style="height:80px;border-radius:8px;object-fit:cover;border:1px solid var(--border);">  <span style="font-size:10px;color:var(--gr);">Mevcut fotoğraf</span></div>`:''}
@@ -1045,6 +1063,10 @@ async function saveNews(editId){
     title_fa:document.getElementById('nfa').value.trim(),
     title_az:document.getElementById('naz').value.trim(),
     title_en:document.getElementById('nen').value.trim(),
+    content_de:document.getElementById('ncde').value.trim(),
+    content_fa:document.getElementById('ncfa').value.trim(),
+    content_az:document.getElementById('ncaz').value.trim(),
+    content_en:document.getElementById('ncen').value.trim(),
     image_url:imgUrl,
     is_main:document.getElementById('nmain').checked,
     is_active:true
@@ -1288,11 +1310,20 @@ function toast(msg,type=''){
 // ── OTOMATİK ÇEVİRİ (MyMemory) ────────────────────────
 async function translateText(text, targetLang){
   if(!text) return '';
+  // Try Google Translate (unofficial, CORS-friendly)
+  try{
+    const r = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=de&tl=${targetLang}&dt=t&q=${encodeURIComponent(text)}`);
+    const d = await r.json();
+    if(d && d[0]){
+      return d[0].map(x=>x[0]).join('');
+    }
+  }catch(e){console.log('google translate error',e);}
+  // Fallback: MyMemory
   try{
     const r = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=de|${targetLang}`);
     const d = await r.json();
     if(d.responseStatus===200) return d.responseData.translatedText;
-  }catch(e){}
+  }catch(e){console.log('mymemory error',e);}
   return '';
 }
 
@@ -1309,12 +1340,28 @@ async function autoTranslate(sourceEl, faEl, azEl, enEl){
     translateText(text, 'en'),
   ]);
   
-  if(faEl && !faEl.value) faEl.value = fa;
-  if(azEl && !azEl.value) azEl.value = az;
-  if(enEl && !enEl.value) enEl.value = en;
+  if(faEl && fa) faEl.value = fa;
+  if(azEl && az) azEl.value = az;
+  if(enEl && en) enEl.value = en;
+  if(!fa && !az && !en) toast('Çeviri servisi yanıt vermedi','err');
   
   sourceEl.disabled=false;
   if(btn) btn.textContent='🌐';
+}
+
+async function autoTranslateNewsContent(){
+  const cde=document.getElementById('ncde'), cfa=document.getElementById('ncfa'), caz=document.getElementById('ncaz'), cen=document.getElementById('ncen');
+  if(!cde.value.trim()){toast('Önce Almanca içerik yazın','err');return;}
+  await autoTranslate(cde, cfa, caz, cen);
+}
+
+async function autoTranslateNews(){
+  const tde=document.getElementById('nde'), tfa=document.getElementById('nfa'), taz=document.getElementById('naz'), ten=document.getElementById('nen');
+  await autoTranslate(tde, tfa, taz, ten);
+  const cde=document.getElementById('ncde'), cfa=document.getElementById('ncfa'), caz=document.getElementById('ncaz'), cen=document.getElementById('ncen');
+  if(cde && cde.value.trim()){
+    await autoTranslate(cde, cfa, caz, cen);
+  }
 }
 
 async function autoTranslateQ(){
