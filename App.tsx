@@ -52,6 +52,7 @@ import {
 
 const {width} = Dimensions.get('window');
 const STATUSBAR_H = StatusBar.currentHeight ?? 0;
+const NAVBAR_H = 48; // typical Android nav bar height
 
 // FahrReady v2.1
 const LOGO_URI = 'data:image/png;base64,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';
@@ -565,7 +566,7 @@ export default function App() {
   // ── LOGOUT OVERLAY (global - must be before all screens) ──
   if (logoutStep > 0) {
     return (
-      <View style={{flex:1,backgroundColor:T.bg}}>
+      <View style={{flex:1,backgroundColor:T.bg,paddingBottom:NAVBAR_H}}>
         <SafeAreaView style={{flex:1,justifyContent:'center',alignItems:'center',padding:30,backgroundColor:'rgba(0,0,0,0.85)'}}>
           <View style={{backgroundColor:T.card,borderRadius:20,padding:28,width:'100%',borderWidth:1,borderColor:T.border}}>
             {logoutStep===1 ? (
@@ -605,7 +606,7 @@ export default function App() {
 
   // ── HOME ──
   if(screen==='home') return (
-    <View style={{flex:1,backgroundColor:T.bg}}>
+    <View style={{flex:1,backgroundColor:T.bg,paddingBottom:NAVBAR_H}}>
       <View style={{flex:1, paddingTop: STATUSBAR_H}}>
         <StatusBar translucent={false} barStyle={theme==='light'?'dark-content':'light-content'} backgroundColor={T.bg}/>
         <NavBar/>
@@ -659,7 +660,7 @@ export default function App() {
   if(screen==='login'||screen==='register') {
     const isReg=screen==='register';
     return (
-      <View style={{flex:1,backgroundColor:T.bg}}>
+      <View style={{flex:1,backgroundColor:T.bg,paddingBottom:NAVBAR_H}}>
         <View style={{flex:1, paddingTop: STATUSBAR_H}}>
           <StatusBar translucent={false} barStyle={theme==='light'?'dark-content':'light-content'} backgroundColor={T.bg}/>
           <NavBar/>
@@ -750,7 +751,7 @@ export default function App() {
 
   // ── PROFILE ──
   if(screen==='profile') return (
-    <View style={{flex:1,backgroundColor:T.bg}}>
+    <View style={{flex:1,backgroundColor:T.bg,paddingBottom:NAVBAR_H}}>
       <View style={{flex:1, paddingTop: STATUSBAR_H}}>
         <StatusBar translucent={false} barStyle={theme==='light'?'dark-content':'light-content'} backgroundColor={T.bg}/>
         <NavBar/>
@@ -819,7 +820,7 @@ export default function App() {
 
   // ── CALENDAR ──
   if(screen==='calendar') return (
-    <View style={{flex:1,backgroundColor:T.bg}}>
+    <View style={{flex:1,backgroundColor:T.bg,paddingBottom:NAVBAR_H}}>
       <View style={{flex:1, paddingTop: STATUSBAR_H}}>
         <StatusBar translucent={false} barStyle={theme==='light'?'dark-content':'light-content'} backgroundColor={T.bg}/>
         <NavBar/>
@@ -910,7 +911,7 @@ export default function App() {
 
   // ── NEWS ──
   if(screen==='news') return (
-    <View style={{flex:1,backgroundColor:T.bg}}>
+    <View style={{flex:1,backgroundColor:T.bg,paddingBottom:NAVBAR_H}}>
       <View style={{flex:1, paddingTop: STATUSBAR_H}}>
         <StatusBar translucent={false} barStyle={theme==='light'?'dark-content':'light-content'} backgroundColor={T.bg}/>
         <NavBar/>
@@ -937,7 +938,7 @@ export default function App() {
 
   // ── PREMIUM ──
   if(screen==='premium') return (
-    <View style={{flex:1,backgroundColor:T.bg}}>
+    <View style={{flex:1,backgroundColor:T.bg,paddingBottom:NAVBAR_H}}>
       <View style={{flex:1, paddingTop: STATUSBAR_H}}>
         <StatusBar translucent={false} barStyle={theme==='light'?'dark-content':'light-content'} backgroundColor={T.bg}/>
         <NavBar/>
@@ -980,7 +981,7 @@ export default function App() {
     const pct=Math.round((qIdx/Math.max(examQ.length,1))*100);
     const qSub=lang!=='de'&&curQ['text_'+lang]?curQ['text_'+lang]:null;
     return (
-      <View style={{flex:1,backgroundColor:T.bg}}>
+      <View style={{flex:1,backgroundColor:T.bg,paddingBottom:NAVBAR_H}}>
         <View style={{flex:1, paddingTop: STATUSBAR_H}}>
           <StatusBar translucent={false} barStyle={theme==='light'?'dark-content':'light-content'} backgroundColor={T.bg}/>
           <View style={{flexDirection:'row',alignItems:'center',justifyContent:'space-between',paddingHorizontal:16,paddingVertical:10,backgroundColor:T.navBg,borderBottomWidth:1,borderBottomColor:T.border}}>
@@ -1066,7 +1067,7 @@ export default function App() {
     const total=results.length,correct=results.filter(r=>r.correct).length;
     const pts=correct*3,passed=!isPractice&&pts>=135;
     return (
-      <View style={{flex:1,backgroundColor:T.bg}}>
+      <View style={{flex:1,backgroundColor:T.bg,paddingBottom:NAVBAR_H}}>
         <View style={{flex:1, paddingTop: STATUSBAR_H}}>
           <StatusBar translucent={false} barStyle={theme==='light'?'dark-content':'light-content'} backgroundColor={T.bg}/>
           <NavBar/>
@@ -1109,7 +1110,7 @@ export default function App() {
   if(screen==='analysis') {
     const wrong=results.filter(r=>!r.correct);
     return (
-      <View style={{flex:1,backgroundColor:T.bg}}>
+      <View style={{flex:1,backgroundColor:T.bg,paddingBottom:NAVBAR_H}}>
         <View style={{flex:1, paddingTop: STATUSBAR_H}}>
           <StatusBar translucent={false} barStyle={theme==='light'?'dark-content':'light-content'} backgroundColor={T.bg}/>
           <NavBar/>
