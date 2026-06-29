@@ -598,7 +598,7 @@ export default function App() {
               </>
             )}
           </View>
-        </View>
+        </SafeAreaView>
       </View>
     );
   }
