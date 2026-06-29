@@ -648,7 +648,7 @@ export default function App() {
           {adBottom&&<AdBanner ad={adBottom}/>}
           <View style={{height:40}}/>
         </ScrollView>
-      </SafeAreaView>
+      </View>
       <BottomAd/>
       {MenuOverlay}
       {ThemeOverlay}
@@ -741,7 +741,7 @@ export default function App() {
               <Text style={{color:T.sub,textAlign:'center',fontSize:11}}>🔒 Datenschutz / حریم خصوصی</Text>
             </TouchableOpacity>
           </ScrollView>
-        </SafeAreaView>
+        </View>
         {MenuOverlay}{ThemeOverlay}
       </View>
     );
@@ -812,7 +812,7 @@ export default function App() {
           )}
           <View style={{height:40}}/>
         </ScrollView>
-      </SafeAreaView>
+      </View>
       {MenuOverlay}{ThemeOverlay}{LogoutOverlay}
     </View>
   );
@@ -903,7 +903,7 @@ export default function App() {
           ))}
           <View style={{height:40}}/>
         </ScrollView>
-      </SafeAreaView>
+      </View>
       {MenuOverlay}{ThemeOverlay}{LogoutOverlay}
     </View>
   );
@@ -930,7 +930,7 @@ export default function App() {
           {news.length===0&&<Text style={{color:T.sub,textAlign:'center'}}>Keine Nachrichten</Text>}
           <View style={{height:40}}/>
         </ScrollView>
-      </SafeAreaView>
+      </View>
       {MenuOverlay}{ThemeOverlay}{LogoutOverlay}
     </View>
   );
@@ -968,7 +968,7 @@ export default function App() {
             <Text style={{color:T.sub,fontSize:13}}>{t.back}</Text>
           </TouchableOpacity>
         </ScrollView>
-      </SafeAreaView>
+      </View>
       {MenuOverlay}{ThemeOverlay}{LogoutOverlay}
     </View>
   );
@@ -1055,7 +1055,7 @@ export default function App() {
               <View style={{height:40}}/>
             </Animated.View>
           </ScrollView>
-        </SafeAreaView>
+        </View>
         {MenuOverlay}{ThemeOverlay}
       </View>
     );
@@ -1099,7 +1099,7 @@ export default function App() {
             </TouchableOpacity>
             <View style={{height:40}}/>
           </ScrollView>
-        </SafeAreaView>
+        </View>
         {MenuOverlay}{ThemeOverlay}
       </View>
     );
@@ -1151,7 +1151,7 @@ export default function App() {
             )}
             <View style={{height:40}}/>
           </ScrollView>
-        </SafeAreaView>
+        </View>
         {MenuOverlay}{ThemeOverlay}
       </View>
     );
