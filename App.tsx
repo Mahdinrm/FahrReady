@@ -56,9 +56,9 @@ const NAVBAR_H = 48; // typical Android nav bar height
 
 // FahrReady v2.1
 const LOGO_URI = 'data:image/png;base64,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';
-const SB_URL = 'https://npfvlfdjngzczxhghmyu.supabase.co';
-const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5wZnZsZmRqbmd6Y3p4aGdobXl1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkzMTI2NjgsImV4cCI6MjA5NDg4ODY2OH0.oqnB4FTnmj-wno7AEgTz-MAmunazqwpj5jEkvB5xN8s';
-const STRIPE_URL = 'https://npfvlfdjngzczxhghmyu.supabase.co/functions/v1/create-checkout';
+const SB_URL = 'https://gmiklywexcgvofyejyah.supabase.co';
+const SB_KEY = 'sb_publishable_buc1peVZnUceUpNn8z3eSw_C356Gf12';
+const STRIPE_URL = 'https://gmiklywexcgvofyejyah.supabase.co/functions/v1/create-checkout';
 const WEBSITE = 'https://fahrready.ch';
 const EXAM_FREE = 5;
 const PRACTICE_FREE = 10;
@@ -95,7 +95,7 @@ function shuffle(arr) {
 
 async function sbReq(path,method='GET',body=null) {
   try {
-    const r=await fetch(`${SB_URL}/rest/v1/${path}`,{method,headers:{apikey:SB_KEY,Authorization:`Bearer ${SB_KEY}`,'Content-Type':'application/json',Prefer:'return=representation'},body:body?JSON.stringify(body):undefined});
+    const r=await fetch(`${SB_URL}/rest/v1/${path}`,{method,headers:{apikey:SB_KEY,...(SB_KEY.startsWith('eyJ')?{Authorization:`Bearer ${SB_KEY}`}:{}),'Content-Type':'application/json',Prefer:'return=representation'},body:body?JSON.stringify(body):undefined});
     const data=await r.json().catch(()=>[]);
     return {ok:r.ok,data};
   }catch(e){return {ok:false,data:[]};}
@@ -365,7 +365,7 @@ export default function App() {
     const userEmail=user?.email||email;
     if(!userEmail){Alert.alert('E-Mail','Bitte E-Mail eingeben');return;}
     try{
-      const r=await fetch(STRIPE_URL,{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${SB_KEY}`,apikey:SB_KEY},body:JSON.stringify({priceId,email:userEmail})});
+      const r=await fetch(STRIPE_URL,{method:'POST',headers:{'Content-Type':'application/json',...(SB_KEY.startsWith('eyJ')?{Authorization:`Bearer ${SB_KEY}`}:{}),apikey:SB_KEY},body:JSON.stringify({priceId,email:userEmail})});
       const data=await r.json();
       if(data.url) Linking.openURL(data.url);
       else Alert.alert('Fehler',data.error||'Fehler');
@@ -377,9 +377,9 @@ export default function App() {
     const wrong=results.filter(r=>!r.correct);
     const prompt=`Du bist Schweizer Fahrlehrer. Analysiere auf DEUTSCH und PERSISCH. Richtig: ${results.filter(r=>r.correct).length}/${results.length}. Falsche Themen: ${wrong.slice(0,6).map(r=>r.q.text_de).join('; ')}. Gib fuer jede falsche Antwort eine Lernmethode. Max 200 Woerter pro Sprache.`;
     try{
-      const r=await fetch('https://npfvlfdjngzczxhghmyu.supabase.co/functions/v1/ai-analysis',{
+      const r=await fetch('https://gmiklywexcgvofyejyah.supabase.co/functions/v1/ai-analysis',{
         method:'POST',
-        headers:{'Content-Type':'application/json','Authorization':`Bearer ${SB_KEY}`,'apikey':SB_KEY},
+        headers:{'Content-Type':'application/json',...(SB_KEY.startsWith('eyJ')?{Authorization:`Bearer ${SB_KEY}`}:{}),'apikey':SB_KEY},
         body:JSON.stringify({prompt})
       });
       const d=await r.json();
