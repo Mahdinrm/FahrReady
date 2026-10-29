@@ -93,9 +93,9 @@ function shuffle(arr) {
   return a;
 }
 
-async function sbReq(path,method='GET',body=null) {
+async function sbReq(path,method='GET',body=null,tok='') {
   try {
-    const r=await fetch(`${SB_URL}/rest/v1/${path}`,{method,headers:{apikey:SB_KEY,...(SB_KEY.startsWith('eyJ')?{Authorization:`Bearer ${SB_KEY}`}:{}),'Content-Type':'application/json',Prefer:'return=representation'},body:body?JSON.stringify(body):undefined});
+    const r=await fetch(`${SB_URL}/rest/v1/${path}`,{method,headers:{apikey:SB_KEY,...(SB_KEY.startsWith('eyJ')?{Authorization:`Bearer ${SB_KEY}`}:{}),...(tok?{Authorization:`Bearer ${tok}`}:{}),'Content-Type':'application/json',Prefer:'return=representation'},body:body?JSON.stringify(body):undefined});
     const data=await r.json().catch(()=>[]);
     return {ok:r.ok,data};
   }catch(e){return {ok:false,data:[]};}
@@ -285,20 +285,8 @@ export default function App() {
       const data = await r.json();
       if (r.ok && data.user) {
         // Check if user exists in users table
-        const ur = await sbReq(`users?email=eq.${encodeURIComponent(data.user.phone||phone)}`);
-        let userData = ur.ok && Array.isArray(ur.data) && ur.data[0];
-        if (!userData) {
-          // Create user
-          const cr = await sbReq('users', 'POST', {
-            email: data.user.phone || phone,
-            password_hash: 'phone_' + Date.now(),
-            full_name: 'Benutzer ' + phone.slice(-4),
-            language: lang,
-            is_premium: false,
-            created_at: new Date().toISOString()
-          });
-          userData = cr.ok && Array.isArray(cr.data) && cr.data[0];
-        }
+        const ur = await sbReq('rpc/app_phone_login','POST',{p_lang:lang,p_name:'Benutzer ' + phone.slice(-4)},data.access_token);
+        const userData = ur.ok && Array.isArray(ur.data) && ur.data[0];
         if (userData) {
           setUser(userData);
           setScreen('home');
@@ -395,7 +383,7 @@ export default function App() {
         Alert.alert('Sicher?','Alle Daten werden gelöscht!',[
           {text:'Abbrechen',style:'cancel'},
           {text:'Löschen',style:'destructive',onPress:async()=>{
-            if(user?.id) await sbReq(`users?id=eq.${user.id}`,'DELETE');
+            if(user?.id) await sbReq('rpc/app_delete_account','POST',{p_id:user.id,p_token:user.token});
             setUser(null);setScreen('home');
           }}
         ]);
@@ -716,12 +704,12 @@ export default function App() {
                   setLoading(true);
                   if(isReg){
                     const ph=await hashPwd(password);
-                    const r=await sbReq('users','POST',{email,password_hash:ph,full_name:fullName||email,language:lang,is_premium:false,created_at:new Date().toISOString()});
+                    const r=await sbReq('rpc/app_signup','POST',{p_email:email,p_name:fullName||email,p_lang:lang,p_kanton:'',p_hash:ph});
                     if(r.ok&&Array.isArray(r.data)&&r.data[0]){setUser(r.data[0]);setScreen('home');Alert.alert('Willkommen!','Hallo '+r.data[0].full_name+'!');}
                     else Alert.alert('Fehler','E-Mail bereits vorhanden?');
                   }else{
                     const ph2=await hashPwd(password);
-                    const r=await sbReq(`users?email=eq.${encodeURIComponent(email)}&password_hash=eq.${ph2}`);
+                    const r=await sbReq('rpc/app_login','POST',{p_email:email,p_hash:ph2});
                     if(r.ok&&Array.isArray(r.data)&&r.data[0]){setUser(r.data[0]);setScreen('home');Alert.alert('Willkommen zurueck!','Hallo '+r.data[0].full_name+'!');}
                     else Alert.alert('Fehler','Falsche E-Mail oder Passwort');
                   }
@@ -776,8 +764,8 @@ export default function App() {
                 <TextInput style={{borderWidth:1,borderColor:T.border,borderRadius:10,padding:12,color:T.text,backgroundColor:T.bg,fontSize:14,marginBottom:10}} value={editName} onChangeText={setEditName} placeholder={user.full_name} placeholderTextColor={T.sub}/>
                 <TouchableOpacity style={{backgroundColor:T.blue,borderRadius:10,padding:11,alignItems:'center'}} onPress={async()=>{
                   if(!editName.trim()){Alert.alert('Fehler','Name eingeben');return;}
-                  const r=await sbReq(`users?id=eq.${user.id}`,'PATCH',{full_name:editName.trim()});
-                  if(r.ok){setUser({...user,full_name:editName.trim()});Alert.alert('✓','Name gespeichert!');}
+                  const r=await sbReq('rpc/app_update_name','POST',{p_id:user.id,p_token:user.token,p_name:editName.trim()});
+                  if(r.ok&&r.data===true){setUser({...user,full_name:editName.trim()});Alert.alert('✓','Name gespeichert!');}
                   else Alert.alert('Fehler','Speichern fehlgeschlagen');
                 }}>
                   <Text style={{color:'#fff',fontWeight:'700'}}>💾 Speichern</Text>
